@@ -61,13 +61,13 @@ public class DocumentCmisService extends AbstractCmisService
     @Override
     public TypeDefinitionList getTypeChildren(String repositoryId, String typeId, Boolean includePropertyDefinitions, BigInteger maxItems, BigInteger skipCount, ExtensionsData extension)
     {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return _repository.getTypesChildren(null, typeId, true, maxItems, skipCount);
     }
 
     @Override
     public TypeDefinition getTypeDefinition(String repositoryId, String typeId, ExtensionsData extension)
     {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return _repository.getTypeDefinition(null, typeId);
     }
 
     @Override
