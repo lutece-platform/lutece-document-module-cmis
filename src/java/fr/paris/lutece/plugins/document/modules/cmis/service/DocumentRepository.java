@@ -33,18 +33,27 @@
  */
 package fr.paris.lutece.plugins.document.modules.cmis.service;
 
+import fr.paris.lutece.plugins.document.business.Document;
+import fr.paris.lutece.plugins.document.business.DocumentHome;
+import java.math.BigInteger;
 import java.util.*;
-import org.apache.chemistry.opencmis.commons.data.PermissionMapping;
-import org.apache.chemistry.opencmis.commons.data.RepositoryInfo;
+import org.apache.chemistry.opencmis.commons.PropertyIds;
+import org.apache.chemistry.opencmis.commons.data.*;
 import org.apache.chemistry.opencmis.commons.definitions.PermissionDefinition;
+import org.apache.chemistry.opencmis.commons.definitions.TypeDefinition;
+import org.apache.chemistry.opencmis.commons.definitions.TypeDefinitionList;
 import org.apache.chemistry.opencmis.commons.enums.*;
+import org.apache.chemistry.opencmis.commons.exceptions.CmisBaseException;
+import org.apache.chemistry.opencmis.commons.exceptions.CmisRuntimeException;
 import org.apache.chemistry.opencmis.commons.impl.dataobjects.*;
+import org.apache.chemistry.opencmis.commons.impl.server.ObjectInfoImpl;
+import org.apache.chemistry.opencmis.commons.server.CallContext;
 
 /**
  *
  * @author levy
  */
-public class DocumentRepository
+public class DocumentRepository extends BaseRepository
 {
 
     private static final String REPOSITORY_ID = "document";
@@ -59,8 +68,12 @@ public class DocumentRepository
     private static final String CMIS_READ = "cmis:read";
     private static final String CMIS_WRITE = "cmis:write";
     private static final String CMIS_ALL = "cmis:all";
+    /**
+     * Types
+     */
+    private final TypeManager types = new TypeManager();
 
-    RepositoryInfo getInfos()
+    public RepositoryInfo getInfos()
     {
         RepositoryInfoImpl repositoryInfo = new RepositoryInfoImpl();
 
@@ -139,21 +152,213 @@ public class DocumentRepository
         return repositoryInfo;
     }
 
-    private static PermissionDefinition createPermission(String permission, String description)
+    /**
+     * CMIS getTypesChildren.
+     */
+    public TypeDefinitionList getTypesChildren(CallContext context, String typeId, boolean includePropertyDefinitions,
+            BigInteger maxItems, BigInteger skipCount)
     {
-        PermissionDefinitionDataImpl pd = new PermissionDefinitionDataImpl();
-        pd.setPermission(permission);
-        pd.setDescription(description);
-
-        return pd;
+        return types.getTypesChildren(context, typeId, includePropertyDefinitions, maxItems, skipCount);
     }
 
-    private static PermissionMapping createMapping(String key, String permission)
+    /**
+     * CMIS getTypeDefinition.
+     */
+    public TypeDefinition getTypeDefinition(CallContext context, String typeId)
     {
-        PermissionMappingDataImpl pm = new PermissionMappingDataImpl();
-        pm.setKey(key);
-        pm.setPermissions(Collections.singletonList(permission));
 
-        return pm;
+        return types.getTypeDefinition(context, typeId);
+    }
+
+    public ObjectInFolderList getChildren(String folderId, String filter, String orderBy, Boolean includeAllowableActions, IncludeRelationships includeRelationships, String renditionFilter, Boolean includePathSegment, BigInteger maxItems, BigInteger skipCount, ExtensionsData extension)
+    {
+        ObjectInFolderListImpl result = new ObjectInFolderListImpl();
+        result.setObjects(new ArrayList<ObjectInFolderData>());
+        result.setHasMoreItems(false);
+        int count = 0;
+
+        // skip and max
+        int skip = (skipCount == null ? 0 : skipCount.intValue());
+        if (skip < 0)
+        {
+            skip = 0;
+        }
+
+        int max = (maxItems == null ? Integer.MAX_VALUE : maxItems.intValue());
+        if (max < 0)
+        {
+            max = Integer.MAX_VALUE;
+        }
+
+
+
+        // iterate through children
+
+        for (Document child : DocumentHome.findAll())
+        {
+            // skip hidden and shadow files
+            if (child.isOutOfDate() || !child.isValid())
+            {
+                continue;
+            }
+
+            count++;
+
+            if (skip > 0)
+            {
+                skip--;
+                continue;
+            }
+
+            if (result.getObjects().size() >= max)
+            {
+                result.setHasMoreItems(true);
+                continue;
+            }
+
+            // build and add child object
+            ObjectInFolderDataImpl objectInFolder = new ObjectInFolderDataImpl();
+            objectInFolder.setObject(getObject("" + child.getId(), filter, includeAllowableActions, includeRelationships, renditionFilter, includePathSegment, includePathSegment, extension));
+
+            result.getObjects().add(objectInFolder);
+        }
+
+        result.setNumItems(BigInteger.valueOf(count));
+
+        return result;
+    }
+
+    public ObjectData getObject(String objectId, String filter, Boolean includeAllowableActions, IncludeRelationships includeRelationships, String renditionFilter, Boolean includePolicyIds, Boolean includeAcl, ExtensionsData extension)
+    {
+        ObjectDataImpl result = new ObjectDataImpl();
+        Document document = DocumentHome.findByPrimaryKey(Integer.parseInt(objectId));
+        compileProperties(document, null, null);
+        return result;
+    }
+
+    private org.apache.chemistry.opencmis.commons.data.Properties compileProperties(Document document, Set<String> orgfilter, ObjectInfoImpl objectInfo)
+    {
+        if (document == null)
+        {
+            throw new IllegalArgumentException("Document must not be null!");
+        }
+
+
+        // copy filter
+        Set<String> filter = (orgfilter == null ? null : new HashSet<String>(orgfilter));
+
+        // find base type
+        String typeId = null;
+
+        objectInfo.setBaseType(BaseTypeId.CMIS_DOCUMENT);
+        objectInfo.setTypeId(typeId);
+        objectInfo.setHasAcl(true);
+        objectInfo.setHasContent(true);
+        objectInfo.setHasParent(true);
+        objectInfo.setVersionSeriesId(null);
+        objectInfo.setIsCurrentVersion(true);
+        objectInfo.setRelationshipSourceIds(null);
+        objectInfo.setRelationshipTargetIds(null);
+        objectInfo.setRenditionInfos(null);
+        objectInfo.setSupportsDescendants(false);
+        objectInfo.setSupportsFolderTree(false);
+        objectInfo.setSupportsPolicies(false);
+        objectInfo.setSupportsRelationships(false);
+        objectInfo.setWorkingCopyId(null);
+        objectInfo.setWorkingCopyOriginalId(null);
+
+        // let's do it
+        try
+        {
+            PropertiesImpl result = new PropertiesImpl();
+
+            // id
+            String id = "" + document.getId();
+            addPropertyId(result, typeId, filter, PropertyIds.OBJECT_ID, id);
+            objectInfo.setId(id);
+
+            // name
+            String name = document.getTitle();
+            addPropertyString(result, typeId, filter, PropertyIds.NAME, name);
+            objectInfo.setName(name);
+
+            // created and modified by
+            addPropertyString(result, typeId, filter, PropertyIds.CREATED_BY, USER_UNKNOWN);
+            addPropertyString(result, typeId, filter, PropertyIds.LAST_MODIFIED_BY, USER_UNKNOWN);
+            objectInfo.setCreatedBy(USER_UNKNOWN);
+
+            // creation and modification date
+            GregorianCalendar lastModified = millisToCalendar(document.getDateModification().getTime());
+            addPropertyDateTime(result, typeId, filter, PropertyIds.CREATION_DATE, lastModified);
+            addPropertyDateTime(result, typeId, filter, PropertyIds.LAST_MODIFICATION_DATE, lastModified);
+            objectInfo.setCreationDate(lastModified);
+            objectInfo.setLastModificationDate(lastModified);
+
+            // change token - always null
+            addPropertyString(result, typeId, filter, PropertyIds.CHANGE_TOKEN, null);
+
+
+            // base type and type name
+            addPropertyId(result, typeId, filter, PropertyIds.BASE_TYPE_ID, BaseTypeId.CMIS_DOCUMENT.value());
+            /*
+             * addPropertyId(result, typeId, filter, PropertyIds.OBJECT_TYPE_ID,
+             * TypeManager.DOCUMENT_TYPE_ID);
+             *
+             * // file properties addPropertyBoolean(result, typeId, filter,
+             * PropertyIds.IS_IMMUTABLE, false); addPropertyBoolean(result,
+             * typeId, filter, PropertyIds.IS_LATEST_VERSION, true);
+             * addPropertyBoolean(result, typeId, filter,
+             * PropertyIds.IS_MAJOR_VERSION, true); addPropertyBoolean(result,
+             * typeId, filter, PropertyIds.IS_LATEST_MAJOR_VERSION, true);
+             * addPropertyString(result, typeId, filter,
+             * PropertyIds.VERSION_LABEL, file.getName()); addPropertyId(result,
+             * typeId, filter, PropertyIds.VERSION_SERIES_ID, fileToId(file));
+             * addPropertyBoolean(result, typeId, filter,
+             * PropertyIds.IS_VERSION_SERIES_CHECKED_OUT, false);
+             * addPropertyString(result, typeId, filter,
+             * PropertyIds.VERSION_SERIES_CHECKED_OUT_BY, null);
+             * addPropertyString(result, typeId, filter,
+             * PropertyIds.VERSION_SERIES_CHECKED_OUT_ID, null);
+             * addPropertyString(result, typeId, filter,
+             * PropertyIds.CHECKIN_COMMENT, "");
+             *
+             * addPropertyInteger(result, typeId, filter,
+             * PropertyIds.CONTENT_STREAM_LENGTH,
+             * document.getXmlValidatedContent().length());
+             * addPropertyString(result, typeId, filter,
+             * PropertyIds.CONTENT_STREAM_MIME_TYPE,
+             * MimeTypes.getMIMEType(file)); addPropertyString(result, typeId,
+             * filter, PropertyIds.CONTENT_STREAM_FILE_NAME,
+             * document.getTitle());
+             *
+             * objectInfo.setHasContent(true);
+             * objectInfo.setContentType(MimeTypes.getMIMEType("application/xml"));
+             * objectInfo.setFileName(file.getName());
+             */
+
+            addPropertyId(result, typeId, filter, PropertyIds.CONTENT_STREAM_ID, null);
+
+
+            // read custom properties
+            // readCustomProperties(file, result, filter, objectInfo);
+
+            if (filter != null)
+            {
+                if (!filter.isEmpty())
+                {
+                    // debug("Unknown filter properties: " + filter.toString(), null);
+                }
+            }
+
+            return result;
+        }
+        catch (Exception e)
+        {
+            if (e instanceof CmisBaseException)
+            {
+                throw (CmisBaseException) e;
+            }
+            throw new CmisRuntimeException(e.getMessage(), e);
+        }
     }
 }

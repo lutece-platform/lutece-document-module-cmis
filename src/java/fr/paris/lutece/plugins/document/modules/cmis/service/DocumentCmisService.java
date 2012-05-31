@@ -73,7 +73,7 @@ public class DocumentCmisService extends AbstractCmisService
     @Override
     public ObjectInFolderList getChildren(String repositoryId, String folderId, String filter, String orderBy, Boolean includeAllowableActions, IncludeRelationships includeRelationships, String renditionFilter, Boolean includePathSegment, BigInteger maxItems, BigInteger skipCount, ExtensionsData extension)
     {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return _repository.getChildren(folderId, filter, orderBy, includeAllowableActions, includeRelationships, renditionFilter, includePathSegment, maxItems, skipCount, extension);
     }
 
     @Override
@@ -85,6 +85,8 @@ public class DocumentCmisService extends AbstractCmisService
     @Override
     public ObjectData getObject(String repositoryId, String objectId, String filter, Boolean includeAllowableActions, IncludeRelationships includeRelationships, String renditionFilter, Boolean includePolicyIds, Boolean includeAcl, ExtensionsData extension)
     {
-        throw new UnsupportedOperationException("Not supported yet.");
+        
+        return _repository.getObject(objectId, filter, includeAllowableActions, includeRelationships, renditionFilter, includePolicyIds, includeAcl, extension);
+        
     }
 }
