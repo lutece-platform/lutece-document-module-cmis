@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="ISO-8859-1" standalone="no"?><plug-in>
+    
+    <!-- Plugin Informations -->
+    <name>document-cmis</name>
+    <class>fr.paris.lutece.portal.service.plugin.PluginDefaultImplementation</class>
+    <version>0.9.0</version>
+    <description>module.document.cmis.plugin.description</description>
+    <documentation/>
+    <installation/>
+    <changes/>
+    <user-guide/>
+    <provider>module.document.cmis.plugin.provider</provider>
+    <provider-url>http://lutece.paris.fr</provider-url>
+    <icon-url>images/admin/skin/plugins/document/modules/cmis/cmis.png</icon-url>
+    <copyright>Copyright 2001-2012 Mairie de Paris</copyright>
+    <core-version-dependency>
+		<min-core-version>3.0.0</min-core-version>
+		<max-core-version/>	
+	</core-version-dependency>
+    <db-pool-required>0</db-pool-required>
+    
+ 
+    <!-- servlets -->
+    <servlets>
+        <servlet>
+            <servlet-name>cmisws</servlet-name>
+            <url-pattern>/servlet/plugins/document/cmis/services/</url-pattern>
+            <servlet-class>org.apache.chemistry.opencmis.server.impl.webservices.CmisWebServicesServlet</servlet-class>
+        </servlet>
+        <servlet>
+            <servlet-name>cmisatom</servlet-name>
+            <url-pattern>/servlet/plugins/document/cmis/atom/</url-pattern>
+            <servlet-class>org.apache.chemistry.opencmis.server.impl.atompub.CmisAtomPubServlet</servlet-class>
+		<init-param>
+			<param-name>callContextHandler</param-name>
+			<param-value>org.apache.chemistry.opencmis.server.shared.BasicAuthCallContextHandler</param-value>
+		</init-param>
+        </servlet>
+        <servlet>
+            <servlet-name>cmisbrowser</servlet-name>
+            <url-pattern>/servlet/plugins/document/cmis/browser/</url-pattern>
+            <servlet-class>org.apache.chemistry.opencmis.server.impl.browser.CmisBrowserBindingServlet</servlet-class>
+        </servlet>
+        
+    </servlets>
+</plug-in>

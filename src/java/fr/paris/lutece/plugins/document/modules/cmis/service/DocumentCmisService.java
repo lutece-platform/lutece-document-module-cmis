@@ -41,6 +41,7 @@ import org.apache.chemistry.opencmis.commons.definitions.TypeDefinition;
 import org.apache.chemistry.opencmis.commons.definitions.TypeDefinitionList;
 import org.apache.chemistry.opencmis.commons.enums.IncludeRelationships;
 import org.apache.chemistry.opencmis.commons.impl.server.AbstractCmisService;
+import org.apache.chemistry.opencmis.commons.server.CallContext;
 
 /**
  *
@@ -48,26 +49,28 @@ import org.apache.chemistry.opencmis.commons.impl.server.AbstractCmisService;
  */
 public class DocumentCmisService extends AbstractCmisService
 {
+
     private static DocumentRepository _repository;
+    private CallContext _context;
 
     @Override
     public List<RepositoryInfo> getRepositoryInfos(ExtensionsData extension)
     {
         List<RepositoryInfo> list = new ArrayList<RepositoryInfo>();
-        list.add( _repository.getInfos() );
+        list.add(_repository.getInfos());
         return list;
     }
 
     @Override
     public TypeDefinitionList getTypeChildren(String repositoryId, String typeId, Boolean includePropertyDefinitions, BigInteger maxItems, BigInteger skipCount, ExtensionsData extension)
     {
-        return _repository.getTypesChildren(null, typeId, true, maxItems, skipCount);
+        return _repository.getTypesChildren(_context, typeId, true, maxItems, skipCount);
     }
 
     @Override
     public TypeDefinition getTypeDefinition(String repositoryId, String typeId, ExtensionsData extension)
     {
-        return _repository.getTypeDefinition(null, typeId);
+        return _repository.getTypeDefinition(_context, typeId);
     }
 
     @Override
@@ -85,8 +88,13 @@ public class DocumentCmisService extends AbstractCmisService
     @Override
     public ObjectData getObject(String repositoryId, String objectId, String filter, Boolean includeAllowableActions, IncludeRelationships includeRelationships, String renditionFilter, Boolean includePolicyIds, Boolean includeAcl, ExtensionsData extension)
     {
-        
+
         return _repository.getObject(objectId, filter, includeAllowableActions, includeRelationships, renditionFilter, includePolicyIds, includeAcl, extension);
-        
+
+    }
+
+    public void setCallContext(CallContext context)
+    {
+        _context = context;
     }
 }

@@ -559,6 +559,7 @@ public class TypeManager
 
     private static TypeDefinition copyTypeDefintion(TypeDefinition type)
     {
-        return Converter.convert(Converter.convert(type));
+        return type;
+//        return Converter.convert(Converter.convert(type));
     }
 }
