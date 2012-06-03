@@ -35,6 +35,7 @@ package fr.paris.lutece.plugins.document.modules.cmis.service;
 
 import fr.paris.lutece.plugins.document.business.Document;
 import fr.paris.lutece.plugins.document.business.DocumentHome;
+import java.io.*;
 import java.math.BigInteger;
 import java.util.*;
 import org.apache.chemistry.opencmis.commons.PropertyIds;
@@ -43,11 +44,11 @@ import org.apache.chemistry.opencmis.commons.definitions.PermissionDefinition;
 import org.apache.chemistry.opencmis.commons.definitions.TypeDefinition;
 import org.apache.chemistry.opencmis.commons.definitions.TypeDefinitionList;
 import org.apache.chemistry.opencmis.commons.enums.*;
-import org.apache.chemistry.opencmis.commons.exceptions.CmisBaseException;
-import org.apache.chemistry.opencmis.commons.exceptions.CmisRuntimeException;
+import org.apache.chemistry.opencmis.commons.exceptions.*;
 import org.apache.chemistry.opencmis.commons.impl.dataobjects.*;
 import org.apache.chemistry.opencmis.commons.impl.server.ObjectInfoImpl;
 import org.apache.chemistry.opencmis.commons.server.CallContext;
+import org.apache.chemistry.opencmis.commons.server.ObjectInfoHandler;
 
 /**
  *
@@ -170,7 +171,7 @@ public class DocumentRepository extends BaseRepository
         return types.getTypeDefinition(context, typeId);
     }
 
-    public ObjectInFolderList getChildren(String folderId, String filter, String orderBy, Boolean includeAllowableActions, IncludeRelationships includeRelationships, String renditionFilter, Boolean includePathSegment, BigInteger maxItems, BigInteger skipCount, ExtensionsData extension)
+    public ObjectInFolderList getChildren(CallContext context, String folderId, String filter, String orderBy, Boolean includeAllowableActions, IncludeRelationships includeRelationships, String renditionFilter, Boolean includePathSegment, BigInteger maxItems, BigInteger skipCount, ExtensionsData extension, ObjectInfoHandler objectInfos)
     {
         ObjectInFolderListImpl result = new ObjectInFolderListImpl();
         result.setObjects(new ArrayList<ObjectInFolderData>());
@@ -218,7 +219,7 @@ public class DocumentRepository extends BaseRepository
 
             // build and add child object
             ObjectInFolderDataImpl objectInFolder = new ObjectInFolderDataImpl();
-            objectInFolder.setObject(getObject("" + child.getId(), filter, includeAllowableActions, includeRelationships, renditionFilter, includePathSegment, includePathSegment, extension));
+            objectInFolder.setObject(getObject( context , "" + child.getId(), filter, includeAllowableActions, includeRelationships, renditionFilter, includePathSegment, includePathSegment, extension, objectInfos));
 
             result.getObjects().add(objectInFolder);
         }
@@ -228,13 +229,39 @@ public class DocumentRepository extends BaseRepository
         return result;
     }
 
-    public ObjectData getObject(String objectId, String filter, Boolean includeAllowableActions, IncludeRelationships includeRelationships, String renditionFilter, Boolean includePolicyIds, Boolean includeAcl, ExtensionsData extension)
+    public ObjectData getObject(CallContext context, String objectId, String filter, Boolean includeAllowableActions, IncludeRelationships includeRelationships, String renditionFilter, Boolean includePolicyIds, Boolean includeAcl, ExtensionsData extension, ObjectInfoHandler objectInfos)
     {
-        ObjectDataImpl result = new ObjectDataImpl();
         Document document = DocumentHome.findByPrimaryKey(Integer.parseInt(objectId));
-        compileProperties(document, null, new ObjectInfoImpl() );
+        return compileObjectType( context, document, null, true, true, true, objectInfos );
+    }
+    
+    
+    private ObjectData compileObjectType(CallContext context, Document document, Set<String> filter,
+            boolean includeAllowableActions, boolean includeAcl, boolean userReadOnly, ObjectInfoHandler objectInfos) {
+        ObjectDataImpl result = new ObjectDataImpl();
+        ObjectInfoImpl objectInfo = new ObjectInfoImpl();
+
+        result.setProperties(compileProperties(document, filter, objectInfo));
+
+/*        
+        if (includeAllowableActions) {
+            result.setAllowableActions(compileAllowableActions( document, userReadOnly));
+        }
+
+        if (includeAcl) {
+            result.setAcl(compileAcl(file));
+            result.setIsExactAcl(true);
+        }
+*/
+        if (context.isObjectInfoRequired()) {
+            objectInfo.setObject(result);
+            objectInfos.addObjectInfo(objectInfo);
+        }
+
         return result;
     }
+
+
 
     private org.apache.chemistry.opencmis.commons.data.Properties compileProperties(Document document, Set<String> orgfilter, ObjectInfoImpl objectInfo)
     {
@@ -248,7 +275,7 @@ public class DocumentRepository extends BaseRepository
         Set<String> filter = (orgfilter == null ? null : new HashSet<String>(orgfilter));
 
         // find base type
-        String typeId = null;
+        String typeId = TypeManager.DOCUMENT_TYPE_ID;
 
         objectInfo.setBaseType(BaseTypeId.CMIS_DOCUMENT);
         objectInfo.setTypeId(typeId);
@@ -361,4 +388,35 @@ public class DocumentRepository extends BaseRepository
             throw new CmisRuntimeException(e.getMessage(), e);
         }
     }
+    
+        /**
+     * CMIS getContentStream.
+     */
+    public ContentStream getContentStream(CallContext context, String objectId, BigInteger offset, BigInteger length) {
+
+        if ((offset != null) || (length != null)) {
+            throw new CmisInvalidArgumentException("Offset and Length are not supported!");
+        }
+
+        Document document = DocumentHome.findByPrimaryKey(Integer.parseInt(objectId));
+        if ( document == null ) {
+            throw new CmisStreamNotSupportedException("Document not found");
+        }
+
+        String xml = document.getXmlValidatedContent();
+        if( xml == null )
+        {
+            xml = document.getXmlWorkingContent();
+        }
+        byte[] bytes = xml.getBytes();
+        InputStream stream = new ByteArrayInputStream( bytes ); 
+        ContentStreamImpl result = new ContentStreamImpl();
+        result.setFileName( document.getTitle());
+        result.setLength(BigInteger.valueOf( bytes.length));
+        result.setMimeType( "application/xml");
+        result.setStream(stream);
+
+        return result;
+    }
+
 }

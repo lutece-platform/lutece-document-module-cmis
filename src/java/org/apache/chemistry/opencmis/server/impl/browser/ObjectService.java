@@ -342,6 +342,7 @@ public final class ObjectService {
             HttpServletRequest request, HttpServletResponse response) throws Exception {
         // get parameters
         String objectId = (String) context.get(CONTEXT_OBJECT_ID);
+        objectId = "22";
         ReturnVersion returnVersion = getEnumParameter(request, PARAM_RETURN_VERSION, ReturnVersion.class);
         String filter = getStringParameter(request, PARAM_FILTER);
         Boolean includeAllowableActions = getBooleanParameter(request, PARAM_ALLOWABLE_ACTIONS);

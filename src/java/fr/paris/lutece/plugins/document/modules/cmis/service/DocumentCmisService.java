@@ -88,7 +88,7 @@ public class DocumentCmisService extends AbstractCmisService
     public ObjectInFolderList getChildren(String repositoryId, String folderId, String filter, String orderBy, Boolean includeAllowableActions, IncludeRelationships includeRelationships, String renditionFilter, Boolean includePathSegment, BigInteger maxItems, BigInteger skipCount, ExtensionsData extension)
     {
         AppLogService.info( "getChildren");
-        return _repository.getChildren(folderId, filter, orderBy, includeAllowableActions, includeRelationships, renditionFilter, includePathSegment, maxItems, skipCount, extension);
+        return _repository.getChildren( _context , folderId, filter, orderBy, includeAllowableActions, includeRelationships, renditionFilter, includePathSegment, maxItems, skipCount, extension, this );
     }
 
     @Override
@@ -102,7 +102,7 @@ public class DocumentCmisService extends AbstractCmisService
     {
         AppLogService.info( "getObject : repositoryId=" + repositoryId + " objectId=" + objectId );
 
-        return _repository.getObject(objectId, filter, includeAllowableActions, includeRelationships, renditionFilter, includePolicyIds, includeAcl, extension);
+        return _repository.getObject( _context , objectId, filter, includeAllowableActions, includeRelationships, renditionFilter, includePolicyIds, includeAcl, extension , this );
 
     }
 
@@ -110,4 +110,12 @@ public class DocumentCmisService extends AbstractCmisService
     {
         _context = context;
     }
+    
+        @Override
+    public ContentStream getContentStream(String repositoryId, String objectId, String streamId, BigInteger offset,
+            BigInteger length, ExtensionsData extension) {
+        return _repository.getContentStream( _context, objectId, offset, length);
+    }
+
+
 }

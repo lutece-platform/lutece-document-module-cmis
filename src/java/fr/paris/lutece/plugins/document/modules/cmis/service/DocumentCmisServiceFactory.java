@@ -55,8 +55,7 @@ public class DocumentCmisServiceFactory extends AbstractServiceFactory
     @Override
     public CmisService getService(CallContext context)
     {
-        /*
-        CmisServiceWrapper<DocumentCmisService> wrapperService = threadLocalService.get();
+/*        CmisServiceWrapper<DocumentCmisService> wrapperService = threadLocalService.get();
         if (wrapperService == null) {
             wrapperService = new CmisServiceWrapper<DocumentCmisService>(new DocumentCmisService(),
                     DEFAULT_MAX_ITEMS_TYPES, DEFAULT_DEPTH_TYPES, DEFAULT_MAX_ITEMS_OBJECTS, DEFAULT_DEPTH_OBJECTS);
@@ -68,7 +67,9 @@ public class DocumentCmisServiceFactory extends AbstractServiceFactory
         return wrapperService;
         * 
         */
-        return new DocumentCmisService();
+        DocumentCmisService service = new DocumentCmisService();
+        service.setCallContext(context);
+        return service;
     }
     
 }
