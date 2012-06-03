@@ -232,7 +232,7 @@ public class DocumentRepository extends BaseRepository
     {
         ObjectDataImpl result = new ObjectDataImpl();
         Document document = DocumentHome.findByPrimaryKey(Integer.parseInt(objectId));
-        compileProperties(document, null, null);
+        compileProperties(document, null, new ObjectInfoImpl() );
         return result;
     }
 

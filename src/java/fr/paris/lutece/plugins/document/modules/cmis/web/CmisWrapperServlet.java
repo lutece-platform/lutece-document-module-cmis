@@ -31,44 +31,50 @@
  *
  * License 1.0
  */
-package fr.paris.lutece.plugins.document.modules.cmis.service;
+package fr.paris.lutece.plugins.document.modules.cmis.web;
 
-import java.math.BigInteger;
-import org.apache.chemistry.opencmis.commons.impl.server.AbstractServiceFactory;
-import org.apache.chemistry.opencmis.commons.server.CallContext;
-import org.apache.chemistry.opencmis.commons.server.CmisService;
-import org.apache.chemistry.opencmis.server.support.CmisServiceWrapper;
+import fr.paris.lutece.portal.service.spring.SpringContextService;
+import java.io.IOException;
+import java.util.HashMap;
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import org.apache.chemistry.opencmis.commons.server.CmisServiceFactory;
+import org.apache.chemistry.opencmis.server.impl.CmisRepositoryContextListener;
 
 /**
  *
  * @author pierre
  */
-public class DocumentCmisServiceFactory extends AbstractServiceFactory
+public abstract class CmisWrapperServlet extends HttpServlet
 {
-    private static final BigInteger DEFAULT_MAX_ITEMS_TYPES = BigInteger.valueOf(50);
-    private static final BigInteger DEFAULT_DEPTH_TYPES = BigInteger.valueOf(-1);
-    private static final BigInteger DEFAULT_MAX_ITEMS_OBJECTS = BigInteger.valueOf(200);
-    private static final BigInteger DEFAULT_DEPTH_OBJECTS = BigInteger.valueOf(10);
+    private static final String BEAN_FACTORY = "document-cmis.CmisServiceFactory";
+    HttpServlet _servlet;
 
-    private ThreadLocal<CmisServiceWrapper<DocumentCmisService>> threadLocalService = new ThreadLocal<CmisServiceWrapper<DocumentCmisService>>();
+    abstract String getServletBean();
+    
+    @Override
+    public void init(ServletConfig config) throws ServletException 
+    {
+        CmisServiceFactory factory = SpringContextService.getBean( BEAN_FACTORY );
+        factory.init(new HashMap<String, String>());
+        ServletContext servletContext = config.getServletContext();
+        servletContext.setAttribute( CmisRepositoryContextListener.SERVICES_FACTORY, factory);
+
+        _servlet = SpringContextService.getBean( getServletBean() );
+        
+        _servlet.init(config);
+        super.init(config);
+    }
 
     @Override
-    public CmisService getService(CallContext context)
+    protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException 
     {
-        /*
-        CmisServiceWrapper<DocumentCmisService> wrapperService = threadLocalService.get();
-        if (wrapperService == null) {
-            wrapperService = new CmisServiceWrapper<DocumentCmisService>(new DocumentCmisService(),
-                    DEFAULT_MAX_ITEMS_TYPES, DEFAULT_DEPTH_TYPES, DEFAULT_MAX_ITEMS_OBJECTS, DEFAULT_DEPTH_OBJECTS);
-            threadLocalService.set(wrapperService);
-        }
-
-        wrapperService.getWrappedService().setCallContext(context);
-
-        return wrapperService;
-        * 
-        */
-        return new DocumentCmisService();
+        _servlet.service(req, resp);
     }
+        
     
 }

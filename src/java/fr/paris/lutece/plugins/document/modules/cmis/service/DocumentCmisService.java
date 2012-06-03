@@ -33,6 +33,7 @@
  */
 package fr.paris.lutece.plugins.document.modules.cmis.service;
 
+import fr.paris.lutece.portal.service.util.AppLogService;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
@@ -50,32 +51,43 @@ import org.apache.chemistry.opencmis.commons.server.CallContext;
 public class DocumentCmisService extends AbstractCmisService
 {
 
-    private static DocumentRepository _repository;
+    private static DocumentRepository _repository = new DocumentRepository();
     private CallContext _context;
 
     @Override
     public List<RepositoryInfo> getRepositoryInfos(ExtensionsData extension)
     {
+        AppLogService.info( "getRepositoryInfos");
         List<RepositoryInfo> list = new ArrayList<RepositoryInfo>();
         list.add(_repository.getInfos());
         return list;
     }
 
+
+    @Override
+    public RepositoryInfo getRepositoryInfo(String repositoryId, ExtensionsData extension) {
+        AppLogService.info( "getRepositoryInfo");
+        return _repository.getInfos();
+    }
+    
     @Override
     public TypeDefinitionList getTypeChildren(String repositoryId, String typeId, Boolean includePropertyDefinitions, BigInteger maxItems, BigInteger skipCount, ExtensionsData extension)
     {
+        AppLogService.info( "getTypeChildren");
         return _repository.getTypesChildren(_context, typeId, true, maxItems, skipCount);
     }
 
     @Override
     public TypeDefinition getTypeDefinition(String repositoryId, String typeId, ExtensionsData extension)
     {
+        AppLogService.info( "getTypeDefinition");
         return _repository.getTypeDefinition(_context, typeId);
     }
 
     @Override
     public ObjectInFolderList getChildren(String repositoryId, String folderId, String filter, String orderBy, Boolean includeAllowableActions, IncludeRelationships includeRelationships, String renditionFilter, Boolean includePathSegment, BigInteger maxItems, BigInteger skipCount, ExtensionsData extension)
     {
+        AppLogService.info( "getChildren");
         return _repository.getChildren(folderId, filter, orderBy, includeAllowableActions, includeRelationships, renditionFilter, includePathSegment, maxItems, skipCount, extension);
     }
 
@@ -88,6 +100,7 @@ public class DocumentCmisService extends AbstractCmisService
     @Override
     public ObjectData getObject(String repositoryId, String objectId, String filter, Boolean includeAllowableActions, IncludeRelationships includeRelationships, String renditionFilter, Boolean includePolicyIds, Boolean includeAcl, ExtensionsData extension)
     {
+        AppLogService.info( "getObject : repositoryId=" + repositoryId + " objectId=" + objectId );
 
         return _repository.getObject(objectId, filter, includeAllowableActions, includeRelationships, renditionFilter, includePolicyIds, includeAcl, extension);
 

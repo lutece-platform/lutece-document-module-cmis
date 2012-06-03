@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+    
+    <bean id="document-cmis.CmisServiceFactory" class="fr.paris.lutece.plugins.document.modules.cmis.service.DocumentCmisServiceFactory" />
+
+    <bean id="document-cmis.WebServicesServlet" class="org.apache.chemistry.opencmis.server.impl.webservices.CmisWebServicesServlet" />
+    <bean id="document-cmis.AtomPubServlet" class="org.apache.chemistry.opencmis.server.impl.atompub.CmisAtomPubServlet" />
+    <bean id="document-cmis.BrowserBindingsServlet" class="org.apache.chemistry.opencmis.server.impl.browser.CmisBrowserBindingServlet" />
+
+</beans>
