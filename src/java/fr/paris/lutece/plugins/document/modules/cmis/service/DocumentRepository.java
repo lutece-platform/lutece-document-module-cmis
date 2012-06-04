@@ -35,6 +35,7 @@ package fr.paris.lutece.plugins.document.modules.cmis.service;
 
 import fr.paris.lutece.plugins.document.business.Document;
 import fr.paris.lutece.plugins.document.business.DocumentHome;
+import fr.paris.lutece.plugins.document.business.spaces.DocumentSpace;
 import java.io.*;
 import java.math.BigInteger;
 import java.util.*;
@@ -63,8 +64,6 @@ public class DocumentRepository extends BaseRepository
     private static final String PRODUCT_VERSION = "0.9";
     private static final String VENDOR_NAME = "Lutece";
     private static final String ROOT_ID = "@root@";
-    private static final String SHADOW_EXT = ".cmis.xml";
-    private static final String SHADOW_FOLDER = "cmis.xml";
     private static final String USER_UNKNOWN = "<unknown>";
     private static final String CMIS_READ = "cmis:read";
     private static final String CMIS_WRITE = "cmis:write";
@@ -192,13 +191,16 @@ public class DocumentRepository extends BaseRepository
         }
 
 
+        RepositoryObject object = new RepositoryObject(folderId);
+        
+        List<Document> listDocuments = object.getDOcumentChildren();
 
         // iterate through children
 
-        for (Document child : DocumentHome.findAll())
+        for (Document document : listDocuments )
         {
             // skip hidden and shadow files
-            if (child.isOutOfDate() || !child.isValid())
+            if (document.isOutOfDate() || !document.isValid())
             {
                 continue;
             }
@@ -219,10 +221,38 @@ public class DocumentRepository extends BaseRepository
 
             // build and add child object
             ObjectInFolderDataImpl objectInFolder = new ObjectInFolderDataImpl();
-            objectInFolder.setObject(getObject( context , "" + child.getId(), filter, includeAllowableActions, includeRelationships, renditionFilter, includePathSegment, includePathSegment, extension, objectInfos));
+            objectInFolder.setObject(getObject(context, "D" + document.getId(), filter, includeAllowableActions, includeRelationships, renditionFilter, includePathSegment, includePathSegment, extension, objectInfos));
 
             result.getObjects().add(objectInFolder);
         }
+        
+        List<DocumentSpace> listSpaces = object.getSpaceChildren();
+
+        // iterate through children
+
+        for (DocumentSpace space : listSpaces )
+        {
+            count++;
+
+            if (skip > 0)
+            {
+                skip--;
+                continue;
+            }
+
+            if (result.getObjects().size() >= max)
+            {
+                result.setHasMoreItems(true);
+                continue;
+            }
+
+            // build and add child object
+            ObjectInFolderDataImpl objectInFolder = new ObjectInFolderDataImpl();
+            objectInFolder.setObject(getObject(context, "S" + space.getId(), filter, includeAllowableActions, includeRelationships, renditionFilter, includePathSegment, includePathSegment, extension, objectInfos));
+
+            result.getObjects().add(objectInFolder);
+        }
+        
 
         result.setNumItems(BigInteger.valueOf(count));
 
@@ -231,29 +261,53 @@ public class DocumentRepository extends BaseRepository
 
     public ObjectData getObject(CallContext context, String objectId, String filter, Boolean includeAllowableActions, IncludeRelationships includeRelationships, String renditionFilter, Boolean includePolicyIds, Boolean includeAcl, ExtensionsData extension, ObjectInfoHandler objectInfos)
     {
-        Document document = DocumentHome.findByPrimaryKey(Integer.parseInt(objectId));
-        return compileObjectType( context, document, null, true, true, true, objectInfos );
+
+        RepositoryObject object = new RepositoryObject(objectId);
+        return compileObjectType(context, object, null, true, true, true, objectInfos);
     }
-    
-    
-    private ObjectData compileObjectType(CallContext context, Document document, Set<String> filter,
-            boolean includeAllowableActions, boolean includeAcl, boolean userReadOnly, ObjectInfoHandler objectInfos) {
+
+    /**
+     * CMIS getObjectByPath.
+     */
+    public ObjectData getObjectByPath(CallContext context, String folderPath, String filter,
+            boolean includeAllowableActions, boolean includeACL, ObjectInfoHandler objectInfos)
+    {
+
+        boolean userReadOnly = true;
+        
+        // split filter
+        Set<String> filterCollection = splitFilter(filter);
+
+        // check path
+        if ((folderPath == null) || (!folderPath.startsWith("/")))
+        {
+            throw new CmisInvalidArgumentException("Invalid folder path!");
+        }
+
+        RepositoryObject object = new RepositoryObject( "S1" );
+ 
+        return compileObjectType(context, object, filterCollection, includeAllowableActions, includeACL, userReadOnly,
+                objectInfos);
+    }
+
+    private ObjectData compileObjectType(CallContext context, RepositoryObject object, Set<String> filter,
+            boolean includeAllowableActions, boolean includeAcl, boolean userReadOnly, ObjectInfoHandler objectInfos)
+    {
         ObjectDataImpl result = new ObjectDataImpl();
         ObjectInfoImpl objectInfo = new ObjectInfoImpl();
 
-        result.setProperties(compileProperties(document, filter, objectInfo));
+        result.setProperties(compileProperties(object, filter, objectInfo));
 
-/*        
-        if (includeAllowableActions) {
-            result.setAllowableActions(compileAllowableActions( document, userReadOnly));
-        }
-
-        if (includeAcl) {
-            result.setAcl(compileAcl(file));
-            result.setIsExactAcl(true);
-        }
-*/
-        if (context.isObjectInfoRequired()) {
+        /*
+         * if (includeAllowableActions) {
+         * result.setAllowableActions(compileAllowableActions( document,
+         * userReadOnly)); }
+         *
+         * if (includeAcl) { result.setAcl(compileAcl(file));
+         * result.setIsExactAcl(true); }
+         */
+        if (context.isObjectInfoRequired())
+        {
             objectInfo.setObject(result);
             objectInfos.addObjectInfo(objectInfo);
         }
@@ -261,11 +315,9 @@ public class DocumentRepository extends BaseRepository
         return result;
     }
 
-
-
-    private org.apache.chemistry.opencmis.commons.data.Properties compileProperties(Document document, Set<String> orgfilter, ObjectInfoImpl objectInfo)
+    private org.apache.chemistry.opencmis.commons.data.Properties compileProperties(RepositoryObject object, Set<String> orgfilter, ObjectInfoImpl objectInfo)
     {
-        if (document == null)
+        if (object == null)
         {
             throw new IllegalArgumentException("Document must not be null!");
         }
@@ -275,10 +327,19 @@ public class DocumentRepository extends BaseRepository
         Set<String> filter = (orgfilter == null ? null : new HashSet<String>(orgfilter));
 
         // find base type
-        String typeId = TypeManager.DOCUMENT_TYPE_ID;
 
-        objectInfo.setBaseType(BaseTypeId.CMIS_DOCUMENT);
-        objectInfo.setTypeId(typeId);
+        String typeId = null;
+        if (object.isDocument())
+        {
+            typeId = TypeManager.DOCUMENT_TYPE_ID;
+            objectInfo.setBaseType(BaseTypeId.CMIS_DOCUMENT);
+            objectInfo.setTypeId(typeId);
+        } else if (object.isSpace())
+        {
+            typeId = TypeManager.FOLDER_TYPE_ID;
+            objectInfo.setBaseType(BaseTypeId.CMIS_FOLDER);
+            objectInfo.setTypeId(typeId);
+        }
         objectInfo.setHasAcl(true);
         objectInfo.setHasContent(true);
         objectInfo.setHasParent(true);
@@ -300,12 +361,12 @@ public class DocumentRepository extends BaseRepository
             PropertiesImpl result = new PropertiesImpl();
 
             // id
-            String id = "" + document.getId();
+            String id = object.getId();
             addPropertyId(result, typeId, filter, PropertyIds.OBJECT_ID, id);
             objectInfo.setId(id);
 
             // name
-            String name = document.getTitle();
+            String name = object.getName();
             addPropertyString(result, typeId, filter, PropertyIds.NAME, name);
             objectInfo.setName(name);
 
@@ -315,18 +376,29 @@ public class DocumentRepository extends BaseRepository
             objectInfo.setCreatedBy(USER_UNKNOWN);
 
             // creation and modification date
-            GregorianCalendar lastModified = millisToCalendar(document.getDateModification().getTime());
-            addPropertyDateTime(result, typeId, filter, PropertyIds.CREATION_DATE, lastModified);
-            addPropertyDateTime(result, typeId, filter, PropertyIds.LAST_MODIFICATION_DATE, lastModified);
-            objectInfo.setCreationDate(lastModified);
-            objectInfo.setLastModificationDate(lastModified);
+            if (object.isDocument())
+            {
+                GregorianCalendar lastModified = millisToCalendar(object.getDocument().getDateModification().getTime());
+                addPropertyDateTime(result, typeId, filter, PropertyIds.CREATION_DATE, lastModified);
+                addPropertyDateTime(result, typeId, filter, PropertyIds.LAST_MODIFICATION_DATE, lastModified);
+                objectInfo.setCreationDate(lastModified);
+                objectInfo.setLastModificationDate(lastModified);
+            }
 
             // change token - always null
             addPropertyString(result, typeId, filter, PropertyIds.CHANGE_TOKEN, null);
 
 
             // base type and type name
-            addPropertyId(result, typeId, filter, PropertyIds.BASE_TYPE_ID, BaseTypeId.CMIS_DOCUMENT.value());
+            if( object.isDocument() )
+            {
+                addPropertyId(result, typeId, filter, PropertyIds.BASE_TYPE_ID, BaseTypeId.CMIS_DOCUMENT.value());
+            }
+            else if( object.isSpace())
+            {
+                addPropertyId(result, typeId, filter, PropertyIds.BASE_TYPE_ID, BaseTypeId.CMIS_FOLDER.value());
+            }
+            
             /*
              * addPropertyId(result, typeId, filter, PropertyIds.OBJECT_TYPE_ID,
              * TypeManager.DOCUMENT_TYPE_ID);
@@ -378,8 +450,7 @@ public class DocumentRepository extends BaseRepository
             }
 
             return result;
-        }
-        catch (Exception e)
+        } catch (Exception e)
         {
             if (e instanceof CmisBaseException)
             {
@@ -388,35 +459,77 @@ public class DocumentRepository extends BaseRepository
             throw new CmisRuntimeException(e.getMessage(), e);
         }
     }
-    
-        /**
+
+    /**
      * CMIS getContentStream.
      */
-    public ContentStream getContentStream(CallContext context, String objectId, BigInteger offset, BigInteger length) {
+    public ContentStream getContentStream(CallContext context, String objectId, BigInteger offset, BigInteger length)
+    {
 
-        if ((offset != null) || (length != null)) {
+        if ((offset != null) || (length != null))
+        {
             throw new CmisInvalidArgumentException("Offset and Length are not supported!");
         }
 
         Document document = DocumentHome.findByPrimaryKey(Integer.parseInt(objectId));
-        if ( document == null ) {
+        if (document == null)
+        {
             throw new CmisStreamNotSupportedException("Document not found");
         }
 
         String xml = document.getXmlValidatedContent();
-        if( xml == null )
+        if (xml == null)
         {
             xml = document.getXmlWorkingContent();
         }
         byte[] bytes = xml.getBytes();
-        InputStream stream = new ByteArrayInputStream( bytes ); 
+        InputStream stream = new ByteArrayInputStream(bytes);
         ContentStreamImpl result = new ContentStreamImpl();
-        result.setFileName( document.getTitle());
-        result.setLength(BigInteger.valueOf( bytes.length));
-        result.setMimeType( "application/xml");
+        result.setFileName(document.getTitle());
+        result.setLength(BigInteger.valueOf(bytes.length));
+        result.setMimeType("application/xml");
         result.setStream(stream);
 
         return result;
     }
 
+    /**
+     * Splits a filter statement into a collection of properties. If
+     * <code>filter</code> is
+     * <code>null</code>, empty or one of the properties is '*' , an empty
+     * collection will be returned.
+     */
+    private static Set<String> splitFilter(String filter)
+    {
+        if (filter == null)
+        {
+            return null;
+        }
+
+        if (filter.trim().length() == 0)
+        {
+            return null;
+        }
+
+        Set<String> result = new HashSet<String>();
+        for (String s : filter.split(","))
+        {
+            s = s.trim();
+            if (s.equals("*"))
+            {
+                return null;
+            } else if (s.length() > 0)
+            {
+                result.add(s);
+            }
+        }
+
+        // set a few base properties
+        // query name == id (for base type properties)
+        result.add(PropertyIds.OBJECT_ID);
+        result.add(PropertyIds.OBJECT_TYPE_ID);
+        result.add(PropertyIds.BASE_TYPE_ID);
+
+        return result;
+    }
 }

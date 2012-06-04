@@ -179,15 +179,12 @@ public class CmisBrowserBindingServlet extends HttpServlet {
                     "createDocument");
             repositoryDispatcher.addResource(CMISACTION_CREATE_DOCUMENT_FROM_SOURCE, METHOD_POST, ObjectService.class,
                     "createDocumentFromSource");
-            repositoryDispatcher
-                    .addResource(CMISACTION_CREATE_POLICY, METHOD_POST, ObjectService.class, "createPolicy");
-            repositoryDispatcher.addResource(CMISACTION_CREATE_RELATIONSHIP, METHOD_POST, ObjectService.class,
-                    "createRelationship");
+            repositoryDispatcher.addResource(CMISACTION_CREATE_POLICY, METHOD_POST, ObjectService.class, "createPolicy");
+            repositoryDispatcher.addResource(CMISACTION_CREATE_RELATIONSHIP, METHOD_POST, ObjectService.class, "createRelationship");
 
             rootDispatcher.addResource(SELECTOR_OBJECT, METHOD_GET, ObjectService.class, "getObject");
             rootDispatcher.addResource(SELECTOR_PROPERTIES, METHOD_GET, ObjectService.class, "getProperties");
-            rootDispatcher.addResource(SELECTOR_ALLOWABLEACTIONS, METHOD_GET, ObjectService.class,
-                    "getAllowableActions");
+            rootDispatcher.addResource(SELECTOR_ALLOWABLEACTIONS, METHOD_GET, ObjectService.class, "getAllowableActions");
             rootDispatcher.addResource(SELECTOR_RENDITIONS, METHOD_GET, ObjectService.class, "getRenditions");
             rootDispatcher.addResource(SELECTOR_CONTENT, METHOD_GET, ObjectService.class, "getContentStream");
             rootDispatcher.addResource(SELECTOR_CHILDREN, METHOD_GET, NavigationService.class, "getChildren");
@@ -196,32 +193,25 @@ public class CmisBrowserBindingServlet extends HttpServlet {
             rootDispatcher.addResource(SELECTOR_PARENT, METHOD_GET, NavigationService.class, "getFolderParent");
             rootDispatcher.addResource(SELECTOR_PARENTS, METHOD_GET, NavigationService.class, "getObjectParents");
             rootDispatcher.addResource(SELECTOR_VERSIONS, METHOD_GET, VersioningService.class, "getAllVersions");
-            rootDispatcher.addResource(SELECTOR_RELATIONSHIPS, METHOD_GET, RelationshipService.class,
-                    "getObjectRelationships");
+            rootDispatcher.addResource(SELECTOR_RELATIONSHIPS, METHOD_GET, RelationshipService.class, "getObjectRelationships");
             rootDispatcher.addResource(SELECTOR_CHECKEDOUT, METHOD_GET, NavigationService.class, "getCheckedOutDocs");
             rootDispatcher.addResource(SELECTOR_POLICIES, METHOD_GET, PolicyService.class, "getAppliedPolicies");
             rootDispatcher.addResource(SELECTOR_ACL, METHOD_GET, AclService.class, "getACL");
 
             rootDispatcher.addResource(CMISACTION_CREATE_DOCUMENT, METHOD_POST, ObjectService.class, "createDocument");
-            rootDispatcher.addResource(CMISACTION_CREATE_DOCUMENT_FROM_SOURCE, METHOD_POST, ObjectService.class,
-                    "createDocumentFromSource");
+            rootDispatcher.addResource(CMISACTION_CREATE_DOCUMENT_FROM_SOURCE, METHOD_POST, ObjectService.class, "createDocumentFromSource");
             rootDispatcher.addResource(CMISACTION_CREATE_FOLDER, METHOD_POST, ObjectService.class, "createFolder");
             rootDispatcher.addResource(CMISACTION_CREATE_POLICY, METHOD_POST, ObjectService.class, "createPolicy");
-            rootDispatcher.addResource(CMISACTION_UPDATE_PROPERTIES, METHOD_POST, ObjectService.class,
-                    "updateProperties");
+            rootDispatcher.addResource(CMISACTION_UPDATE_PROPERTIES, METHOD_POST, ObjectService.class, "updateProperties");
             rootDispatcher.addResource(CMISACTION_SET_CONTENT, METHOD_POST, ObjectService.class, "setContentStream");
-            rootDispatcher.addResource(CMISACTION_DELETE_CONTENT, METHOD_POST, ObjectService.class,
-                    "deleteContentStream");
+            rootDispatcher.addResource(CMISACTION_DELETE_CONTENT, METHOD_POST, ObjectService.class, "deleteContentStream");
             rootDispatcher.addResource(CMISACTION_DELETE, METHOD_POST, ObjectService.class, "deleteObject");
             rootDispatcher.addResource(CMISACTION_DELETE_TREE, METHOD_POST, ObjectService.class, "deleteTree");
             rootDispatcher.addResource(CMISACTION_MOVE, METHOD_POST, ObjectService.class, "moveObject");
-            rootDispatcher.addResource(CMISACTION_ADD_OBJECT_TO_FOLDER, METHOD_POST, MultiFilingService.class,
-                    "addObjectToFolder");
-            rootDispatcher.addResource(CMISACTION_REMOVE_OBJECT_FROM_FOLDER, METHOD_POST, MultiFilingService.class,
-                    "removeObjectFromFolder");
+            rootDispatcher.addResource(CMISACTION_ADD_OBJECT_TO_FOLDER, METHOD_POST, MultiFilingService.class, "addObjectToFolder");
+            rootDispatcher.addResource(CMISACTION_REMOVE_OBJECT_FROM_FOLDER, METHOD_POST, MultiFilingService.class, "removeObjectFromFolder");
             rootDispatcher.addResource(CMISACTION_CHECK_OUT, METHOD_POST, VersioningService.class, "checkOut");
-            rootDispatcher.addResource(CMISACTION_CANCEL_CHECK_OUT, METHOD_POST, VersioningService.class,
-                    "cancelCheckOut");
+            rootDispatcher.addResource(CMISACTION_CANCEL_CHECK_OUT, METHOD_POST, VersioningService.class, "cancelCheckOut");
             rootDispatcher.addResource(CMISACTION_CHECK_IN, METHOD_POST, VersioningService.class, "checkIn");
             rootDispatcher.addResource(CMISACTION_APPLY_POLICY, METHOD_POST, PolicyService.class, "applyPolicy");
             rootDispatcher.addResource(CMISACTION_REMOVE_POLICY, METHOD_POST, PolicyService.class, "removePolicy");

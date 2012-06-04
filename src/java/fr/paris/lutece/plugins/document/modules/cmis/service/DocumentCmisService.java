@@ -106,6 +106,14 @@ public class DocumentCmisService extends AbstractCmisService
 
     }
 
+    @Override
+    public ObjectData getObjectByPath(String repositoryId, String path, String filter, Boolean includeAllowableActions,
+            IncludeRelationships includeRelationships, String renditionFilter, Boolean includePolicyIds,
+            Boolean includeAcl, ExtensionsData extension) {
+        return _repository.getObjectByPath( _context, path, filter, includeAllowableActions, includeAcl,
+                this);
+    }
+
     public void setCallContext(CallContext context)
     {
         _context = context;
