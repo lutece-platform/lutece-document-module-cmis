@@ -18,6 +18,13 @@
  */
 package org.apache.chemistry.opencmis.server.impl.browser;
 
+import org.apache.chemistry.opencmis.commons.data.ObjectData;
+import org.apache.chemistry.opencmis.commons.data.ObjectInFolderContainer;
+import org.apache.chemistry.opencmis.commons.data.ObjectInFolderList;
+import org.apache.chemistry.opencmis.commons.data.ObjectList;
+import org.apache.chemistry.opencmis.commons.data.ObjectParentData;
+import org.apache.chemistry.opencmis.commons.enums.IncludeRelationships;
+import org.apache.chemistry.opencmis.commons.exceptions.CmisRuntimeException;
 import static org.apache.chemistry.opencmis.commons.impl.Constants.PARAM_ALLOWABLE_ACTIONS;
 import static org.apache.chemistry.opencmis.commons.impl.Constants.PARAM_DEPTH;
 import static org.apache.chemistry.opencmis.commons.impl.Constants.PARAM_FILTER;
@@ -28,25 +35,6 @@ import static org.apache.chemistry.opencmis.commons.impl.Constants.PARAM_RELATIO
 import static org.apache.chemistry.opencmis.commons.impl.Constants.PARAM_RELATIVE_PATH_SEGMENT;
 import static org.apache.chemistry.opencmis.commons.impl.Constants.PARAM_RENDITION_FILTER;
 import static org.apache.chemistry.opencmis.commons.impl.Constants.PARAM_SKIP_COUNT;
-import static org.apache.chemistry.opencmis.server.impl.browser.BrowserBindingUtils.CONTEXT_OBJECT_ID;
-import static org.apache.chemistry.opencmis.server.shared.HttpUtils.getBigIntegerParameter;
-import static org.apache.chemistry.opencmis.server.shared.HttpUtils.getBooleanParameter;
-import static org.apache.chemistry.opencmis.server.shared.HttpUtils.getEnumParameter;
-import static org.apache.chemistry.opencmis.server.shared.HttpUtils.getStringParameter;
-
-import java.math.BigInteger;
-import java.util.List;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.apache.chemistry.opencmis.commons.data.ObjectData;
-import org.apache.chemistry.opencmis.commons.data.ObjectInFolderContainer;
-import org.apache.chemistry.opencmis.commons.data.ObjectInFolderList;
-import org.apache.chemistry.opencmis.commons.data.ObjectList;
-import org.apache.chemistry.opencmis.commons.data.ObjectParentData;
-import org.apache.chemistry.opencmis.commons.enums.IncludeRelationships;
-import org.apache.chemistry.opencmis.commons.exceptions.CmisRuntimeException;
 import org.apache.chemistry.opencmis.commons.impl.JSONConverter;
 import org.apache.chemistry.opencmis.commons.impl.TypeCache;
 import org.apache.chemistry.opencmis.commons.impl.json.JSONArray;
@@ -54,197 +42,235 @@ import org.apache.chemistry.opencmis.commons.impl.json.JSONObject;
 import org.apache.chemistry.opencmis.commons.impl.server.TypeCacheImpl;
 import org.apache.chemistry.opencmis.commons.server.CallContext;
 import org.apache.chemistry.opencmis.commons.server.CmisService;
+import static org.apache.chemistry.opencmis.server.impl.browser.BrowserBindingUtils.CONTEXT_OBJECT_ID;
+import static org.apache.chemistry.opencmis.server.shared.HttpUtils.getBigIntegerParameter;
+import static org.apache.chemistry.opencmis.server.shared.HttpUtils.getBooleanParameter;
+import static org.apache.chemistry.opencmis.server.shared.HttpUtils.getEnumParameter;
+import static org.apache.chemistry.opencmis.server.shared.HttpUtils.getStringParameter;
+
+import java.math.BigInteger;
+
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 
 /**
  * Navigation Service operations.
  */
-public final class NavigationService {
-
-    private NavigationService() {
+public final class NavigationService
+{
+    private NavigationService(  )
+    {
     }
 
     /**
      * getChildren.
      */
-    public static void getChildren(CallContext context, CmisService service, String repositoryId,
-            HttpServletRequest request, HttpServletResponse response) throws Exception {
+    public static void getChildren( CallContext context, CmisService service, String repositoryId,
+        HttpServletRequest request, HttpServletResponse response )
+        throws Exception
+    {
         // get parameters
-        String folderId = (String) context.get(CONTEXT_OBJECT_ID);
-        String filter = getStringParameter(request, PARAM_FILTER);
-        String orderBy = getStringParameter(request, PARAM_ORDER_BY);
-        Boolean includeAllowableActions = getBooleanParameter(request, PARAM_ALLOWABLE_ACTIONS);
-        IncludeRelationships includeRelationships = getEnumParameter(request, PARAM_RELATIONSHIPS,
-                IncludeRelationships.class);
-        String renditionFilter = getStringParameter(request, PARAM_RENDITION_FILTER);
-        Boolean includePathSegment = getBooleanParameter(request, PARAM_PATH_SEGMENT);
-        BigInteger maxItems = getBigIntegerParameter(request, PARAM_MAX_ITEMS);
-        BigInteger skipCount = getBigIntegerParameter(request, PARAM_SKIP_COUNT);
+        String folderId = (String) context.get( CONTEXT_OBJECT_ID );
+        String filter = getStringParameter( request, PARAM_FILTER );
+        String orderBy = getStringParameter( request, PARAM_ORDER_BY );
+        Boolean includeAllowableActions = getBooleanParameter( request, PARAM_ALLOWABLE_ACTIONS );
+        IncludeRelationships includeRelationships = getEnumParameter( request, PARAM_RELATIONSHIPS,
+                IncludeRelationships.class );
+        String renditionFilter = getStringParameter( request, PARAM_RENDITION_FILTER );
+        Boolean includePathSegment = getBooleanParameter( request, PARAM_PATH_SEGMENT );
+        BigInteger maxItems = getBigIntegerParameter( request, PARAM_MAX_ITEMS );
+        BigInteger skipCount = getBigIntegerParameter( request, PARAM_SKIP_COUNT );
 
         // execute
-        ObjectInFolderList children = service.getChildren(repositoryId, folderId, filter, orderBy,
+        ObjectInFolderList children = service.getChildren( repositoryId, folderId, filter, orderBy,
                 includeAllowableActions, includeRelationships, renditionFilter, includePathSegment, maxItems,
-                skipCount, null);
+                skipCount, null );
 
-        if (children == null) {
-            throw new CmisRuntimeException("Children are null!");
+        if ( children == null )
+        {
+            throw new CmisRuntimeException( "Children are null!" );
         }
 
-        TypeCache typeCache = new TypeCacheImpl(repositoryId, service);
-        JSONObject jsonChildren = JSONConverter.convert(children, typeCache);
+        TypeCache typeCache = new TypeCacheImpl( repositoryId, service );
+        JSONObject jsonChildren = JSONConverter.convert( children, typeCache );
 
-        response.setStatus(HttpServletResponse.SC_OK);
-        BrowserBindingUtils.writeJSON(jsonChildren, request, response);
+        response.setStatus( HttpServletResponse.SC_OK );
+        BrowserBindingUtils.writeJSON( jsonChildren, request, response );
     }
 
     /**
      * getDescendants.
      */
-    public static void getDescendants(CallContext context, CmisService service, String repositoryId,
-            HttpServletRequest request, HttpServletResponse response) throws Exception {
+    public static void getDescendants( CallContext context, CmisService service, String repositoryId,
+        HttpServletRequest request, HttpServletResponse response )
+        throws Exception
+    {
         // get parameters
-        String folderId = (String) context.get(CONTEXT_OBJECT_ID);
-        BigInteger depth = getBigIntegerParameter(request, PARAM_DEPTH);
-        String filter = getStringParameter(request, PARAM_FILTER);
-        Boolean includeAllowableActions = getBooleanParameter(request, PARAM_ALLOWABLE_ACTIONS);
-        IncludeRelationships includeRelationships = getEnumParameter(request, PARAM_RELATIONSHIPS,
-                IncludeRelationships.class);
-        String renditionFilter = getStringParameter(request, PARAM_RENDITION_FILTER);
-        Boolean includePathSegment = getBooleanParameter(request, PARAM_PATH_SEGMENT);
+        String folderId = (String) context.get( CONTEXT_OBJECT_ID );
+        BigInteger depth = getBigIntegerParameter( request, PARAM_DEPTH );
+        String filter = getStringParameter( request, PARAM_FILTER );
+        Boolean includeAllowableActions = getBooleanParameter( request, PARAM_ALLOWABLE_ACTIONS );
+        IncludeRelationships includeRelationships = getEnumParameter( request, PARAM_RELATIONSHIPS,
+                IncludeRelationships.class );
+        String renditionFilter = getStringParameter( request, PARAM_RENDITION_FILTER );
+        Boolean includePathSegment = getBooleanParameter( request, PARAM_PATH_SEGMENT );
 
         // execute
-        List<ObjectInFolderContainer> descendants = service.getDescendants(repositoryId, folderId, depth, filter,
-                includeAllowableActions, includeRelationships, renditionFilter, includePathSegment, null);
+        List<ObjectInFolderContainer> descendants = service.getDescendants( repositoryId, folderId, depth, filter,
+                includeAllowableActions, includeRelationships, renditionFilter, includePathSegment, null );
 
-        if (descendants == null) {
-            throw new CmisRuntimeException("Descendants are null!");
+        if ( descendants == null )
+        {
+            throw new CmisRuntimeException( "Descendants are null!" );
         }
 
-        TypeCache typeCache = new TypeCacheImpl(repositoryId, service);
-        JSONArray jsonDescendants = new JSONArray();
-        for (ObjectInFolderContainer descendant : descendants) {
-            jsonDescendants.add(JSONConverter.convert(descendant, typeCache));
+        TypeCache typeCache = new TypeCacheImpl( repositoryId, service );
+        JSONArray jsonDescendants = new JSONArray(  );
+
+        for ( ObjectInFolderContainer descendant : descendants )
+        {
+            jsonDescendants.add( JSONConverter.convert( descendant, typeCache ) );
         }
 
-        response.setStatus(HttpServletResponse.SC_OK);
-        BrowserBindingUtils.writeJSON(jsonDescendants, request, response);
+        response.setStatus( HttpServletResponse.SC_OK );
+        BrowserBindingUtils.writeJSON( jsonDescendants, request, response );
     }
 
     /**
      * getFolderTree.
      */
-    public static void getFolderTree(CallContext context, CmisService service, String repositoryId,
-            HttpServletRequest request, HttpServletResponse response) throws Exception {
+    public static void getFolderTree( CallContext context, CmisService service, String repositoryId,
+        HttpServletRequest request, HttpServletResponse response )
+        throws Exception
+    {
         // get parameters
-        String folderId = (String) context.get(CONTEXT_OBJECT_ID);
-        BigInteger depth = getBigIntegerParameter(request, PARAM_DEPTH);
-        String filter = getStringParameter(request, PARAM_FILTER);
-        Boolean includeAllowableActions = getBooleanParameter(request, PARAM_ALLOWABLE_ACTIONS);
-        IncludeRelationships includeRelationships = getEnumParameter(request, PARAM_RELATIONSHIPS,
-                IncludeRelationships.class);
-        String renditionFilter = getStringParameter(request, PARAM_RENDITION_FILTER);
-        Boolean includePathSegment = getBooleanParameter(request, PARAM_PATH_SEGMENT);
+        String folderId = (String) context.get( CONTEXT_OBJECT_ID );
+        BigInteger depth = getBigIntegerParameter( request, PARAM_DEPTH );
+        String filter = getStringParameter( request, PARAM_FILTER );
+        Boolean includeAllowableActions = getBooleanParameter( request, PARAM_ALLOWABLE_ACTIONS );
+        IncludeRelationships includeRelationships = getEnumParameter( request, PARAM_RELATIONSHIPS,
+                IncludeRelationships.class );
+        String renditionFilter = getStringParameter( request, PARAM_RENDITION_FILTER );
+        Boolean includePathSegment = getBooleanParameter( request, PARAM_PATH_SEGMENT );
 
         // execute
-        List<ObjectInFolderContainer> folderTree = service.getFolderTree(repositoryId, folderId, depth, filter,
-                includeAllowableActions, includeRelationships, renditionFilter, includePathSegment, null);
+        List<ObjectInFolderContainer> folderTree = service.getFolderTree( repositoryId, folderId, depth, filter,
+                includeAllowableActions, includeRelationships, renditionFilter, includePathSegment, null );
 
-        if (folderTree == null) {
-            throw new CmisRuntimeException("Folder Tree are null!");
+        if ( folderTree == null )
+        {
+            throw new CmisRuntimeException( "Folder Tree are null!" );
         }
 
-        TypeCache typeCache = new TypeCacheImpl(repositoryId, service);
-        JSONArray jsonDescendants = new JSONArray();
-        for (ObjectInFolderContainer descendant : folderTree) {
-            jsonDescendants.add(JSONConverter.convert(descendant, typeCache));
+        TypeCache typeCache = new TypeCacheImpl( repositoryId, service );
+        JSONArray jsonDescendants = new JSONArray(  );
+
+        for ( ObjectInFolderContainer descendant : folderTree )
+        {
+            jsonDescendants.add( JSONConverter.convert( descendant, typeCache ) );
         }
 
-        response.setStatus(HttpServletResponse.SC_OK);
-        BrowserBindingUtils.writeJSON(jsonDescendants, request, response);
+        response.setStatus( HttpServletResponse.SC_OK );
+        BrowserBindingUtils.writeJSON( jsonDescendants, request, response );
     }
 
     /**
      * getFolderParent.
      */
-    public static void getFolderParent(CallContext context, CmisService service, String repositoryId,
-            HttpServletRequest request, HttpServletResponse response) throws Exception {
+    public static void getFolderParent( CallContext context, CmisService service, String repositoryId,
+        HttpServletRequest request, HttpServletResponse response )
+        throws Exception
+    {
         // get parameters
-        String objectId = (String) context.get(CONTEXT_OBJECT_ID);
-        String filter = getStringParameter(request, PARAM_FILTER);
+        String objectId = (String) context.get( CONTEXT_OBJECT_ID );
+        String filter = getStringParameter( request, PARAM_FILTER );
 
         // execute
-        ObjectData parent = service.getFolderParent(repositoryId, objectId, filter, null);
+        ObjectData parent = service.getFolderParent( repositoryId, objectId, filter, null );
 
-        if (parent == null) {
-            throw new CmisRuntimeException("Parent is null!");
+        if ( parent == null )
+        {
+            throw new CmisRuntimeException( "Parent is null!" );
         }
 
-        TypeCache typeCache = new TypeCacheImpl(repositoryId, service);
-        JSONObject jsonObject = JSONConverter.convert(parent, typeCache, false);
+        TypeCache typeCache = new TypeCacheImpl( repositoryId, service );
+        JSONObject jsonObject = JSONConverter.convert( parent, typeCache, false );
 
-        response.setStatus(HttpServletResponse.SC_OK);
-        BrowserBindingUtils.writeJSON(jsonObject, request, response);
+        response.setStatus( HttpServletResponse.SC_OK );
+        BrowserBindingUtils.writeJSON( jsonObject, request, response );
     }
 
     /**
      * getObjectParents.
      */
-    public static void getObjectParents(CallContext context, CmisService service, String repositoryId,
-            HttpServletRequest request, HttpServletResponse response) throws Exception {
+    public static void getObjectParents( CallContext context, CmisService service, String repositoryId,
+        HttpServletRequest request, HttpServletResponse response )
+        throws Exception
+    {
         // get parameters
-        String objectId = (String) context.get(CONTEXT_OBJECT_ID);
-        String filter = getStringParameter(request, PARAM_FILTER);
-        Boolean includeAllowableActions = getBooleanParameter(request, PARAM_ALLOWABLE_ACTIONS);
-        IncludeRelationships includeRelationships = getEnumParameter(request, PARAM_RELATIONSHIPS,
-                IncludeRelationships.class);
-        String renditionFilter = getStringParameter(request, PARAM_RENDITION_FILTER);
-        Boolean includeRelativePathSegment = getBooleanParameter(request, PARAM_RELATIVE_PATH_SEGMENT);
+        String objectId = (String) context.get( CONTEXT_OBJECT_ID );
+        String filter = getStringParameter( request, PARAM_FILTER );
+        Boolean includeAllowableActions = getBooleanParameter( request, PARAM_ALLOWABLE_ACTIONS );
+        IncludeRelationships includeRelationships = getEnumParameter( request, PARAM_RELATIONSHIPS,
+                IncludeRelationships.class );
+        String renditionFilter = getStringParameter( request, PARAM_RENDITION_FILTER );
+        Boolean includeRelativePathSegment = getBooleanParameter( request, PARAM_RELATIVE_PATH_SEGMENT );
 
         // execute
-        List<ObjectParentData> parents = service.getObjectParents(repositoryId, objectId, filter,
-                includeAllowableActions, includeRelationships, renditionFilter, includeRelativePathSegment, null);
+        List<ObjectParentData> parents = service.getObjectParents( repositoryId, objectId, filter,
+                includeAllowableActions, includeRelationships, renditionFilter, includeRelativePathSegment, null );
 
-        if (parents == null) {
-            throw new CmisRuntimeException("Parents are null!");
+        if ( parents == null )
+        {
+            throw new CmisRuntimeException( "Parents are null!" );
         }
 
-        TypeCache typeCache = new TypeCacheImpl(repositoryId, service);
-        JSONArray jsonParents = new JSONArray();
-        for (ObjectParentData parent : parents) {
-            jsonParents.add(JSONConverter.convert(parent, typeCache));
+        TypeCache typeCache = new TypeCacheImpl( repositoryId, service );
+        JSONArray jsonParents = new JSONArray(  );
+
+        for ( ObjectParentData parent : parents )
+        {
+            jsonParents.add( JSONConverter.convert( parent, typeCache ) );
         }
 
-        response.setStatus(HttpServletResponse.SC_OK);
-        BrowserBindingUtils.writeJSON(jsonParents, request, response);
+        response.setStatus( HttpServletResponse.SC_OK );
+        BrowserBindingUtils.writeJSON( jsonParents, request, response );
     }
 
     /**
      * getCheckedOutDocs.
      */
-    public static void getCheckedOutDocs(CallContext context, CmisService service, String repositoryId,
-            HttpServletRequest request, HttpServletResponse response) throws Exception {
+    public static void getCheckedOutDocs( CallContext context, CmisService service, String repositoryId,
+        HttpServletRequest request, HttpServletResponse response )
+        throws Exception
+    {
         // get parameters
-        String folderId = (String) context.get(CONTEXT_OBJECT_ID);
-        String filter = getStringParameter(request, PARAM_FILTER);
-        String orderBy = getStringParameter(request, PARAM_ORDER_BY);
-        Boolean includeAllowableActions = getBooleanParameter(request, PARAM_ALLOWABLE_ACTIONS);
-        IncludeRelationships includeRelationships = getEnumParameter(request, PARAM_RELATIONSHIPS,
-                IncludeRelationships.class);
-        String renditionFilter = getStringParameter(request, PARAM_RENDITION_FILTER);
-        BigInteger maxItems = getBigIntegerParameter(request, PARAM_MAX_ITEMS);
-        BigInteger skipCount = getBigIntegerParameter(request, PARAM_SKIP_COUNT);
+        String folderId = (String) context.get( CONTEXT_OBJECT_ID );
+        String filter = getStringParameter( request, PARAM_FILTER );
+        String orderBy = getStringParameter( request, PARAM_ORDER_BY );
+        Boolean includeAllowableActions = getBooleanParameter( request, PARAM_ALLOWABLE_ACTIONS );
+        IncludeRelationships includeRelationships = getEnumParameter( request, PARAM_RELATIONSHIPS,
+                IncludeRelationships.class );
+        String renditionFilter = getStringParameter( request, PARAM_RENDITION_FILTER );
+        BigInteger maxItems = getBigIntegerParameter( request, PARAM_MAX_ITEMS );
+        BigInteger skipCount = getBigIntegerParameter( request, PARAM_SKIP_COUNT );
 
         // execute
-        ObjectList checkedout = service.getCheckedOutDocs(repositoryId, folderId, filter, orderBy,
-                includeAllowableActions, includeRelationships, renditionFilter, maxItems, skipCount, null);
+        ObjectList checkedout = service.getCheckedOutDocs( repositoryId, folderId, filter, orderBy,
+                includeAllowableActions, includeRelationships, renditionFilter, maxItems, skipCount, null );
 
-        if (checkedout == null) {
-            throw new CmisRuntimeException("Checked out list is null!");
+        if ( checkedout == null )
+        {
+            throw new CmisRuntimeException( "Checked out list is null!" );
         }
 
-        TypeCache typeCache = new TypeCacheImpl(repositoryId, service);
-        JSONObject jsonCheckedOut = JSONConverter.convert(checkedout, typeCache, false);
+        TypeCache typeCache = new TypeCacheImpl( repositoryId, service );
+        JSONObject jsonCheckedOut = JSONConverter.convert( checkedout, typeCache, false );
 
-        response.setStatus(HttpServletResponse.SC_OK);
-        BrowserBindingUtils.writeJSON(jsonCheckedOut, request, response);
+        response.setStatus( HttpServletResponse.SC_OK );
+        BrowserBindingUtils.writeJSON( jsonCheckedOut, request, response );
     }
 }

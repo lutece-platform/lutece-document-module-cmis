@@ -18,38 +18,42 @@
  */
 package org.apache.chemistry.opencmis.server.impl.atompub;
 
+import org.apache.chemistry.opencmis.commons.data.Acl;
 import static org.apache.chemistry.opencmis.commons.impl.Converter.convert;
+import org.apache.chemistry.opencmis.commons.impl.JaxBHelper;
+import org.apache.chemistry.opencmis.commons.impl.jaxb.CmisAccessControlListType;
 
 import java.io.OutputStream;
 
 import javax.xml.bind.JAXBException;
 
-import org.apache.chemistry.opencmis.commons.data.Acl;
-import org.apache.chemistry.opencmis.commons.impl.JaxBHelper;
-import org.apache.chemistry.opencmis.commons.impl.jaxb.CmisAccessControlListType;
 
 /**
  * ACL document.
  *
  * @author <a href="mailto:fmueller@opentext.com">Florian M&uuml;ller</a>
  */
-public class AclDocument {
-
+public class AclDocument
+{
     /**
      * Creates an ACL document.
      */
-    public AclDocument() {
+    public AclDocument(  )
+    {
     }
 
     /**
      * Writes an object.
      */
-    public void writeAcl(Acl acl, OutputStream out) throws JAXBException {
-        CmisAccessControlListType aclJaxb = convert(acl);
-        if (aclJaxb == null) {
+    public void writeAcl( Acl acl, OutputStream out ) throws JAXBException
+    {
+        CmisAccessControlListType aclJaxb = convert( acl );
+
+        if ( aclJaxb == null )
+        {
             return;
         }
 
-        JaxBHelper.marshal(JaxBHelper.CMIS_OBJECT_FACTORY.createAcl(aclJaxb), out, false);
+        JaxBHelper.marshal( JaxBHelper.CMIS_OBJECT_FACTORY.createAcl( aclJaxb ), out, false );
     }
 }

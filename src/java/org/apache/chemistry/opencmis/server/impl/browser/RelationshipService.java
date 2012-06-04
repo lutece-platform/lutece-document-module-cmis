@@ -18,6 +18,9 @@
  */
 package org.apache.chemistry.opencmis.server.impl.browser;
 
+import org.apache.chemistry.opencmis.commons.data.ObjectList;
+import org.apache.chemistry.opencmis.commons.enums.RelationshipDirection;
+import org.apache.chemistry.opencmis.commons.exceptions.CmisRuntimeException;
 import static org.apache.chemistry.opencmis.commons.impl.Constants.PARAM_ALLOWABLE_ACTIONS;
 import static org.apache.chemistry.opencmis.commons.impl.Constants.PARAM_MAX_ITEMS;
 import static org.apache.chemistry.opencmis.commons.impl.Constants.PARAM_RELATIONSHIP_DIRECTION;
@@ -25,6 +28,12 @@ import static org.apache.chemistry.opencmis.commons.impl.Constants.PARAM_RENDITI
 import static org.apache.chemistry.opencmis.commons.impl.Constants.PARAM_SKIP_COUNT;
 import static org.apache.chemistry.opencmis.commons.impl.Constants.PARAM_SUB_RELATIONSHIP_TYPES;
 import static org.apache.chemistry.opencmis.commons.impl.Constants.PARAM_TYPE_ID;
+import org.apache.chemistry.opencmis.commons.impl.JSONConverter;
+import org.apache.chemistry.opencmis.commons.impl.TypeCache;
+import org.apache.chemistry.opencmis.commons.impl.json.JSONObject;
+import org.apache.chemistry.opencmis.commons.impl.server.TypeCacheImpl;
+import org.apache.chemistry.opencmis.commons.server.CallContext;
+import org.apache.chemistry.opencmis.commons.server.CmisService;
 import static org.apache.chemistry.opencmis.server.impl.browser.BrowserBindingUtils.CONTEXT_OBJECT_ID;
 import static org.apache.chemistry.opencmis.server.shared.HttpUtils.getBigIntegerParameter;
 import static org.apache.chemistry.opencmis.server.shared.HttpUtils.getBooleanParameter;
@@ -36,46 +45,40 @@ import java.math.BigInteger;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.chemistry.opencmis.commons.data.ObjectList;
-import org.apache.chemistry.opencmis.commons.enums.RelationshipDirection;
-import org.apache.chemistry.opencmis.commons.exceptions.CmisRuntimeException;
-import org.apache.chemistry.opencmis.commons.impl.JSONConverter;
-import org.apache.chemistry.opencmis.commons.impl.TypeCache;
-import org.apache.chemistry.opencmis.commons.impl.json.JSONObject;
-import org.apache.chemistry.opencmis.commons.impl.server.TypeCacheImpl;
-import org.apache.chemistry.opencmis.commons.server.CallContext;
-import org.apache.chemistry.opencmis.commons.server.CmisService;
 
-public class RelationshipService {
-
+public class RelationshipService
+{
     /**
      * getObjectRelationships.
      */
-    public static void getObjectRelationships(CallContext context, CmisService service, String repositoryId,
-            HttpServletRequest request, HttpServletResponse response) throws Exception {
+    public static void getObjectRelationships( CallContext context, CmisService service, String repositoryId,
+        HttpServletRequest request, HttpServletResponse response )
+        throws Exception
+    {
         // get parameters
-        String objectId = (String) context.get(CONTEXT_OBJECT_ID);
-        Boolean includeSubRelationshipTypes = getBooleanParameter(request, PARAM_SUB_RELATIONSHIP_TYPES);
-        RelationshipDirection relationshipDirection = getEnumParameter(request, PARAM_RELATIONSHIP_DIRECTION,
-                RelationshipDirection.class);
-        String typeId = getStringParameter(request, PARAM_TYPE_ID);
-        String renditionFilter = getStringParameter(request, PARAM_RENDITION_FILTER);
-        Boolean includeAllowableActions = getBooleanParameter(request, PARAM_ALLOWABLE_ACTIONS);
-        BigInteger maxItems = getBigIntegerParameter(request, PARAM_MAX_ITEMS);
-        BigInteger skipCount = getBigIntegerParameter(request, PARAM_SKIP_COUNT);
+        String objectId = (String) context.get( CONTEXT_OBJECT_ID );
+        Boolean includeSubRelationshipTypes = getBooleanParameter( request, PARAM_SUB_RELATIONSHIP_TYPES );
+        RelationshipDirection relationshipDirection = getEnumParameter( request, PARAM_RELATIONSHIP_DIRECTION,
+                RelationshipDirection.class );
+        String typeId = getStringParameter( request, PARAM_TYPE_ID );
+        String renditionFilter = getStringParameter( request, PARAM_RENDITION_FILTER );
+        Boolean includeAllowableActions = getBooleanParameter( request, PARAM_ALLOWABLE_ACTIONS );
+        BigInteger maxItems = getBigIntegerParameter( request, PARAM_MAX_ITEMS );
+        BigInteger skipCount = getBigIntegerParameter( request, PARAM_SKIP_COUNT );
 
         // execute
-        ObjectList relationships = service.getObjectRelationships(repositoryId, objectId, includeSubRelationshipTypes,
-                relationshipDirection, typeId, renditionFilter, includeAllowableActions, maxItems, skipCount, null);
+        ObjectList relationships = service.getObjectRelationships( repositoryId, objectId, includeSubRelationshipTypes,
+                relationshipDirection, typeId, renditionFilter, includeAllowableActions, maxItems, skipCount, null );
 
-        if (relationships == null) {
-            throw new CmisRuntimeException("Relationships are null!");
+        if ( relationships == null )
+        {
+            throw new CmisRuntimeException( "Relationships are null!" );
         }
 
-        TypeCache typeCache = new TypeCacheImpl(repositoryId, service);
-        JSONObject jsonChildren = JSONConverter.convert(relationships, typeCache, false);
+        TypeCache typeCache = new TypeCacheImpl( repositoryId, service );
+        JSONObject jsonChildren = JSONConverter.convert( relationships, typeCache, false );
 
-        response.setStatus(HttpServletResponse.SC_OK);
-        BrowserBindingUtils.writeJSON(jsonChildren, request, response);
+        response.setStatus( HttpServletResponse.SC_OK );
+        BrowserBindingUtils.writeJSON( jsonChildren, request, response );
     }
 }

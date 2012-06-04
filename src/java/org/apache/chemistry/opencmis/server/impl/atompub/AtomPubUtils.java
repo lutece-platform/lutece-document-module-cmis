@@ -22,14 +22,6 @@
  */
 package org.apache.chemistry.opencmis.server.impl.atompub;
 
-import java.math.BigInteger;
-import java.util.GregorianCalendar;
-import java.util.List;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.xml.bind.JAXBException;
-import javax.xml.stream.XMLStreamException;
-
 import org.apache.chemistry.opencmis.commons.data.ObjectData;
 import org.apache.chemistry.opencmis.commons.data.ObjectInFolderContainer;
 import org.apache.chemistry.opencmis.commons.definitions.TypeDefinition;
@@ -43,11 +35,22 @@ import org.apache.chemistry.opencmis.commons.server.CmisService;
 import org.apache.chemistry.opencmis.commons.server.ObjectInfo;
 import org.apache.chemistry.opencmis.commons.server.RenditionInfo;
 
+import java.math.BigInteger;
+
+import java.util.GregorianCalendar;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+
+import javax.xml.bind.JAXBException;
+import javax.xml.stream.XMLStreamException;
+
+
 /**
  * This class contains operations used by all services.
  */
-public final class AtomPubUtils {
-
+public final class AtomPubUtils
+{
     public static final String RESOURCE_CHILDREN = "children";
     public static final String RESOURCE_DESCENDANTS = "descendants";
     public static final String RESOURCE_FOLDERTREE = "foldertree";
@@ -68,28 +71,30 @@ public final class AtomPubUtils {
     public static final String RESOURCE_UNFILED = "unfiled";
     public static final String RESOURCE_CHANGES = "changes";
     public static final String RESOURCE_CONTENT = "content";
-
-    public static final BigInteger PAGE_SIZE = BigInteger.valueOf(100);
-
+    public static final BigInteger PAGE_SIZE = BigInteger.valueOf( 100 );
     public static final String TYPE_AUTHOR = "unknown";
 
     /**
      * Private constructor.
      */
-    private AtomPubUtils() {
+    private AtomPubUtils(  )
+    {
     }
 
     /**
      * Compiles the base URL for links, collections and templates.
      */
-    public static UrlBuilder compileBaseUrl(HttpServletRequest request, String repositoryId) {
-        UrlBuilder url = new UrlBuilder(request.getScheme(), request.getServerName(), request.getServerPort(), null);
+    public static UrlBuilder compileBaseUrl( HttpServletRequest request, String repositoryId )
+    {
+        UrlBuilder url = new UrlBuilder( request.getScheme(  ), request.getServerName(  ), request.getServerPort(  ),
+                null );
 
-        url.addPath(request.getContextPath());
-        url.addPath(request.getServletPath());
+        url.addPath( request.getContextPath(  ) );
+        url.addPath( request.getServletPath(  ) );
 
-        if (repositoryId != null) {
-            url.addPathSegment(repositoryId);
+        if ( repositoryId != null )
+        {
+            url.addPathSegment( repositoryId );
         }
 
         return url;
@@ -98,19 +103,22 @@ public final class AtomPubUtils {
     /**
      * Compiles a URL for links, collections and templates.
      */
-    public static String compileUrl(UrlBuilder baseUrl, String resource, String id) {
-        return compileUrlBuilder(baseUrl, resource, id).toString();
+    public static String compileUrl( UrlBuilder baseUrl, String resource, String id )
+    {
+        return compileUrlBuilder( baseUrl, resource, id ).toString(  );
     }
 
     /**
      * Compiles a URL for links, collections and templates.
      */
-    public static UrlBuilder compileUrlBuilder(UrlBuilder baseUrl, String resource, String id) {
-        UrlBuilder url = new UrlBuilder(baseUrl);
-        url.addPathSegment(resource);
+    public static UrlBuilder compileUrlBuilder( UrlBuilder baseUrl, String resource, String id )
+    {
+        UrlBuilder url = new UrlBuilder( baseUrl );
+        url.addPathSegment( resource );
 
-        if (id != null) {
-            url.addParameter("id", id);
+        if ( id != null )
+        {
+            url.addParameter( "id", id );
         }
 
         return url;
@@ -123,126 +131,151 @@ public final class AtomPubUtils {
     /**
      * Writes the a object entry.
      */
-    public static void writeObjectEntry(CmisService service, AtomEntry entry, ObjectData object,
-            List<ObjectInFolderContainer> children, String repositoryId, String pathSegment,
-            String relativePathSegment, UrlBuilder baseUrl, boolean isRoot) throws XMLStreamException, JAXBException {
-        if (object == null) {
-            throw new CmisRuntimeException("Object not set!");
+    public static void writeObjectEntry( CmisService service, AtomEntry entry, ObjectData object,
+        List<ObjectInFolderContainer> children, String repositoryId, String pathSegment, String relativePathSegment,
+        UrlBuilder baseUrl, boolean isRoot ) throws XMLStreamException, JAXBException
+    {
+        if ( object == null )
+        {
+            throw new CmisRuntimeException( "Object not set!" );
         }
 
-        ObjectInfo info = service.getObjectInfo(repositoryId, object.getId());
-        if (info == null) {
-            throw new CmisRuntimeException("Object Info not found for: " + object.getId());
+        ObjectInfo info = service.getObjectInfo( repositoryId, object.getId(  ) );
+
+        if ( info == null )
+        {
+            throw new CmisRuntimeException( "Object Info not found for: " + object.getId(  ) );
         }
 
         // start
-        entry.startEntry(isRoot);
+        entry.startEntry( isRoot );
 
         // write object
         String contentSrc = null;
 
-        if (info.hasContent()) {
-            UrlBuilder contentSrcBuilder = compileUrlBuilder(baseUrl, RESOURCE_CONTENT, info.getId());
-            if (info.getFileName() != null) {
-                contentSrcBuilder.addPathSegment(info.getFileName());
+        if ( info.hasContent(  ) )
+        {
+            UrlBuilder contentSrcBuilder = compileUrlBuilder( baseUrl, RESOURCE_CONTENT, info.getId(  ) );
+
+            if ( info.getFileName(  ) != null )
+            {
+                contentSrcBuilder.addPathSegment( info.getFileName(  ) );
             }
 
-            contentSrc = contentSrcBuilder.toString();
+            contentSrc = contentSrcBuilder.toString(  );
         }
 
-        entry.writeObject(object, info, contentSrc, info.getContentType(), pathSegment, relativePathSegment);
+        entry.writeObject( object, info, contentSrc, info.getContentType(  ), pathSegment, relativePathSegment );
 
         // write links
-        entry.writeServiceLink(baseUrl.toString(), repositoryId);
+        entry.writeServiceLink( baseUrl.toString(  ), repositoryId );
 
-        entry.writeSelfLink(compileUrl(baseUrl, RESOURCE_ENTRY, info.getId()), info.getId());
-        entry.writeEnclosureLink(compileUrl(baseUrl, RESOURCE_ENTRY, info.getId()));
-        entry.writeEditLink(compileUrl(baseUrl, RESOURCE_ENTRY, info.getId()));
-        entry.writeDescribedByLink(compileUrl(baseUrl, RESOURCE_TYPE, info.getTypeId()));
-        entry.writeAllowableActionsLink(compileUrl(baseUrl, RESOURCE_ALLOWABLEACIONS, info.getId()));
+        entry.writeSelfLink( compileUrl( baseUrl, RESOURCE_ENTRY, info.getId(  ) ), info.getId(  ) );
+        entry.writeEnclosureLink( compileUrl( baseUrl, RESOURCE_ENTRY, info.getId(  ) ) );
+        entry.writeEditLink( compileUrl( baseUrl, RESOURCE_ENTRY, info.getId(  ) ) );
+        entry.writeDescribedByLink( compileUrl( baseUrl, RESOURCE_TYPE, info.getTypeId(  ) ) );
+        entry.writeAllowableActionsLink( compileUrl( baseUrl, RESOURCE_ALLOWABLEACIONS, info.getId(  ) ) );
 
-        if (info.hasParent()) {
-            entry.writeUpLink(compileUrl(baseUrl, RESOURCE_PARENTS, info.getId()), Constants.MEDIATYPE_FEED);
+        if ( info.hasParent(  ) )
+        {
+            entry.writeUpLink( compileUrl( baseUrl, RESOURCE_PARENTS, info.getId(  ) ), Constants.MEDIATYPE_FEED );
         }
 
-        if (info.getBaseType() == BaseTypeId.CMIS_FOLDER) {
-            entry.writeDownLink(compileUrl(baseUrl, RESOURCE_CHILDREN, info.getId()), Constants.MEDIATYPE_FEED);
+        if ( info.getBaseType(  ) == BaseTypeId.CMIS_FOLDER )
+        {
+            entry.writeDownLink( compileUrl( baseUrl, RESOURCE_CHILDREN, info.getId(  ) ), Constants.MEDIATYPE_FEED );
 
-            if (info.supportsDescendants()) {
-                entry.writeDownLink(compileUrl(baseUrl, RESOURCE_DESCENDANTS, info.getId()),
-                        Constants.MEDIATYPE_DESCENDANTS);
+            if ( info.supportsDescendants(  ) )
+            {
+                entry.writeDownLink( compileUrl( baseUrl, RESOURCE_DESCENDANTS, info.getId(  ) ),
+                    Constants.MEDIATYPE_DESCENDANTS );
             }
 
-            if (info.supportsFolderTree()) {
-                entry.writeFolderTreeLink(compileUrl(baseUrl, RESOURCE_FOLDERTREE, info.getId()));
-            }
-        }
-
-        if (info.getVersionSeriesId() != null) {
-            UrlBuilder vsUrl = compileUrlBuilder(baseUrl, RESOURCE_VERSIONS, info.getId());
-            vsUrl.addParameter(Constants.PARAM_VERSION_SERIES_ID, info.getVersionSeriesId());
-            entry.writeVersionHistoryLink(vsUrl.toString());
-        }
-
-        if (!info.isCurrentVersion()) {
-            UrlBuilder cvUrl = compileUrlBuilder(baseUrl, RESOURCE_ENTRY, info.getId());
-            cvUrl.addParameter(Constants.PARAM_RETURN_VERSION, ReturnVersion.LATEST);
-            entry.writeEditLink(cvUrl.toString());
-        }
-
-        if (info.getBaseType() == BaseTypeId.CMIS_DOCUMENT) {
-            entry.writeEditMediaLink(compileUrl(baseUrl, RESOURCE_CONTENT, info.getId()), info.getContentType());
-        }
-
-        if (info.getWorkingCopyId() != null) {
-            entry.writeWorkingCopyLink(compileUrl(baseUrl, RESOURCE_ENTRY, info.getWorkingCopyId()));
-        }
-
-        if (info.getWorkingCopyOriginalId() != null) {
-            entry.writeViaLink(compileUrl(baseUrl, RESOURCE_ENTRY, info.getWorkingCopyOriginalId()));
-        }
-
-        if (info.getRenditionInfos() != null) {
-            for (RenditionInfo ri : info.getRenditionInfos()) {
-                UrlBuilder rurl = compileUrlBuilder(baseUrl, RESOURCE_CONTENT,
-                        info.getId());
-                rurl.addParameter(Constants.PARAM_STREAM_ID, ri.getId());
-                entry.writeAlternateLink(rurl.toString(), ri.getContenType(),
-                        ri.getKind(), ri.getTitle(), ri.getLength());
+            if ( info.supportsFolderTree(  ) )
+            {
+                entry.writeFolderTreeLink( compileUrl( baseUrl, RESOURCE_FOLDERTREE, info.getId(  ) ) );
             }
         }
 
-        if (info.hasAcl()) {
-            entry.writeAclLink(compileUrl(baseUrl, RESOURCE_ACL, info.getId()));
+        if ( info.getVersionSeriesId(  ) != null )
+        {
+            UrlBuilder vsUrl = compileUrlBuilder( baseUrl, RESOURCE_VERSIONS, info.getId(  ) );
+            vsUrl.addParameter( Constants.PARAM_VERSION_SERIES_ID, info.getVersionSeriesId(  ) );
+            entry.writeVersionHistoryLink( vsUrl.toString(  ) );
         }
 
-        if (info.supportsPolicies()) {
-            entry.writePoliciesLink(compileUrl(baseUrl, RESOURCE_POLICIES, info.getId()));
+        if ( !info.isCurrentVersion(  ) )
+        {
+            UrlBuilder cvUrl = compileUrlBuilder( baseUrl, RESOURCE_ENTRY, info.getId(  ) );
+            cvUrl.addParameter( Constants.PARAM_RETURN_VERSION, ReturnVersion.LATEST );
+            entry.writeEditLink( cvUrl.toString(  ) );
         }
 
-        if (info.supportsRelationships()) {
-            entry.writeRelationshipsLink(compileUrl(baseUrl, RESOURCE_RELATIONSHIPS, info.getId()));
+        if ( info.getBaseType(  ) == BaseTypeId.CMIS_DOCUMENT )
+        {
+            entry.writeEditMediaLink( compileUrl( baseUrl, RESOURCE_CONTENT, info.getId(  ) ), info.getContentType(  ) );
         }
 
-        if (info.getRelationshipSourceIds() != null) {
-            for (String id : info.getRelationshipSourceIds()) {
-                entry.writeRelationshipSourceLink(compileUrl(baseUrl, RESOURCE_ENTRY, id));
+        if ( info.getWorkingCopyId(  ) != null )
+        {
+            entry.writeWorkingCopyLink( compileUrl( baseUrl, RESOURCE_ENTRY, info.getWorkingCopyId(  ) ) );
+        }
+
+        if ( info.getWorkingCopyOriginalId(  ) != null )
+        {
+            entry.writeViaLink( compileUrl( baseUrl, RESOURCE_ENTRY, info.getWorkingCopyOriginalId(  ) ) );
+        }
+
+        if ( info.getRenditionInfos(  ) != null )
+        {
+            for ( RenditionInfo ri : info.getRenditionInfos(  ) )
+            {
+                UrlBuilder rurl = compileUrlBuilder( baseUrl, RESOURCE_CONTENT, info.getId(  ) );
+                rurl.addParameter( Constants.PARAM_STREAM_ID, ri.getId(  ) );
+                entry.writeAlternateLink( rurl.toString(  ), ri.getContenType(  ), ri.getKind(  ), ri.getTitle(  ),
+                    ri.getLength(  ) );
             }
         }
 
-        if (info.getRelationshipTargetIds() != null) {
-            for (String id : info.getRelationshipTargetIds()) {
-                entry.writeRelationshipTargetLink(compileUrl(baseUrl, RESOURCE_ENTRY, id));
+        if ( info.hasAcl(  ) )
+        {
+            entry.writeAclLink( compileUrl( baseUrl, RESOURCE_ACL, info.getId(  ) ) );
+        }
+
+        if ( info.supportsPolicies(  ) )
+        {
+            entry.writePoliciesLink( compileUrl( baseUrl, RESOURCE_POLICIES, info.getId(  ) ) );
+        }
+
+        if ( info.supportsRelationships(  ) )
+        {
+            entry.writeRelationshipsLink( compileUrl( baseUrl, RESOURCE_RELATIONSHIPS, info.getId(  ) ) );
+        }
+
+        if ( info.getRelationshipSourceIds(  ) != null )
+        {
+            for ( String id : info.getRelationshipSourceIds(  ) )
+            {
+                entry.writeRelationshipSourceLink( compileUrl( baseUrl, RESOURCE_ENTRY, id ) );
+            }
+        }
+
+        if ( info.getRelationshipTargetIds(  ) != null )
+        {
+            for ( String id : info.getRelationshipTargetIds(  ) )
+            {
+                entry.writeRelationshipTargetLink( compileUrl( baseUrl, RESOURCE_ENTRY, id ) );
             }
         }
 
         // write children
-        if ((children != null) && (children.size() > 0)) {
-            writeObjectChildren(service, entry, info, children, repositoryId, baseUrl);
+        if ( ( children != null ) && ( children.size(  ) > 0 ) )
+        {
+            writeObjectChildren( service, entry, info, children, repositoryId, baseUrl );
         }
 
         // we are done
-        entry.endEntry();
+        entry.endEntry(  );
     }
 
     /**
@@ -251,158 +284,179 @@ public final class AtomPubUtils {
      * Content changes objects need special treatment because some of them could
      * have been deleted and an object info cannot be generated.
      */
-    public static void writeContentChangesObjectEntry(CmisService service, AtomEntry entry, ObjectData object,
-            List<ObjectInFolderContainer> children, String repositoryId, String pathSegment,
-            String relativePathSegment, UrlBuilder baseUrl, boolean isRoot) throws XMLStreamException, JAXBException {
-        if (object == null) {
-            throw new CmisRuntimeException("Object not set!");
+    public static void writeContentChangesObjectEntry( CmisService service, AtomEntry entry, ObjectData object,
+        List<ObjectInFolderContainer> children, String repositoryId, String pathSegment, String relativePathSegment,
+        UrlBuilder baseUrl, boolean isRoot ) throws XMLStreamException, JAXBException
+    {
+        if ( object == null )
+        {
+            throw new CmisRuntimeException( "Object not set!" );
         }
 
         ObjectInfo info = null;
-        try {
-            info = service.getObjectInfo(repositoryId, object.getId());
-        } catch (Exception e) {
+
+        try
+        {
+            info = service.getObjectInfo( repositoryId, object.getId(  ) );
+        }
+        catch ( Exception e )
+        {
             // ignore all exceptions
         }
 
-        if (info != null) {
-            writeObjectEntry(service, entry, object, children, repositoryId, pathSegment, relativePathSegment, baseUrl,
-                    isRoot);
+        if ( info != null )
+        {
+            writeObjectEntry( service, entry, object, children, repositoryId, pathSegment, relativePathSegment,
+                baseUrl, isRoot );
+
             return;
         }
 
         // start delete object entry
-        entry.startEntry(isRoot);
+        entry.startEntry( isRoot );
 
         // write object
-        entry.writeDeletedObject(object);
+        entry.writeDeletedObject( object );
 
         // write links
-        entry.writeServiceLink(baseUrl.toString(), repositoryId);
+        entry.writeServiceLink( baseUrl.toString(  ), repositoryId );
 
         // we are done
-        entry.endEntry();
+        entry.endEntry(  );
     }
 
     /**
      * Writes an objects entry children feed.
      */
-    public static void writeObjectChildren(CmisService service, AtomEntry entry, ObjectInfo folderInfo,
-            List<ObjectInFolderContainer> children, String repositoryId, UrlBuilder baseUrl) throws XMLStreamException,
-            JAXBException {
-
+    public static void writeObjectChildren( CmisService service, AtomEntry entry, ObjectInfo folderInfo,
+        List<ObjectInFolderContainer> children, String repositoryId, UrlBuilder baseUrl )
+        throws XMLStreamException, JAXBException
+    {
         // start
-        AtomFeed feed = new AtomFeed(entry.getWriter());
-        feed.startChildren();
-        feed.startFeed(false);
+        AtomFeed feed = new AtomFeed( entry.getWriter(  ) );
+        feed.startChildren(  );
+        feed.startFeed( false );
 
         // write basic Atom feed elements
-        feed.writeFeedElements(folderInfo.getId(), folderInfo.getCreatedBy(), folderInfo.getName(),
-                folderInfo.getLastModificationDate(), null, null);
+        feed.writeFeedElements( folderInfo.getId(  ), folderInfo.getCreatedBy(  ), folderInfo.getName(  ),
+            folderInfo.getLastModificationDate(  ), null, null );
 
         // write links
-        feed.writeServiceLink(baseUrl.toString(), repositoryId);
+        feed.writeServiceLink( baseUrl.toString(  ), repositoryId );
 
-        feed.writeSelfLink(compileUrl(baseUrl, RESOURCE_DESCENDANTS, folderInfo.getId()), null);
+        feed.writeSelfLink( compileUrl( baseUrl, RESOURCE_DESCENDANTS, folderInfo.getId(  ) ), null );
 
-        feed.writeViaLink(compileUrl(baseUrl, RESOURCE_ENTRY, folderInfo.getId()));
+        feed.writeViaLink( compileUrl( baseUrl, RESOURCE_ENTRY, folderInfo.getId(  ) ) );
 
-        feed.writeDownLink(compileUrl(baseUrl, RESOURCE_CHILDREN, folderInfo.getId()), Constants.MEDIATYPE_FEED);
+        feed.writeDownLink( compileUrl( baseUrl, RESOURCE_CHILDREN, folderInfo.getId(  ) ), Constants.MEDIATYPE_FEED );
 
-        feed.writeDownLink(compileUrl(baseUrl, RESOURCE_FOLDERTREE, folderInfo.getId()),
-                Constants.MEDIATYPE_DESCENDANTS);
+        feed.writeDownLink( compileUrl( baseUrl, RESOURCE_FOLDERTREE, folderInfo.getId(  ) ),
+            Constants.MEDIATYPE_DESCENDANTS );
 
-        feed.writeUpLink(compileUrl(baseUrl, RESOURCE_PARENTS, folderInfo.getId()), Constants.MEDIATYPE_FEED);
+        feed.writeUpLink( compileUrl( baseUrl, RESOURCE_PARENTS, folderInfo.getId(  ) ), Constants.MEDIATYPE_FEED );
 
-        for (ObjectInFolderContainer container : children) {
-            if ((container != null) && (container.getObject() != null)) {
-                writeObjectEntry(service, entry, container.getObject().getObject(), container.getChildren(),
-                        repositoryId, container.getObject().getPathSegment(), null, baseUrl, false);
+        for ( ObjectInFolderContainer container : children )
+        {
+            if ( ( container != null ) && ( container.getObject(  ) != null ) )
+            {
+                writeObjectEntry( service, entry, container.getObject(  ).getObject(  ), container.getChildren(  ),
+                    repositoryId, container.getObject(  ).getPathSegment(  ), null, baseUrl, false );
             }
         }
 
         // we are done
-        feed.endFeed();
-        feed.endChildren();
+        feed.endFeed(  );
+        feed.endChildren(  );
     }
 
     /**
      * Writes the a type entry.
      */
-    public static void writeTypeEntry(AtomEntry entry, TypeDefinition type, List<TypeDefinitionContainer> children,
-            String repositoryId, UrlBuilder baseUrl, boolean isRoot) throws XMLStreamException, JAXBException {
-
+    public static void writeTypeEntry( AtomEntry entry, TypeDefinition type, List<TypeDefinitionContainer> children,
+        String repositoryId, UrlBuilder baseUrl, boolean isRoot )
+        throws XMLStreamException, JAXBException
+    {
         // start
-        entry.startEntry(isRoot);
+        entry.startEntry( isRoot );
 
         // write type
-        entry.writeType(type);
+        entry.writeType( type );
 
         // write links
-        entry.writeServiceLink(baseUrl.toString(), repositoryId);
+        entry.writeServiceLink( baseUrl.toString(  ), repositoryId );
 
-        entry.writeSelfLink(compileUrl(baseUrl, RESOURCE_TYPE, type.getId()), type.getId());
-        entry.writeEnclosureLink(compileUrl(baseUrl, RESOURCE_TYPE, type.getId()));
-        if (type.getParentTypeId() != null) {
-            entry.writeUpLink(compileUrl(baseUrl, RESOURCE_TYPE, type.getParentTypeId()), Constants.MEDIATYPE_ENTRY);
+        entry.writeSelfLink( compileUrl( baseUrl, RESOURCE_TYPE, type.getId(  ) ), type.getId(  ) );
+        entry.writeEnclosureLink( compileUrl( baseUrl, RESOURCE_TYPE, type.getId(  ) ) );
+
+        if ( type.getParentTypeId(  ) != null )
+        {
+            entry.writeUpLink( compileUrl( baseUrl, RESOURCE_TYPE, type.getParentTypeId(  ) ), Constants.MEDIATYPE_ENTRY );
         }
-        UrlBuilder downLink = compileUrlBuilder(baseUrl, RESOURCE_TYPES, null);
-        downLink.addParameter(Constants.PARAM_TYPE_ID, type.getId());
-        entry.writeDownLink(downLink.toString(), Constants.MEDIATYPE_CHILDREN);
-        UrlBuilder downLink2 = compileUrlBuilder(baseUrl, RESOURCE_TYPESDESC, null);
-        downLink2.addParameter(Constants.PARAM_TYPE_ID, type.getId());
-        entry.writeDownLink(downLink2.toString(), Constants.MEDIATYPE_DESCENDANTS);
-        entry.writeDescribedByLink(compileUrl(baseUrl, RESOURCE_TYPE, type.getBaseTypeId().value()));
+
+        UrlBuilder downLink = compileUrlBuilder( baseUrl, RESOURCE_TYPES, null );
+        downLink.addParameter( Constants.PARAM_TYPE_ID, type.getId(  ) );
+        entry.writeDownLink( downLink.toString(  ), Constants.MEDIATYPE_CHILDREN );
+
+        UrlBuilder downLink2 = compileUrlBuilder( baseUrl, RESOURCE_TYPESDESC, null );
+        downLink2.addParameter( Constants.PARAM_TYPE_ID, type.getId(  ) );
+        entry.writeDownLink( downLink2.toString(  ), Constants.MEDIATYPE_DESCENDANTS );
+        entry.writeDescribedByLink( compileUrl( baseUrl, RESOURCE_TYPE, type.getBaseTypeId(  ).value(  ) ) );
 
         // write children
-        if ((children != null) && (children.size() > 0)) {
-            writeTypeChildren(entry, type, children, repositoryId, baseUrl);
+        if ( ( children != null ) && ( children.size(  ) > 0 ) )
+        {
+            writeTypeChildren( entry, type, children, repositoryId, baseUrl );
         }
 
         // we are done
-        entry.endEntry();
+        entry.endEntry(  );
     }
 
     /**
      * Writes the a type entry children feed.
      */
-    private static void writeTypeChildren(AtomEntry entry, TypeDefinition type, List<TypeDefinitionContainer> children,
-            String repositoryId, UrlBuilder baseUrl) throws XMLStreamException, JAXBException {
-
+    private static void writeTypeChildren( AtomEntry entry, TypeDefinition type,
+        List<TypeDefinitionContainer> children, String repositoryId, UrlBuilder baseUrl )
+        throws XMLStreamException, JAXBException
+    {
         // start
-        AtomFeed feed = new AtomFeed(entry.getWriter());
-        feed.startChildren();
-        feed.startFeed(false);
+        AtomFeed feed = new AtomFeed( entry.getWriter(  ) );
+        feed.startChildren(  );
+        feed.startFeed( false );
 
         // write basic Atom feed elements
-        feed.writeFeedElements(type.getId(), TYPE_AUTHOR, type.getDisplayName(), new GregorianCalendar(), null, null);
+        feed.writeFeedElements( type.getId(  ), TYPE_AUTHOR, type.getDisplayName(  ), new GregorianCalendar(  ), null,
+            null );
 
-        feed.writeServiceLink(baseUrl.toString(), repositoryId);
+        feed.writeServiceLink( baseUrl.toString(  ), repositoryId );
 
-        UrlBuilder selfLink = compileUrlBuilder(baseUrl, RESOURCE_TYPESDESC, null);
-        selfLink.addParameter(Constants.PARAM_TYPE_ID, type.getId());
-        feed.writeSelfLink(selfLink.toString(), type.getId());
+        UrlBuilder selfLink = compileUrlBuilder( baseUrl, RESOURCE_TYPESDESC, null );
+        selfLink.addParameter( Constants.PARAM_TYPE_ID, type.getId(  ) );
+        feed.writeSelfLink( selfLink.toString(  ), type.getId(  ) );
 
-        feed.writeViaLink(compileUrl(baseUrl, RESOURCE_TYPE, type.getId()));
+        feed.writeViaLink( compileUrl( baseUrl, RESOURCE_TYPE, type.getId(  ) ) );
 
-        UrlBuilder downLink = compileUrlBuilder(baseUrl, RESOURCE_TYPES, null);
-        downLink.addParameter(Constants.PARAM_TYPE_ID, type.getId());
-        feed.writeDownLink(downLink.toString(), Constants.MEDIATYPE_FEED);
+        UrlBuilder downLink = compileUrlBuilder( baseUrl, RESOURCE_TYPES, null );
+        downLink.addParameter( Constants.PARAM_TYPE_ID, type.getId(  ) );
+        feed.writeDownLink( downLink.toString(  ), Constants.MEDIATYPE_FEED );
 
-        if (type.getParentTypeId() != null) {
-            feed.writeUpLink(compileUrl(baseUrl, RESOURCE_TYPE, type.getParentTypeId()), Constants.MEDIATYPE_ENTRY);
+        if ( type.getParentTypeId(  ) != null )
+        {
+            feed.writeUpLink( compileUrl( baseUrl, RESOURCE_TYPE, type.getParentTypeId(  ) ), Constants.MEDIATYPE_ENTRY );
         }
 
         // write tree
-        for (TypeDefinitionContainer container : children) {
-            if ((container != null) && (container.getTypeDefinition() != null)) {
-                writeTypeEntry(entry, container.getTypeDefinition(), container.getChildren(), repositoryId, baseUrl,
-                        false);
+        for ( TypeDefinitionContainer container : children )
+        {
+            if ( ( container != null ) && ( container.getTypeDefinition(  ) != null ) )
+            {
+                writeTypeEntry( entry, container.getTypeDefinition(  ), container.getChildren(  ), repositoryId,
+                    baseUrl, false );
             }
         }
 
         // we are done
-        feed.endFeed();
-        feed.endChildren();
+        feed.endFeed(  );
+        feed.endChildren(  );
     }
 }

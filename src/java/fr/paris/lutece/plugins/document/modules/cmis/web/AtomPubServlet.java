@@ -33,17 +33,16 @@
  */
 package fr.paris.lutece.plugins.document.modules.cmis.web;
 
+
 /**
  *
  * @author pierre
  */
 public class AtomPubServlet extends CmisWrapperServlet
 {
-
     @Override
-    String getServletBean() 
+    String getServletBean(  )
     {
         return "document-cmis.AtomPubServlet";
     }
-    
 }

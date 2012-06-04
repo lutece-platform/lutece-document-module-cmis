@@ -18,64 +18,74 @@
  */
 package org.apache.chemistry.opencmis.server.shared;
 
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 
-public class ExceptionHelper {
-
+public class ExceptionHelper
+{
     public static final String STACK_TRACE_PROPERTY = "org.apache.chemistry.opencmis.stacktrace.disable";
-
     private static final boolean sendStackTrace;
 
-    static {
-        sendStackTrace = System.getProperty(STACK_TRACE_PROPERTY) == null;
+    static
+    {
+        sendStackTrace = System.getProperty( STACK_TRACE_PROPERTY ) == null;
     }
 
-    private ExceptionHelper() {
+    private ExceptionHelper(  )
+    {
     }
 
     /**
      * Returns the stack trace as string.
      */
-    public static String getStacktraceAsString(Throwable t) {
-        if (!sendStackTrace || t == null) {
+    public static String getStacktraceAsString( Throwable t )
+    {
+        if ( !sendStackTrace || ( t == null ) )
+        {
             return null;
         }
 
-        StringWriter sw = new StringWriter();
-        PrintWriter pw = new PrintWriter(sw);
+        StringWriter sw = new StringWriter(  );
+        PrintWriter pw = new PrintWriter( sw );
 
-        t.printStackTrace(pw);
+        t.printStackTrace( pw );
 
-        return sw.toString();
+        return sw.toString(  );
     }
 
     /**
      * Returns the stack trace as DOM node.
      */
-    public static Node getStacktraceAsNode(Throwable t) {
-        try {
-            String st = getStacktraceAsString(t);
-            if (st != null) {
-                DocumentBuilderFactory dbfac = DocumentBuilderFactory.newInstance();
-                DocumentBuilder docBuilder = dbfac.newDocumentBuilder();
-                Document doc = docBuilder.newDocument();
+    public static Node getStacktraceAsNode( Throwable t )
+    {
+        try
+        {
+            String st = getStacktraceAsString( t );
 
-                Element node = doc.createElementNS("http://chemistry.apache.org/opencmis/exception", "stacktrace");
-                doc.appendChild(node);
+            if ( st != null )
+            {
+                DocumentBuilderFactory dbfac = DocumentBuilderFactory.newInstance(  );
+                DocumentBuilder docBuilder = dbfac.newDocumentBuilder(  );
+                Document doc = docBuilder.newDocument(  );
 
-                node.appendChild(doc.createTextNode(st));
+                Element node = doc.createElementNS( "http://chemistry.apache.org/opencmis/exception", "stacktrace" );
+                doc.appendChild( node );
+
+                node.appendChild( doc.createTextNode( st ) );
 
                 return node;
             }
-        } catch (Exception e) {
+        }
+        catch ( Exception e )
+        {
         }
 
         return null;

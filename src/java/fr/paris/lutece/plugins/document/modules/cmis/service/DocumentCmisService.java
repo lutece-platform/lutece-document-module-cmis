@@ -34,9 +34,7 @@
 package fr.paris.lutece.plugins.document.modules.cmis.service;
 
 import fr.paris.lutece.portal.service.util.AppLogService;
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.List;
+
 import org.apache.chemistry.opencmis.commons.data.*;
 import org.apache.chemistry.opencmis.commons.definitions.TypeDefinition;
 import org.apache.chemistry.opencmis.commons.definitions.TypeDefinitionList;
@@ -44,86 +42,104 @@ import org.apache.chemistry.opencmis.commons.enums.IncludeRelationships;
 import org.apache.chemistry.opencmis.commons.impl.server.AbstractCmisService;
 import org.apache.chemistry.opencmis.commons.server.CallContext;
 
+import java.math.BigInteger;
+
+import java.util.ArrayList;
+import java.util.List;
+
+
 /**
  *
  * @author levy
  */
 public class DocumentCmisService extends AbstractCmisService
 {
-
-    private static DocumentRepository _repository = new DocumentRepository();
+    private static DocumentRepository _repository = new DocumentRepository(  );
     private CallContext _context;
 
     @Override
-    public List<RepositoryInfo> getRepositoryInfos(ExtensionsData extension)
+    public List<RepositoryInfo> getRepositoryInfos( ExtensionsData extension )
     {
-        AppLogService.info( "getRepositoryInfos");
-        List<RepositoryInfo> list = new ArrayList<RepositoryInfo>();
-        list.add(_repository.getInfos());
+        AppLogService.info( "getRepositoryInfos" );
+
+        List<RepositoryInfo> list = new ArrayList<RepositoryInfo>(  );
+        list.add( _repository.getInfos(  ) );
+
         return list;
     }
 
-
     @Override
-    public RepositoryInfo getRepositoryInfo(String repositoryId, ExtensionsData extension) {
-        AppLogService.info( "getRepositoryInfo");
-        return _repository.getInfos();
-    }
-    
-    @Override
-    public TypeDefinitionList getTypeChildren(String repositoryId, String typeId, Boolean includePropertyDefinitions, BigInteger maxItems, BigInteger skipCount, ExtensionsData extension)
+    public RepositoryInfo getRepositoryInfo( String repositoryId, ExtensionsData extension )
     {
-        AppLogService.info( "getTypeChildren");
-        return _repository.getTypesChildren(_context, typeId, true, maxItems, skipCount);
+        AppLogService.info( "getRepositoryInfo" );
+
+        return _repository.getInfos(  );
     }
 
     @Override
-    public TypeDefinition getTypeDefinition(String repositoryId, String typeId, ExtensionsData extension)
+    public TypeDefinitionList getTypeChildren( String repositoryId, String typeId, Boolean includePropertyDefinitions,
+        BigInteger maxItems, BigInteger skipCount, ExtensionsData extension )
     {
-        AppLogService.info( "getTypeDefinition");
-        return _repository.getTypeDefinition(_context, typeId);
+        AppLogService.info( "getTypeChildren" );
+
+        return _repository.getTypesChildren( _context, typeId, true, maxItems, skipCount );
     }
 
     @Override
-    public ObjectInFolderList getChildren(String repositoryId, String folderId, String filter, String orderBy, Boolean includeAllowableActions, IncludeRelationships includeRelationships, String renditionFilter, Boolean includePathSegment, BigInteger maxItems, BigInteger skipCount, ExtensionsData extension)
+    public TypeDefinition getTypeDefinition( String repositoryId, String typeId, ExtensionsData extension )
     {
-        AppLogService.info( "getChildren");
-        return _repository.getChildren( _context , folderId, filter, orderBy, includeAllowableActions, includeRelationships, renditionFilter, includePathSegment, maxItems, skipCount, extension, this );
+        AppLogService.info( "getTypeDefinition" );
+
+        return _repository.getTypeDefinition( _context, typeId );
     }
 
     @Override
-    public List<ObjectParentData> getObjectParents(String repositoryId, String objectId, String filter, Boolean includeAllowableActions, IncludeRelationships includeRelationships, String renditionFilter, Boolean includeRelativePathSegment, ExtensionsData extension)
+    public ObjectInFolderList getChildren( String repositoryId, String folderId, String filter, String orderBy,
+        Boolean includeAllowableActions, IncludeRelationships includeRelationships, String renditionFilter,
+        Boolean includePathSegment, BigInteger maxItems, BigInteger skipCount, ExtensionsData extension )
     {
-        throw new UnsupportedOperationException("Not supported yet.");
+        AppLogService.info( "getChildren" );
+
+        return _repository.getChildren( _context, folderId, filter, orderBy, includeAllowableActions,
+            includeRelationships, renditionFilter, includePathSegment, maxItems, skipCount, extension, this );
     }
 
     @Override
-    public ObjectData getObject(String repositoryId, String objectId, String filter, Boolean includeAllowableActions, IncludeRelationships includeRelationships, String renditionFilter, Boolean includePolicyIds, Boolean includeAcl, ExtensionsData extension)
+    public List<ObjectParentData> getObjectParents( String repositoryId, String objectId, String filter,
+        Boolean includeAllowableActions, IncludeRelationships includeRelationships, String renditionFilter,
+        Boolean includeRelativePathSegment, ExtensionsData extension )
+    {
+        throw new UnsupportedOperationException( "Not supported yet." );
+    }
+
+    @Override
+    public ObjectData getObject( String repositoryId, String objectId, String filter, Boolean includeAllowableActions,
+        IncludeRelationships includeRelationships, String renditionFilter, Boolean includePolicyIds,
+        Boolean includeAcl, ExtensionsData extension )
     {
         AppLogService.info( "getObject : repositoryId=" + repositoryId + " objectId=" + objectId );
 
-        return _repository.getObject( _context , objectId, filter, includeAllowableActions, includeRelationships, renditionFilter, includePolicyIds, includeAcl, extension , this );
-
+        return _repository.getObject( _context, objectId, filter, includeAllowableActions, includeRelationships,
+            renditionFilter, includePolicyIds, includeAcl, extension, this );
     }
 
     @Override
-    public ObjectData getObjectByPath(String repositoryId, String path, String filter, Boolean includeAllowableActions,
-            IncludeRelationships includeRelationships, String renditionFilter, Boolean includePolicyIds,
-            Boolean includeAcl, ExtensionsData extension) {
-        return _repository.getObjectByPath( _context, path, filter, includeAllowableActions, includeAcl,
-                this);
+    public ObjectData getObjectByPath( String repositoryId, String path, String filter,
+        Boolean includeAllowableActions, IncludeRelationships includeRelationships, String renditionFilter,
+        Boolean includePolicyIds, Boolean includeAcl, ExtensionsData extension )
+    {
+        return _repository.getObjectByPath( _context, path, filter, includeAllowableActions, includeAcl, this );
     }
 
-    public void setCallContext(CallContext context)
+    public void setCallContext( CallContext context )
     {
         _context = context;
     }
-    
-        @Override
-    public ContentStream getContentStream(String repositoryId, String objectId, String streamId, BigInteger offset,
-            BigInteger length, ExtensionsData extension) {
-        return _repository.getContentStream( _context, objectId, offset, length);
+
+    @Override
+    public ContentStream getContentStream( String repositoryId, String objectId, String streamId, BigInteger offset,
+        BigInteger length, ExtensionsData extension )
+    {
+        return _repository.getContentStream( _context, objectId, offset, length );
     }
-
-
 }

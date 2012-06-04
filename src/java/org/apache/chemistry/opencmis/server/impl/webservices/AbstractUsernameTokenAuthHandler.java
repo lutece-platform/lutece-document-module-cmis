@@ -18,6 +18,8 @@
  */
 package org.apache.chemistry.opencmis.server.impl.webservices;
 
+import org.apache.chemistry.opencmis.commons.server.CallContext;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -45,44 +47,58 @@ import javax.xml.bind.annotation.adapters.CollapsedStringAdapter;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import javax.xml.namespace.QName;
 
-import org.apache.chemistry.opencmis.commons.server.CallContext;
 
-public class AbstractUsernameTokenAuthHandler {
-
+public class AbstractUsernameTokenAuthHandler
+{
     protected static final JAXBContext WSSE_CONTEXT;
-    static {
+
+    static
+    {
         JAXBContext jc = null;
-        try {
-            jc = JAXBContext.newInstance(ObjectFactory.class);
-        } catch (JAXBException e) {
-            e.printStackTrace();
+
+        try
+        {
+            jc = JAXBContext.newInstance( ObjectFactory.class );
         }
+        catch ( JAXBException e )
+        {
+            e.printStackTrace(  );
+        }
+
         WSSE_CONTEXT = jc;
     }
 
     protected static final String WSSE_NS = "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd";
-    protected static final QName WSSE_SECURITY = new QName(WSSE_NS, "Security");
-    protected static final QName WSSE_USERNAME_TOKEN = new QName(WSSE_NS, "UsernameToken");
-    protected static final QName WSSE_PASSWORD = new QName(WSSE_NS, "Password");
+    protected static final QName WSSE_SECURITY = new QName( WSSE_NS, "Security" );
+    protected static final QName WSSE_USERNAME_TOKEN = new QName( WSSE_NS, "UsernameToken" );
+    protected static final QName WSSE_PASSWORD = new QName( WSSE_NS, "Password" );
+    protected static final Set<QName> HEADERS = new HashSet<QName>(  );
 
-    protected static final Set<QName> HEADERS = new HashSet<QName>();
-    static {
-        HEADERS.add(WSSE_SECURITY);
+    static
+    {
+        HEADERS.add( WSSE_SECURITY );
     }
 
-    @SuppressWarnings("unchecked")
-    protected Map<String, String> extractUsernamePassword(JAXBElement<SecurityHeaderType> sht) {
+    @SuppressWarnings( "unchecked" )
+    protected Map<String, String> extractUsernamePassword( JAXBElement<SecurityHeaderType> sht )
+    {
         String username = null;
         String password = null;
 
-        for (Object uno : sht.getValue().getAny()) {
-            if ((uno instanceof JAXBElement) && ((JAXBElement<?>) uno).getValue() instanceof UsernameTokenType) {
-                UsernameTokenType utt = ((JAXBElement<UsernameTokenType>) uno).getValue();
-                username = utt.getUsername().getValue();
+        for ( Object uno : sht.getValue(  ).getAny(  ) )
+        {
+            if ( ( uno instanceof JAXBElement ) && ( (JAXBElement<?>) uno ).getValue(  ) instanceof UsernameTokenType )
+            {
+                UsernameTokenType utt = ( (JAXBElement<UsernameTokenType>) uno ).getValue(  );
+                username = utt.getUsername(  ).getValue(  );
 
-                for (Object po : utt.getAny()) {
-                    if ((po instanceof JAXBElement) && ((JAXBElement<?>) po).getValue() instanceof PasswordString) {
-                        password = ((JAXBElement<PasswordString>) po).getValue().getValue();
+                for ( Object po : utt.getAny(  ) )
+                {
+                    if ( ( po instanceof JAXBElement ) &&
+                            ( (JAXBElement<?>) po ).getValue(  ) instanceof PasswordString )
+                    {
+                        password = ( (JAXBElement<PasswordString>) po ).getValue(  ).getValue(  );
+
                         break;
                     }
                 }
@@ -93,171 +109,206 @@ public class AbstractUsernameTokenAuthHandler {
 
         Map<String, String> result = null;
 
-        if (username != null) {
-            result = new HashMap<String, String>();
-            result.put(CallContext.USERNAME, username);
-            result.put(CallContext.PASSWORD, password);
+        if ( username != null )
+        {
+            result = new HashMap<String, String>(  );
+            result.put( CallContext.USERNAME, username );
+            result.put( CallContext.PASSWORD, password );
         }
 
         return result;
     }
 
     // --- JAXB classes ---
-
     @XmlRegistry
-    public static class ObjectFactory {
-
-        public ObjectFactory() {
+    public static class ObjectFactory
+    {
+        public ObjectFactory(  )
+        {
         }
 
-        public SecurityHeaderType createSecurityHeaderType() {
-            return new SecurityHeaderType();
+        public SecurityHeaderType createSecurityHeaderType(  )
+        {
+            return new SecurityHeaderType(  );
         }
 
-        public UsernameTokenType createUsernameTokenType() {
-            return new UsernameTokenType();
+        public UsernameTokenType createUsernameTokenType(  )
+        {
+            return new UsernameTokenType(  );
         }
 
-        public PasswordString createPasswordString() {
-            return new PasswordString();
+        public PasswordString createPasswordString(  )
+        {
+            return new PasswordString(  );
         }
 
-        public AttributedString createAttributedString() {
-            return new AttributedString();
+        public AttributedString createAttributedString(  )
+        {
+            return new AttributedString(  );
         }
 
-        @XmlElementDecl(namespace = "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd", name = "Security")
-        public JAXBElement<SecurityHeaderType> createSecurity(SecurityHeaderType value) {
-            return new JAXBElement<SecurityHeaderType>(WSSE_SECURITY, SecurityHeaderType.class, null, value);
+        @XmlElementDecl( namespace = "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd", name = "Security" )
+        public JAXBElement<SecurityHeaderType> createSecurity( SecurityHeaderType value )
+        {
+            return new JAXBElement<SecurityHeaderType>( WSSE_SECURITY, SecurityHeaderType.class, null, value );
         }
 
-        @XmlElementDecl(namespace = "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd", name = "UsernameToken")
-        public JAXBElement<UsernameTokenType> createUsernameToken(UsernameTokenType value) {
-            return new JAXBElement<UsernameTokenType>(WSSE_USERNAME_TOKEN, UsernameTokenType.class, null, value);
+        @XmlElementDecl( namespace = "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd", name = "UsernameToken" )
+        public JAXBElement<UsernameTokenType> createUsernameToken( UsernameTokenType value )
+        {
+            return new JAXBElement<UsernameTokenType>( WSSE_USERNAME_TOKEN, UsernameTokenType.class, null, value );
         }
 
-        @XmlElementDecl(namespace = "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd", name = "Password")
-        public JAXBElement<PasswordString> createPassword(PasswordString value) {
-            return new JAXBElement<PasswordString>(WSSE_PASSWORD, PasswordString.class, null, value);
+        @XmlElementDecl( namespace = "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd", name = "Password" )
+        public JAXBElement<PasswordString> createPassword( PasswordString value )
+        {
+            return new JAXBElement<PasswordString>( WSSE_PASSWORD, PasswordString.class, null, value );
         }
-
     }
 
-    @XmlAccessorType(XmlAccessType.FIELD)
-    @XmlType(name = "SecurityHeaderType", propOrder = { "any" })
-    public static class SecurityHeaderType {
-
-        @XmlAnyElement(lax = true)
+    @XmlAccessorType( XmlAccessType.FIELD )
+    @XmlType( name = "SecurityHeaderType", propOrder = 
+    {
+        "any"}
+     )
+    public static class SecurityHeaderType
+    {
+        @XmlAnyElement( lax = true )
         protected List<Object> any;
         @XmlAnyAttribute
-        private final Map<QName, String> otherAttributes = new HashMap<QName, String>();
+        private final Map<QName, String> otherAttributes = new HashMap<QName, String>(  );
 
-        public List<Object> getAny() {
-            if (any == null) {
-                any = new ArrayList<Object>();
+        public List<Object> getAny(  )
+        {
+            if ( any == null )
+            {
+                any = new ArrayList<Object>(  );
             }
+
             return this.any;
         }
 
-        public Map<QName, String> getOtherAttributes() {
+        public Map<QName, String> getOtherAttributes(  )
+        {
             return otherAttributes;
         }
-
     }
 
-    @XmlAccessorType(XmlAccessType.FIELD)
-    @XmlType(name = "UsernameTokenType", propOrder = { "username", "any" })
-    public static class UsernameTokenType {
-
-        @XmlElement(name = "Username", namespace = "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd", required = true)
+    @XmlAccessorType( XmlAccessType.FIELD )
+    @XmlType( name = "UsernameTokenType", propOrder = 
+    {
+        "username", "any"}
+     )
+    public static class UsernameTokenType
+    {
+        @XmlElement( name = "Username", namespace = "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd", required = true )
         protected AttributedString username;
-        @XmlAnyElement(lax = true)
+        @XmlAnyElement( lax = true )
         protected List<Object> any;
-        @XmlAttribute(name = "Id", namespace = "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd")
-        @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
+        @XmlAttribute( name = "Id", namespace = "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" )
+        @XmlJavaTypeAdapter( CollapsedStringAdapter.class )
         @XmlID
-        @XmlSchemaType(name = "ID")
+        @XmlSchemaType( name = "ID" )
         protected String id;
         @XmlAnyAttribute
-        private final Map<QName, String> otherAttributes = new HashMap<QName, String>();
+        private final Map<QName, String> otherAttributes = new HashMap<QName, String>(  );
 
-        public AttributedString getUsername() {
+        public AttributedString getUsername(  )
+        {
             return username;
         }
 
-        public void setUsername(AttributedString value) {
+        public void setUsername( AttributedString value )
+        {
             this.username = value;
         }
 
-        public List<Object> getAny() {
-            if (any == null) {
-                any = new ArrayList<Object>();
+        public List<Object> getAny(  )
+        {
+            if ( any == null )
+            {
+                any = new ArrayList<Object>(  );
             }
+
             return this.any;
         }
 
-        public String getId() {
+        public String getId(  )
+        {
             return id;
         }
 
-        public void setId(String value) {
+        public void setId( String value )
+        {
             this.id = value;
         }
 
-        public Map<QName, String> getOtherAttributes() {
+        public Map<QName, String> getOtherAttributes(  )
+        {
             return otherAttributes;
         }
     }
 
-    @XmlAccessorType(XmlAccessType.FIELD)
-    @XmlType(name = "PasswordString")
-    public static class PasswordString extends AttributedString {
-
-        @XmlAttribute(name = "Type")
-        @XmlSchemaType(name = "anyURI")
+    @XmlAccessorType( XmlAccessType.FIELD )
+    @XmlType( name = "PasswordString" )
+    public static class PasswordString extends AttributedString
+    {
+        @XmlAttribute( name = "Type" )
+        @XmlSchemaType( name = "anyURI" )
         protected String type;
 
-        public String getType() {
+        public String getType(  )
+        {
             return type;
         }
 
-        public void setType(String value) {
+        public void setType( String value )
+        {
             this.type = value;
         }
     }
 
-    @XmlAccessorType(XmlAccessType.FIELD)
-    @XmlType(name = "AttributedString", propOrder = { "value" })
-    @XmlSeeAlso({ PasswordString.class })
-    public static class AttributedString {
-
+    @XmlAccessorType( XmlAccessType.FIELD )
+    @XmlType( name = "AttributedString", propOrder = 
+    {
+        "value"}
+     )
+    @XmlSeeAlso( {PasswordString.class
+    } )
+    public static class AttributedString
+    {
         @XmlValue
         protected String value;
-        @XmlAttribute(name = "Id", namespace = "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd")
-        @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
+        @XmlAttribute( name = "Id", namespace = "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" )
+        @XmlJavaTypeAdapter( CollapsedStringAdapter.class )
         @XmlID
-        @XmlSchemaType(name = "ID")
+        @XmlSchemaType( name = "ID" )
         protected String id;
         @XmlAnyAttribute
-        private final Map<QName, String> otherAttributes = new HashMap<QName, String>();
+        private final Map<QName, String> otherAttributes = new HashMap<QName, String>(  );
 
-        public String getValue() {
+        public String getValue(  )
+        {
             return value;
         }
 
-        public void setValue(String value) {
+        public void setValue( String value )
+        {
             this.value = value;
         }
 
-        public String getId() {
+        public String getId(  )
+        {
             return id;
         }
 
-        public void setId(String value) {
+        public void setId( String value )
+        {
             this.id = value;
         }
 
-        public Map<QName, String> getOtherAttributes() {
+        public Map<QName, String> getOtherAttributes(  )
+        {
             return otherAttributes;
         }
     }

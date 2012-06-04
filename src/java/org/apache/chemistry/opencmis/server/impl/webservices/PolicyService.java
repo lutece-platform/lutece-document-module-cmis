@@ -18,94 +18,121 @@
  */
 package org.apache.chemistry.opencmis.server.impl.webservices;
 
+import org.apache.chemistry.opencmis.commons.data.ExtensionsData;
+import org.apache.chemistry.opencmis.commons.data.ObjectData;
 import static org.apache.chemistry.opencmis.commons.impl.Converter.convert;
 import static org.apache.chemistry.opencmis.commons.impl.Converter.convertExtensionHolder;
 import static org.apache.chemistry.opencmis.commons.impl.Converter.setExtensionValues;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.annotation.Resource;
-import javax.jws.WebService;
-import javax.xml.ws.Holder;
-import javax.xml.ws.WebServiceContext;
-import javax.xml.ws.soap.MTOM;
-
-import org.apache.chemistry.opencmis.commons.data.ExtensionsData;
-import org.apache.chemistry.opencmis.commons.data.ObjectData;
 import org.apache.chemistry.opencmis.commons.impl.jaxb.CmisException;
 import org.apache.chemistry.opencmis.commons.impl.jaxb.CmisExtensionType;
 import org.apache.chemistry.opencmis.commons.impl.jaxb.CmisObjectType;
 import org.apache.chemistry.opencmis.commons.impl.jaxb.PolicyServicePort;
 import org.apache.chemistry.opencmis.commons.server.CmisService;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import javax.jws.WebService;
+
+import javax.xml.ws.Holder;
+import javax.xml.ws.WebServiceContext;
+import javax.xml.ws.soap.MTOM;
+
+
 /**
  * CMIS Policy Service.
  */
 @MTOM
-@WebService(endpointInterface = "org.apache.chemistry.opencmis.commons.impl.jaxb.PolicyServicePort")
-public class PolicyService extends AbstractService implements PolicyServicePort {
+@WebService( endpointInterface = "org.apache.chemistry.opencmis.commons.impl.jaxb.PolicyServicePort" )
+public class PolicyService extends AbstractService implements PolicyServicePort
+{
     @Resource
     public WebServiceContext wsContext;
 
-    public void applyPolicy(String repositoryId, String policyId, String objectId, Holder<CmisExtensionType> extension)
-            throws CmisException {
+    public void applyPolicy( String repositoryId, String policyId, String objectId, Holder<CmisExtensionType> extension )
+        throws CmisException
+    {
         CmisService service = null;
-        try {
-            service = getService(wsContext, repositoryId);
 
-            ExtensionsData extData = convertExtensionHolder(extension);
+        try
+        {
+            service = getService( wsContext, repositoryId );
 
-            service.applyPolicy(repositoryId, policyId, objectId, extData);
+            ExtensionsData extData = convertExtensionHolder( extension );
 
-            setExtensionValues(extData, extension);
-        } catch (Exception e) {
-            throw convertException(e);
-        } finally {
-            closeService(service);
+            service.applyPolicy( repositoryId, policyId, objectId, extData );
+
+            setExtensionValues( extData, extension );
+        }
+        catch ( Exception e )
+        {
+            throw convertException( e );
+        }
+        finally
+        {
+            closeService( service );
         }
     }
 
-    public List<CmisObjectType> getAppliedPolicies(String repositoryId, String objectId, String filter,
-            CmisExtensionType extension) throws CmisException {
+    public List<CmisObjectType> getAppliedPolicies( String repositoryId, String objectId, String filter,
+        CmisExtensionType extension ) throws CmisException
+    {
         CmisService service = null;
-        try {
-            service = getService(wsContext, repositoryId);
 
-            List<ObjectData> policies = service.getAppliedPolicies(repositoryId, objectId, filter, convert(extension));
+        try
+        {
+            service = getService( wsContext, repositoryId );
 
-            if (policies == null) {
+            List<ObjectData> policies = service.getAppliedPolicies( repositoryId, objectId, filter, convert( extension ) );
+
+            if ( policies == null )
+            {
                 return null;
             }
 
-            List<CmisObjectType> result = new ArrayList<CmisObjectType>();
-            for (ObjectData object : policies) {
-                result.add(convert(object));
+            List<CmisObjectType> result = new ArrayList<CmisObjectType>(  );
+
+            for ( ObjectData object : policies )
+            {
+                result.add( convert( object ) );
             }
 
             return result;
-        } catch (Exception e) {
-            throw convertException(e);
-        } finally {
-            closeService(service);
+        }
+        catch ( Exception e )
+        {
+            throw convertException( e );
+        }
+        finally
+        {
+            closeService( service );
         }
     }
 
-    public void removePolicy(String repositoryId, String policyId, String objectId, Holder<CmisExtensionType> extension)
-            throws CmisException {
+    public void removePolicy( String repositoryId, String policyId, String objectId, Holder<CmisExtensionType> extension )
+        throws CmisException
+    {
         CmisService service = null;
-        try {
-            service = getService(wsContext, repositoryId);
 
-            ExtensionsData extData = convertExtensionHolder(extension);
+        try
+        {
+            service = getService( wsContext, repositoryId );
 
-            service.removePolicy(repositoryId, policyId, objectId, extData);
+            ExtensionsData extData = convertExtensionHolder( extension );
 
-            setExtensionValues(extData, extension);
-        } catch (Exception e) {
-            throw convertException(e);
-        } finally {
-            closeService(service);
+            service.removePolicy( repositoryId, policyId, objectId, extData );
+
+            setExtensionValues( extData, extension );
+        }
+        catch ( Exception e )
+        {
+            throw convertException( e );
+        }
+        finally
+        {
+            closeService( service );
         }
     }
 }

@@ -18,6 +18,14 @@
  */
 package org.apache.chemistry.opencmis.server.impl.atompub;
 
+import org.apache.chemistry.opencmis.commons.data.ObjectData;
+import org.apache.chemistry.opencmis.commons.exceptions.CmisRuntimeException;
+import org.apache.chemistry.opencmis.commons.impl.Constants;
+import org.apache.chemistry.opencmis.commons.impl.UrlBuilder;
+import org.apache.chemistry.opencmis.commons.server.CallContext;
+import org.apache.chemistry.opencmis.commons.server.CmisService;
+import org.apache.chemistry.opencmis.commons.server.ObjectInfo;
+import org.apache.chemistry.opencmis.commons.spi.Holder;
 import static org.apache.chemistry.opencmis.server.impl.atompub.AtomPubUtils.RESOURCE_ENTRY;
 import static org.apache.chemistry.opencmis.server.impl.atompub.AtomPubUtils.compileBaseUrl;
 import static org.apache.chemistry.opencmis.server.impl.atompub.AtomPubUtils.compileUrl;
@@ -30,137 +38,147 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.chemistry.opencmis.commons.data.ObjectData;
-import org.apache.chemistry.opencmis.commons.exceptions.CmisRuntimeException;
-import org.apache.chemistry.opencmis.commons.impl.Constants;
-import org.apache.chemistry.opencmis.commons.impl.UrlBuilder;
-import org.apache.chemistry.opencmis.commons.server.CallContext;
-import org.apache.chemistry.opencmis.commons.server.CmisService;
-import org.apache.chemistry.opencmis.commons.server.ObjectInfo;
-import org.apache.chemistry.opencmis.commons.spi.Holder;
 
 /**
  * Versioning Service operations.
  */
-public class VersioningService {
-
-    private VersioningService() {
+public class VersioningService
+{
+    private VersioningService(  )
+    {
     }
 
     /**
      * Check Out.
      */
-    public static void checkOut(CallContext context, CmisService service, String repositoryId,
-            HttpServletRequest request, HttpServletResponse response) throws Exception {
+    public static void checkOut( CallContext context, CmisService service, String repositoryId,
+        HttpServletRequest request, HttpServletResponse response )
+        throws Exception
+    {
         // get parameters
-        AtomEntryParser parser = new AtomEntryParser(context.getTempDirectory(), context.getMemoryThreshold());
-        parser.setIgnoreAtomContentSrc(true); // needed for some clients
-        parser.parse(request.getInputStream());
+        AtomEntryParser parser = new AtomEntryParser( context.getTempDirectory(  ), context.getMemoryThreshold(  ) );
+        parser.setIgnoreAtomContentSrc( true ); // needed for some clients
+        parser.parse( request.getInputStream(  ) );
 
         // execute
-        Holder<String> checkOutId = new Holder<String>(parser.getId());
-        service.checkOut(repositoryId, checkOutId, null, null);
+        Holder<String> checkOutId = new Holder<String>( parser.getId(  ) );
+        service.checkOut( repositoryId, checkOutId, null, null );
 
-        ObjectInfo objectInfo = service.getObjectInfo(repositoryId, checkOutId.getValue());
-        if (objectInfo == null) {
-            throw new CmisRuntimeException("Object Info is missing!");
+        ObjectInfo objectInfo = service.getObjectInfo( repositoryId, checkOutId.getValue(  ) );
+
+        if ( objectInfo == null )
+        {
+            throw new CmisRuntimeException( "Object Info is missing!" );
         }
 
-        ObjectData object = objectInfo.getObject();
-        if (object == null) {
-            throw new CmisRuntimeException("Object is null!");
+        ObjectData object = objectInfo.getObject(  );
+
+        if ( object == null )
+        {
+            throw new CmisRuntimeException( "Object is null!" );
         }
 
-        if (object.getId() == null) {
-            throw new CmisRuntimeException("Object Id is null!");
+        if ( object.getId(  ) == null )
+        {
+            throw new CmisRuntimeException( "Object Id is null!" );
         }
 
         // set headers
-        UrlBuilder baseUrl = compileBaseUrl(request, repositoryId);
-        String location = compileUrl(baseUrl, RESOURCE_ENTRY, object.getId());
+        UrlBuilder baseUrl = compileBaseUrl( request, repositoryId );
+        String location = compileUrl( baseUrl, RESOURCE_ENTRY, object.getId(  ) );
 
-        response.setStatus(HttpServletResponse.SC_CREATED);
-        response.setContentType(Constants.MEDIATYPE_ENTRY);
-        response.setHeader("Content-Location", location);
-        response.setHeader("Location", location);
+        response.setStatus( HttpServletResponse.SC_CREATED );
+        response.setContentType( Constants.MEDIATYPE_ENTRY );
+        response.setHeader( "Content-Location", location );
+        response.setHeader( "Location", location );
 
         // write XML
-        AtomEntry entry = new AtomEntry();
-        entry.startDocument(response.getOutputStream());
-        writeObjectEntry(service, entry, object, null, repositoryId, null, null, baseUrl, true);
-        entry.endDocument();
+        AtomEntry entry = new AtomEntry(  );
+        entry.startDocument( response.getOutputStream(  ) );
+        writeObjectEntry( service, entry, object, null, repositoryId, null, null, baseUrl, true );
+        entry.endDocument(  );
     }
 
     /**
      * Get all versions.
      */
-    public static void getAllVersions(CallContext context, CmisService service, String repositoryId,
-            HttpServletRequest request, HttpServletResponse response) throws Exception {
+    public static void getAllVersions( CallContext context, CmisService service, String repositoryId,
+        HttpServletRequest request, HttpServletResponse response )
+        throws Exception
+    {
         // get parameters
-        String objectId = getStringParameter(request, Constants.PARAM_ID);
-        String versionSeriesId = getStringParameter(request, Constants.PARAM_VERSION_SERIES_ID);
-        String filter = getStringParameter(request, Constants.PARAM_FILTER);
-        Boolean includeAllowableActions = getBooleanParameter(request, Constants.PARAM_ALLOWABLE_ACTIONS);
+        String objectId = getStringParameter( request, Constants.PARAM_ID );
+        String versionSeriesId = getStringParameter( request, Constants.PARAM_VERSION_SERIES_ID );
+        String filter = getStringParameter( request, Constants.PARAM_FILTER );
+        Boolean includeAllowableActions = getBooleanParameter( request, Constants.PARAM_ALLOWABLE_ACTIONS );
 
         // execute
-        List<ObjectData> versions = service.getAllVersions(repositoryId, objectId, versionSeriesId, filter,
-                includeAllowableActions, null);
+        List<ObjectData> versions = service.getAllVersions( repositoryId, objectId, versionSeriesId, filter,
+                includeAllowableActions, null );
 
-        if (versions == null || versions.isEmpty()) {
-            throw new CmisRuntimeException("Version list is null or empty!");
+        if ( ( versions == null ) || versions.isEmpty(  ) )
+        {
+            throw new CmisRuntimeException( "Version list is null or empty!" );
         }
 
         // set headers
-        response.setStatus(HttpServletResponse.SC_OK);
-        response.setContentType(Constants.MEDIATYPE_FEED);
+        response.setStatus( HttpServletResponse.SC_OK );
+        response.setContentType( Constants.MEDIATYPE_FEED );
 
         // write XML
-        AtomFeed feed = new AtomFeed();
-        feed.startDocument(response.getOutputStream());
-        feed.startFeed(true);
+        AtomFeed feed = new AtomFeed(  );
+        feed.startDocument( response.getOutputStream(  ) );
+        feed.startFeed( true );
 
         // write basic Atom feed elements
-        ObjectInfo latestObjectInfo = service.getObjectInfo(repositoryId, versions.get(0).getId());
-        ObjectInfo firstObjectInfo = service.getObjectInfo(repositoryId, versions.get(versions.size() - 1).getId());
+        ObjectInfo latestObjectInfo = service.getObjectInfo( repositoryId, versions.get( 0 ).getId(  ) );
+        ObjectInfo firstObjectInfo = service.getObjectInfo( repositoryId,
+                versions.get( versions.size(  ) - 1 ).getId(  ) );
 
-        feed.writeFeedElements(versionSeriesId, firstObjectInfo.getCreatedBy(), latestObjectInfo.getName(),
-                latestObjectInfo.getLastModificationDate(), null, null);
+        feed.writeFeedElements( versionSeriesId, firstObjectInfo.getCreatedBy(  ), latestObjectInfo.getName(  ),
+            latestObjectInfo.getLastModificationDate(  ), null, null );
 
         // write links
-        UrlBuilder baseUrl = compileBaseUrl(request, repositoryId);
+        UrlBuilder baseUrl = compileBaseUrl( request, repositoryId );
 
-        feed.writeServiceLink(baseUrl.toString(), repositoryId);
+        feed.writeServiceLink( baseUrl.toString(  ), repositoryId );
 
-        if (objectId != null) {
-            feed.writeViaLink(compileUrl(baseUrl, RESOURCE_ENTRY, objectId));
+        if ( objectId != null )
+        {
+            feed.writeViaLink( compileUrl( baseUrl, RESOURCE_ENTRY, objectId ) );
         }
 
         // write entries
-        AtomEntry entry = new AtomEntry(feed.getWriter());
-        for (ObjectData object : versions) {
-            if (object == null) {
+        AtomEntry entry = new AtomEntry( feed.getWriter(  ) );
+
+        for ( ObjectData object : versions )
+        {
+            if ( object == null )
+            {
                 continue;
             }
-            writeObjectEntry(service, entry, object, null, repositoryId, null, null, baseUrl, false);
+
+            writeObjectEntry( service, entry, object, null, repositoryId, null, null, baseUrl, false );
         }
 
         // we are done
-        feed.endFeed();
-        feed.endDocument();
+        feed.endFeed(  );
+        feed.endDocument(  );
     }
 
     /**
      * Delete object.
      */
-    public static void deleteAllVersions(CallContext context, CmisService service, String repositoryId,
-            HttpServletRequest request, HttpServletResponse response) {
+    public static void deleteAllVersions( CallContext context, CmisService service, String repositoryId,
+        HttpServletRequest request, HttpServletResponse response )
+    {
         // get parameters
-        String objectId = getStringParameter(request, Constants.PARAM_ID);
+        String objectId = getStringParameter( request, Constants.PARAM_ID );
 
         // execute
-        service.deleteObjectOrCancelCheckOut(repositoryId, objectId, Boolean.TRUE, null);
+        service.deleteObjectOrCancelCheckOut( repositoryId, objectId, Boolean.TRUE, null );
 
         // set headers
-        response.setStatus(HttpServletResponse.SC_NO_CONTENT);
+        response.setStatus( HttpServletResponse.SC_NO_CONTENT );
     }
 }

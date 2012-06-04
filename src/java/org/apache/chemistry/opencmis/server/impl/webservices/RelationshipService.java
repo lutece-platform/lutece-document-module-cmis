@@ -18,16 +18,8 @@
  */
 package org.apache.chemistry.opencmis.server.impl.webservices;
 
-import static org.apache.chemistry.opencmis.commons.impl.Converter.convert;
-
-import java.math.BigInteger;
-
-import javax.annotation.Resource;
-import javax.jws.WebService;
-import javax.xml.ws.WebServiceContext;
-import javax.xml.ws.soap.MTOM;
-
 import org.apache.chemistry.opencmis.commons.enums.RelationshipDirection;
+import static org.apache.chemistry.opencmis.commons.impl.Converter.convert;
 import org.apache.chemistry.opencmis.commons.impl.jaxb.CmisException;
 import org.apache.chemistry.opencmis.commons.impl.jaxb.CmisExtensionType;
 import org.apache.chemistry.opencmis.commons.impl.jaxb.CmisObjectListType;
@@ -35,30 +27,48 @@ import org.apache.chemistry.opencmis.commons.impl.jaxb.EnumRelationshipDirection
 import org.apache.chemistry.opencmis.commons.impl.jaxb.RelationshipServicePort;
 import org.apache.chemistry.opencmis.commons.server.CmisService;
 
+import java.math.BigInteger;
+
+import javax.annotation.Resource;
+
+import javax.jws.WebService;
+
+import javax.xml.ws.WebServiceContext;
+import javax.xml.ws.soap.MTOM;
+
+
 /**
  * CMIS Relationship Service.
  */
 @MTOM
-@WebService(endpointInterface = "org.apache.chemistry.opencmis.commons.impl.jaxb.RelationshipServicePort")
-public class RelationshipService extends AbstractService implements RelationshipServicePort {
+@WebService( endpointInterface = "org.apache.chemistry.opencmis.commons.impl.jaxb.RelationshipServicePort" )
+public class RelationshipService extends AbstractService implements RelationshipServicePort
+{
     @Resource
     public WebServiceContext wsContext;
 
-    public CmisObjectListType getObjectRelationships(String repositoryId, String objectId,
-            Boolean includeSubRelationshipTypes, EnumRelationshipDirection relationshipDirection, String typeId,
-            String filter, Boolean includeAllowableActions, BigInteger maxItems, BigInteger skipCount,
-            CmisExtensionType extension) throws CmisException {
+    public CmisObjectListType getObjectRelationships( String repositoryId, String objectId,
+        Boolean includeSubRelationshipTypes, EnumRelationshipDirection relationshipDirection, String typeId,
+        String filter, Boolean includeAllowableActions, BigInteger maxItems, BigInteger skipCount,
+        CmisExtensionType extension ) throws CmisException
+    {
         CmisService service = null;
-        try {
-            service = getService(wsContext, repositoryId);
 
-            return convert(service.getObjectRelationships(repositoryId, objectId, includeSubRelationshipTypes,
-                    convert(RelationshipDirection.class, relationshipDirection), typeId, filter,
-                    includeAllowableActions, maxItems, skipCount, convert(extension)));
-        } catch (Exception e) {
-            throw convertException(e);
-        } finally {
-            closeService(service);
+        try
+        {
+            service = getService( wsContext, repositoryId );
+
+            return convert( service.getObjectRelationships( repositoryId, objectId, includeSubRelationshipTypes,
+                    convert( RelationshipDirection.class, relationshipDirection ), typeId, filter,
+                    includeAllowableActions, maxItems, skipCount, convert( extension ) ) );
+        }
+        catch ( Exception e )
+        {
+            throw convertException( e );
+        }
+        finally
+        {
+            closeService( service );
         }
     }
 }

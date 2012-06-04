@@ -18,7 +18,17 @@
  */
 package org.apache.chemistry.opencmis.server.impl.browser;
 
+import org.apache.chemistry.opencmis.commons.data.ObjectData;
+import org.apache.chemistry.opencmis.commons.exceptions.CmisRuntimeException;
+import org.apache.chemistry.opencmis.commons.impl.Constants;
 import static org.apache.chemistry.opencmis.commons.impl.Constants.PARAM_FOLDER_ID;
+import org.apache.chemistry.opencmis.commons.impl.JSONConverter;
+import org.apache.chemistry.opencmis.commons.impl.TypeCache;
+import org.apache.chemistry.opencmis.commons.impl.json.JSONObject;
+import org.apache.chemistry.opencmis.commons.impl.server.TypeCacheImpl;
+import org.apache.chemistry.opencmis.commons.server.CallContext;
+import org.apache.chemistry.opencmis.commons.server.CmisService;
+import org.apache.chemistry.opencmis.commons.spi.Holder;
 import static org.apache.chemistry.opencmis.server.impl.atompub.AtomPubUtils.RESOURCE_CONTENT;
 import static org.apache.chemistry.opencmis.server.impl.atompub.AtomPubUtils.compileBaseUrl;
 import static org.apache.chemistry.opencmis.server.impl.atompub.AtomPubUtils.compileUrl;
@@ -32,86 +42,84 @@ import static org.apache.chemistry.opencmis.server.shared.HttpUtils.getStringPar
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.chemistry.opencmis.commons.data.ObjectData;
-import org.apache.chemistry.opencmis.commons.exceptions.CmisRuntimeException;
-import org.apache.chemistry.opencmis.commons.impl.Constants;
-import org.apache.chemistry.opencmis.commons.impl.JSONConverter;
-import org.apache.chemistry.opencmis.commons.impl.TypeCache;
-import org.apache.chemistry.opencmis.commons.impl.json.JSONObject;
-import org.apache.chemistry.opencmis.commons.impl.server.TypeCacheImpl;
-import org.apache.chemistry.opencmis.commons.server.CallContext;
-import org.apache.chemistry.opencmis.commons.server.CmisService;
-import org.apache.chemistry.opencmis.commons.spi.Holder;
 
 /**
  * MultiFiling Service operations.
  */
-public class MultiFilingService {
-
+public class MultiFilingService
+{
     /*
      * addObjectToFolder.
      */
-    public static void addObjectToFolder(CallContext context, CmisService service, String repositoryId,
-            HttpServletRequest request, HttpServletResponse response) throws Exception {
+    public static void addObjectToFolder( CallContext context, CmisService service, String repositoryId,
+        HttpServletRequest request, HttpServletResponse response )
+        throws Exception
+    {
         // get parameters
-        String objectId = (String) context.get(CONTEXT_OBJECT_ID);
-        String folderId = getStringParameter(request, PARAM_FOLDER_ID);
-        Boolean allVersions = getBooleanParameter(request, Constants.PARAM_ALL_VERSIONS);
+        String objectId = (String) context.get( CONTEXT_OBJECT_ID );
+        String folderId = getStringParameter( request, PARAM_FOLDER_ID );
+        Boolean allVersions = getBooleanParameter( request, Constants.PARAM_ALL_VERSIONS );
 
         // execute
-        Holder<String> objectIdHolder = new Holder<String>(objectId);
-        service.addObjectToFolder(repositoryId, objectId, folderId, allVersions, null);
+        Holder<String> objectIdHolder = new Holder<String>( objectId );
+        service.addObjectToFolder( repositoryId, objectId, folderId, allVersions, null );
 
-        String newObjectId = (objectIdHolder.getValue() == null ? objectId : objectIdHolder.getValue());
+        String newObjectId = ( ( objectIdHolder.getValue(  ) == null ) ? objectId : objectIdHolder.getValue(  ) );
 
-        ObjectData object = getSimpleObject(service, repositoryId, newObjectId);
-        if (object == null) {
-            throw new CmisRuntimeException("Object is null!");
+        ObjectData object = getSimpleObject( service, repositoryId, newObjectId );
+
+        if ( object == null )
+        {
+            throw new CmisRuntimeException( "Object is null!" );
         }
 
         // set headers
-        String location = compileUrl(compileBaseUrl(request, repositoryId), RESOURCE_CONTENT, newObjectId);
+        String location = compileUrl( compileBaseUrl( request, repositoryId ), RESOURCE_CONTENT, newObjectId );
 
-        setStatus(request, response, HttpServletResponse.SC_CREATED);
-        response.setHeader("Location", location);
+        setStatus( request, response, HttpServletResponse.SC_CREATED );
+        response.setHeader( "Location", location );
 
         // return object
-        TypeCache typeCache = new TypeCacheImpl(repositoryId, service);
-        JSONObject jsonObject = JSONConverter.convert(object, typeCache, false);
+        TypeCache typeCache = new TypeCacheImpl( repositoryId, service );
+        JSONObject jsonObject = JSONConverter.convert( object, typeCache, false );
 
-        writeJSON(jsonObject, request, response);
+        writeJSON( jsonObject, request, response );
     }
 
     /*
      * removeObjectFromFolder.
      */
-    public static void removeObjectFromFolder(CallContext context, CmisService service, String repositoryId,
-            HttpServletRequest request, HttpServletResponse response) throws Exception {
+    public static void removeObjectFromFolder( CallContext context, CmisService service, String repositoryId,
+        HttpServletRequest request, HttpServletResponse response )
+        throws Exception
+    {
         // get parameters
-        String objectId = (String) context.get(CONTEXT_OBJECT_ID);
-        String folderId = getStringParameter(request, PARAM_FOLDER_ID);
+        String objectId = (String) context.get( CONTEXT_OBJECT_ID );
+        String folderId = getStringParameter( request, PARAM_FOLDER_ID );
 
         // execute
-        Holder<String> objectIdHolder = new Holder<String>(objectId);
-        service.removeObjectFromFolder(repositoryId, objectId, folderId, null);
+        Holder<String> objectIdHolder = new Holder<String>( objectId );
+        service.removeObjectFromFolder( repositoryId, objectId, folderId, null );
 
-        String newObjectId = (objectIdHolder.getValue() == null ? objectId : objectIdHolder.getValue());
+        String newObjectId = ( ( objectIdHolder.getValue(  ) == null ) ? objectId : objectIdHolder.getValue(  ) );
 
-        ObjectData object = getSimpleObject(service, repositoryId, newObjectId);
-        if (object == null) {
-            throw new CmisRuntimeException("Object is null!");
+        ObjectData object = getSimpleObject( service, repositoryId, newObjectId );
+
+        if ( object == null )
+        {
+            throw new CmisRuntimeException( "Object is null!" );
         }
 
         // set headers
-        String location = compileUrl(compileBaseUrl(request, repositoryId), RESOURCE_CONTENT, newObjectId);
+        String location = compileUrl( compileBaseUrl( request, repositoryId ), RESOURCE_CONTENT, newObjectId );
 
-        setStatus(request, response, HttpServletResponse.SC_CREATED);
-        response.setHeader("Location", location);
+        setStatus( request, response, HttpServletResponse.SC_CREATED );
+        response.setHeader( "Location", location );
 
         // return object
-        TypeCache typeCache = new TypeCacheImpl(repositoryId, service);
-        JSONObject jsonObject = JSONConverter.convert(object, typeCache, false);
+        TypeCache typeCache = new TypeCacheImpl( repositoryId, service );
+        JSONObject jsonObject = JSONConverter.convert( object, typeCache, false );
 
-        writeJSON(jsonObject, request, response);
+        writeJSON( jsonObject, request, response );
     }
 }

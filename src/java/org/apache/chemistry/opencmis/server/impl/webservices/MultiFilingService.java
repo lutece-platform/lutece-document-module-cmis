@@ -18,63 +18,80 @@
  */
 package org.apache.chemistry.opencmis.server.impl.webservices;
 
+import org.apache.chemistry.opencmis.commons.data.ExtensionsData;
 import static org.apache.chemistry.opencmis.commons.impl.Converter.convertExtensionHolder;
 import static org.apache.chemistry.opencmis.commons.impl.Converter.setExtensionValues;
-
-import javax.annotation.Resource;
-import javax.jws.WebService;
-import javax.xml.ws.Holder;
-import javax.xml.ws.WebServiceContext;
-import javax.xml.ws.soap.MTOM;
-
-import org.apache.chemistry.opencmis.commons.data.ExtensionsData;
 import org.apache.chemistry.opencmis.commons.impl.jaxb.CmisException;
 import org.apache.chemistry.opencmis.commons.impl.jaxb.CmisExtensionType;
 import org.apache.chemistry.opencmis.commons.impl.jaxb.MultiFilingServicePort;
 import org.apache.chemistry.opencmis.commons.server.CmisService;
 
+import javax.annotation.Resource;
+
+import javax.jws.WebService;
+
+import javax.xml.ws.Holder;
+import javax.xml.ws.WebServiceContext;
+import javax.xml.ws.soap.MTOM;
+
+
 /**
  * CMIS MultiFiling Service.
  */
 @MTOM
-@WebService(endpointInterface = "org.apache.chemistry.opencmis.commons.impl.jaxb.MultiFilingServicePort")
-public class MultiFilingService extends AbstractService implements MultiFilingServicePort {
+@WebService( endpointInterface = "org.apache.chemistry.opencmis.commons.impl.jaxb.MultiFilingServicePort" )
+public class MultiFilingService extends AbstractService implements MultiFilingServicePort
+{
     @Resource
     public WebServiceContext wsContext;
 
-    public void addObjectToFolder(String repositoryId, String objectId, String folderId, Boolean allVersions,
-            Holder<CmisExtensionType> extension) throws CmisException {
+    public void addObjectToFolder( String repositoryId, String objectId, String folderId, Boolean allVersions,
+        Holder<CmisExtensionType> extension ) throws CmisException
+    {
         CmisService service = null;
-        try {
-            service = getService(wsContext, repositoryId);
 
-            ExtensionsData extData = convertExtensionHolder(extension);
+        try
+        {
+            service = getService( wsContext, repositoryId );
 
-            service.addObjectToFolder(repositoryId, objectId, folderId, allVersions, extData);
+            ExtensionsData extData = convertExtensionHolder( extension );
 
-            setExtensionValues(extData, extension);
-        } catch (Exception e) {
-            throw convertException(e);
-        } finally {
-            closeService(service);
+            service.addObjectToFolder( repositoryId, objectId, folderId, allVersions, extData );
+
+            setExtensionValues( extData, extension );
+        }
+        catch ( Exception e )
+        {
+            throw convertException( e );
+        }
+        finally
+        {
+            closeService( service );
         }
     }
 
-    public void removeObjectFromFolder(String repositoryId, String objectId, String folderId,
-            Holder<CmisExtensionType> extension) throws CmisException {
+    public void removeObjectFromFolder( String repositoryId, String objectId, String folderId,
+        Holder<CmisExtensionType> extension ) throws CmisException
+    {
         CmisService service = null;
-        try {
-            service = getService(wsContext, repositoryId);
 
-            ExtensionsData extData = convertExtensionHolder(extension);
+        try
+        {
+            service = getService( wsContext, repositoryId );
 
-            service.removeObjectFromFolder(repositoryId, objectId, folderId, extData);
+            ExtensionsData extData = convertExtensionHolder( extension );
 
-            setExtensionValues(extData, extension);
-        } catch (Exception e) {
-            throw convertException(e);
-        } finally {
-            closeService(service);
+            service.removeObjectFromFolder( repositoryId, objectId, folderId, extData );
+
+            setExtensionValues( extData, extension );
+        }
+        catch ( Exception e )
+        {
+            throw convertException( e );
+        }
+        finally
+        {
+            closeService( service );
         }
     }
 }

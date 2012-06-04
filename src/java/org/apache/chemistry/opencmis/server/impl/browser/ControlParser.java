@@ -18,6 +18,8 @@
  */
 package org.apache.chemistry.opencmis.server.impl.browser;
 
+import org.apache.chemistry.opencmis.commons.exceptions.CmisInvalidArgumentException;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -25,171 +27,219 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.chemistry.opencmis.commons.exceptions.CmisInvalidArgumentException;
 
 /**
  * Parses HTML form controls.
  */
-public class ControlParser {
-
+public class ControlParser
+{
     private final HttpServletRequest request;
+    private final Map<String, String> zeroDim = new HashMap<String, String>(  );
+    private final Map<String, Map<Integer, String>> oneDim = new HashMap<String, Map<Integer, String>>(  );
+    private final Map<String, Map<Integer, Map<Integer, String>>> twoDim = new HashMap<String, Map<Integer, Map<Integer, String>>>(  );
 
-    private final Map<String, String> zeroDim = new HashMap<String, String>();
-    private final Map<String, Map<Integer, String>> oneDim = new HashMap<String, Map<Integer, String>>();
-    private final Map<String, Map<Integer, Map<Integer, String>>> twoDim = new HashMap<String, Map<Integer, Map<Integer, String>>>();
-
-    public ControlParser(HttpServletRequest request) {
+    public ControlParser( HttpServletRequest request )
+    {
         this.request = request;
-        parse();
+        parse(  );
     }
 
-    @SuppressWarnings("unchecked")
-    private void parse() {
+    @SuppressWarnings( "unchecked" )
+    private void parse(  )
+    {
         // gather all controls
-        Map<String, String[]> controls = request.getParameterMap();
-        for (Map.Entry<String, String[]> control : controls.entrySet()) {
-            String controlName = control.getKey().trim().toLowerCase();
+        Map<String, String[]> controls = request.getParameterMap(  );
 
-            int firstIndex = getFirstIndex(controlName);
+        for ( Map.Entry<String, String[]> control : controls.entrySet(  ) )
+        {
+            String controlName = control.getKey(  ).trim(  ).toLowerCase(  );
 
-            if (firstIndex == -1) {
-                zeroDim.put(controlName, control.getValue()[0]);
-            } else {
-                String strippedControlName = controlName.substring(0, controlName.indexOf('['));
-                int secondIndex = getSecondIndex(controlName);
+            int firstIndex = getFirstIndex( controlName );
 
-                if (secondIndex == -1) {
-                    Map<Integer, String> values = oneDim.get(strippedControlName);
-                    if (values == null) {
-                        values = new HashMap<Integer, String>();
-                        oneDim.put(strippedControlName, values);
+            if ( firstIndex == -1 )
+            {
+                zeroDim.put( controlName, control.getValue(  )[0] );
+            }
+            else
+            {
+                String strippedControlName = controlName.substring( 0, controlName.indexOf( '[' ) );
+                int secondIndex = getSecondIndex( controlName );
+
+                if ( secondIndex == -1 )
+                {
+                    Map<Integer, String> values = oneDim.get( strippedControlName );
+
+                    if ( values == null )
+                    {
+                        values = new HashMap<Integer, String>(  );
+                        oneDim.put( strippedControlName, values );
                     }
 
-                    values.put(firstIndex, control.getValue()[0]);
-                } else {
-                    Map<Integer, Map<Integer, String>> values = twoDim.get(strippedControlName);
-                    if (values == null) {
-                        values = new HashMap<Integer, Map<Integer, String>>();
-                        twoDim.put(strippedControlName, values);
+                    values.put( firstIndex, control.getValue(  )[0] );
+                }
+                else
+                {
+                    Map<Integer, Map<Integer, String>> values = twoDim.get( strippedControlName );
+
+                    if ( values == null )
+                    {
+                        values = new HashMap<Integer, Map<Integer, String>>(  );
+                        twoDim.put( strippedControlName, values );
                     }
 
-                    Map<Integer, String> list = values.get(firstIndex);
-                    if (list == null) {
-                        list = new HashMap<Integer, String>();
-                        values.put(firstIndex, list);
+                    Map<Integer, String> list = values.get( firstIndex );
+
+                    if ( list == null )
+                    {
+                        list = new HashMap<Integer, String>(  );
+                        values.put( firstIndex, list );
                     }
 
-                    list.put(secondIndex, control.getValue()[0]);
+                    list.put( secondIndex, control.getValue(  )[0] );
                 }
             }
         }
     }
 
-    private static int getFirstIndex(String controlName) {
+    private static int getFirstIndex( String controlName )
+    {
         int result = -1;
 
-        int open = controlName.indexOf('[');
-        int close = controlName.indexOf(']');
+        int open = controlName.indexOf( '[' );
+        int close = controlName.indexOf( ']' );
 
-        if (open == -1 || close == -1 || close < open) {
+        if ( ( open == -1 ) || ( close == -1 ) || ( close < open ) )
+        {
             return result;
         }
 
-        String indexStr = controlName.substring(open + 1, close);
-        try {
-            result = Integer.parseInt(indexStr);
-            if (result < 0) {
+        String indexStr = controlName.substring( open + 1, close );
+
+        try
+        {
+            result = Integer.parseInt( indexStr );
+
+            if ( result < 0 )
+            {
                 result = -1;
             }
-        } catch (NumberFormatException e) {
+        }
+        catch ( NumberFormatException e )
+        {
         }
 
         return result;
     }
 
-    private static int getSecondIndex(String controlName) {
+    private static int getSecondIndex( String controlName )
+    {
         int result = -1;
 
-        int open = controlName.indexOf("][");
-        int close = controlName.lastIndexOf(']');
+        int open = controlName.indexOf( "][" );
+        int close = controlName.lastIndexOf( ']' );
 
-        if (open == -1 || close == -1 || close < open) {
+        if ( ( open == -1 ) || ( close == -1 ) || ( close < open ) )
+        {
             return result;
         }
 
-        String indexStr = controlName.substring(open + 2, close);
-        try {
-            result = Integer.parseInt(indexStr);
-            if (result < 0) {
+        String indexStr = controlName.substring( open + 2, close );
+
+        try
+        {
+            result = Integer.parseInt( indexStr );
+
+            if ( result < 0 )
+            {
                 result = -1;
             }
-        } catch (NumberFormatException e) {
+        }
+        catch ( NumberFormatException e )
+        {
         }
 
         return result;
     }
 
-    private static List<String> convertToList(String controlName, Map<Integer, String> map) {
-        if (map == null) {
+    private static List<String> convertToList( String controlName, Map<Integer, String> map )
+    {
+        if ( map == null )
+        {
             return null;
         }
 
-        int count = map.size();
-        List<String> result = new ArrayList<String>(count);
+        int count = map.size(  );
+        List<String> result = new ArrayList<String>( count );
 
-        for (int i = 0; i < count; i++) {
-            String value = map.get(i);
-            if (value == null) {
-                throw new CmisInvalidArgumentException(controlName + " has gaps!");
+        for ( int i = 0; i < count; i++ )
+        {
+            String value = map.get( i );
+
+            if ( value == null )
+            {
+                throw new CmisInvalidArgumentException( controlName + " has gaps!" );
             }
-            result.add(value);
+
+            result.add( value );
         }
 
         return result;
     }
 
-    public String getValue(String controlName) {
-        if (controlName == null) {
-            throw new IllegalArgumentException("controlName must not be null!");
+    public String getValue( String controlName )
+    {
+        if ( controlName == null )
+        {
+            throw new IllegalArgumentException( "controlName must not be null!" );
         }
 
-        return zeroDim.get(controlName.toLowerCase());
+        return zeroDim.get( controlName.toLowerCase(  ) );
     }
 
-    public List<String> getValues(String controlName) {
-        if (controlName == null) {
-            throw new IllegalArgumentException("controlName must not be null!");
+    public List<String> getValues( String controlName )
+    {
+        if ( controlName == null )
+        {
+            throw new IllegalArgumentException( "controlName must not be null!" );
         }
 
-        return convertToList(controlName, oneDim.get(controlName.toLowerCase()));
+        return convertToList( controlName, oneDim.get( controlName.toLowerCase(  ) ) );
     }
 
-    public List<String> getValues(String controlName, int index) {
-        if (controlName == null) {
-            throw new IllegalArgumentException("controlName must not be null!");
+    public List<String> getValues( String controlName, int index )
+    {
+        if ( controlName == null )
+        {
+            throw new IllegalArgumentException( "controlName must not be null!" );
         }
 
-        Map<Integer, Map<Integer, String>> map = twoDim.get(controlName.toLowerCase());
-        if (map == null) {
+        Map<Integer, Map<Integer, String>> map = twoDim.get( controlName.toLowerCase(  ) );
+
+        if ( map == null )
+        {
             return null;
         }
 
-        return convertToList(controlName, map.get(index));
+        return convertToList( controlName, map.get( index ) );
     }
 
-    public Map<Integer, String> getOneDimMap(String controlName) {
-        if (controlName == null) {
-            throw new IllegalArgumentException("controlName must not be null!");
+    public Map<Integer, String> getOneDimMap( String controlName )
+    {
+        if ( controlName == null )
+        {
+            throw new IllegalArgumentException( "controlName must not be null!" );
         }
 
-        return oneDim.get(controlName.toLowerCase());
+        return oneDim.get( controlName.toLowerCase(  ) );
     }
 
-    public Map<Integer, Map<Integer, String>> getTwoDimMap(String controlName) {
-        if (controlName == null) {
-            throw new IllegalArgumentException("controlName must not be null!");
+    public Map<Integer, Map<Integer, String>> getTwoDimMap( String controlName )
+    {
+        if ( controlName == null )
+        {
+            throw new IllegalArgumentException( "controlName must not be null!" );
         }
 
-        return twoDim.get(controlName.toLowerCase());
+        return twoDim.get( controlName.toLowerCase(  ) );
     }
 }

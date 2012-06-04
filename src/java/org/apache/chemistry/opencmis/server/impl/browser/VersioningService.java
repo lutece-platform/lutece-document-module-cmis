@@ -18,11 +18,21 @@
  */
 package org.apache.chemistry.opencmis.server.impl.browser;
 
+import org.apache.chemistry.opencmis.commons.data.ObjectData;
+import org.apache.chemistry.opencmis.commons.exceptions.CmisRuntimeException;
 import static org.apache.chemistry.opencmis.commons.impl.Constants.PARAM_ALLOWABLE_ACTIONS;
 import static org.apache.chemistry.opencmis.commons.impl.Constants.PARAM_CHECKIN_COMMENT;
 import static org.apache.chemistry.opencmis.commons.impl.Constants.PARAM_FILTER;
 import static org.apache.chemistry.opencmis.commons.impl.Constants.PARAM_MAJOR;
 import static org.apache.chemistry.opencmis.commons.impl.Constants.PARAM_TRANSACTION;
+import org.apache.chemistry.opencmis.commons.impl.JSONConverter;
+import org.apache.chemistry.opencmis.commons.impl.TypeCache;
+import org.apache.chemistry.opencmis.commons.impl.json.JSONArray;
+import org.apache.chemistry.opencmis.commons.impl.json.JSONObject;
+import org.apache.chemistry.opencmis.commons.impl.server.TypeCacheImpl;
+import org.apache.chemistry.opencmis.commons.server.CallContext;
+import org.apache.chemistry.opencmis.commons.server.CmisService;
+import org.apache.chemistry.opencmis.commons.spi.Holder;
 import static org.apache.chemistry.opencmis.server.impl.atompub.AtomPubUtils.RESOURCE_CONTENT;
 import static org.apache.chemistry.opencmis.server.impl.atompub.AtomPubUtils.compileBaseUrl;
 import static org.apache.chemistry.opencmis.server.impl.atompub.AtomPubUtils.compileUrl;
@@ -47,141 +57,147 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.chemistry.opencmis.commons.data.ObjectData;
-import org.apache.chemistry.opencmis.commons.exceptions.CmisRuntimeException;
-import org.apache.chemistry.opencmis.commons.impl.JSONConverter;
-import org.apache.chemistry.opencmis.commons.impl.TypeCache;
-import org.apache.chemistry.opencmis.commons.impl.json.JSONArray;
-import org.apache.chemistry.opencmis.commons.impl.json.JSONObject;
-import org.apache.chemistry.opencmis.commons.impl.server.TypeCacheImpl;
-import org.apache.chemistry.opencmis.commons.server.CallContext;
-import org.apache.chemistry.opencmis.commons.server.CmisService;
-import org.apache.chemistry.opencmis.commons.spi.Holder;
 
 /**
  * Versioning Service operations.
  */
-public class VersioningService {
-
-    private VersioningService() {
+public class VersioningService
+{
+    private VersioningService(  )
+    {
     }
 
     /**
      * checkOut.
      */
-    public static void checkOut(CallContext context, CmisService service, String repositoryId,
-            HttpServletRequest request, HttpServletResponse response) throws Exception {
+    public static void checkOut( CallContext context, CmisService service, String repositoryId,
+        HttpServletRequest request, HttpServletResponse response )
+        throws Exception
+    {
         // get parameters
-        String objectId = (String) context.get(CONTEXT_OBJECT_ID);
-        String transaction = getStringParameter(request, PARAM_TRANSACTION);
+        String objectId = (String) context.get( CONTEXT_OBJECT_ID );
+        String transaction = getStringParameter( request, PARAM_TRANSACTION );
 
         // execute
-        Holder<String> checkOutId = new Holder<String>(objectId);
-        service.checkOut(repositoryId, checkOutId, null, null);
+        Holder<String> checkOutId = new Holder<String>( objectId );
+        service.checkOut( repositoryId, checkOutId, null, null );
 
-        ObjectData object = getSimpleObject(service, repositoryId, checkOutId.getValue());
-        if (object == null) {
-            throw new CmisRuntimeException("PWC is null!");
+        ObjectData object = getSimpleObject( service, repositoryId, checkOutId.getValue(  ) );
+
+        if ( object == null )
+        {
+            throw new CmisRuntimeException( "PWC is null!" );
         }
 
         // return object
-        TypeCache typeCache = new TypeCacheImpl(repositoryId, service);
-        JSONObject jsonObject = JSONConverter.convert(object, typeCache, false);
+        TypeCache typeCache = new TypeCacheImpl( repositoryId, service );
+        JSONObject jsonObject = JSONConverter.convert( object, typeCache, false );
 
         // set headers
-        String location = compileUrl(compileBaseUrl(request, repositoryId), RESOURCE_CONTENT, object.getId());
+        String location = compileUrl( compileBaseUrl( request, repositoryId ), RESOURCE_CONTENT, object.getId(  ) );
 
-        setStatus(request, response, HttpServletResponse.SC_CREATED);
-        response.setHeader("Location", location);
+        setStatus( request, response, HttpServletResponse.SC_CREATED );
+        response.setHeader( "Location", location );
 
-        setCookie(request, response, repositoryId, transaction,
-                createCookieValue(HttpServletResponse.SC_CREATED, object.getId(), null, null));
+        setCookie( request, response, repositoryId, transaction,
+            createCookieValue( HttpServletResponse.SC_CREATED, object.getId(  ), null, null ) );
 
-        writeJSON(jsonObject, request, response);
+        writeJSON( jsonObject, request, response );
     }
 
     /**
      * checkOut.
      */
-    public static void cancelCheckOut(CallContext context, CmisService service, String repositoryId,
-            HttpServletRequest request, HttpServletResponse response) throws Exception {
+    public static void cancelCheckOut( CallContext context, CmisService service, String repositoryId,
+        HttpServletRequest request, HttpServletResponse response )
+        throws Exception
+    {
         // get parameters
-        String objectId = (String) context.get(CONTEXT_OBJECT_ID);
+        String objectId = (String) context.get( CONTEXT_OBJECT_ID );
 
         // execute
-        service.cancelCheckOut(repositoryId, objectId, null);
+        service.cancelCheckOut( repositoryId, objectId, null );
 
-        response.setStatus(HttpServletResponse.SC_OK);
-        writeEmpty(request, response);
+        response.setStatus( HttpServletResponse.SC_OK );
+        writeEmpty( request, response );
     }
 
     /**
      * checkIn.
      */
-    public static void checkIn(CallContext context, CmisService service, String repositoryId,
-            HttpServletRequest request, HttpServletResponse response) throws Exception {
+    public static void checkIn( CallContext context, CmisService service, String repositoryId,
+        HttpServletRequest request, HttpServletResponse response )
+        throws Exception
+    {
         // get parameters
-        String objectId = (String) context.get(CONTEXT_OBJECT_ID);
-        String typeId = (String) context.get(CONTEXT_OBJECT_TYPE_ID);
-        Boolean major = getBooleanParameter(request, PARAM_MAJOR);
-        String checkinComment = getStringParameter(request, PARAM_CHECKIN_COMMENT);
-        String transaction = getStringParameter(request, PARAM_TRANSACTION);
+        String objectId = (String) context.get( CONTEXT_OBJECT_ID );
+        String typeId = (String) context.get( CONTEXT_OBJECT_TYPE_ID );
+        Boolean major = getBooleanParameter( request, PARAM_MAJOR );
+        String checkinComment = getStringParameter( request, PARAM_CHECKIN_COMMENT );
+        String transaction = getStringParameter( request, PARAM_TRANSACTION );
 
         // execute
-        ControlParser cp = new ControlParser(request);
-        TypeCache typeCache = new TypeCacheImpl(repositoryId, service);
-        Holder<String> objectIdHolder = new Holder<String>(objectId);
+        ControlParser cp = new ControlParser( request );
+        TypeCache typeCache = new TypeCacheImpl( repositoryId, service );
+        Holder<String> objectIdHolder = new Holder<String>( objectId );
 
-        service.checkIn(repositoryId, objectIdHolder, major, createProperties(cp, typeId, typeCache),
-                createContentStream(request), checkinComment, createPolicies(cp), createAddAcl(cp),
-                createRemoveAcl(cp), null);
+        service.checkIn( repositoryId, objectIdHolder, major, createProperties( cp, typeId, typeCache ),
+            createContentStream( request ), checkinComment, createPolicies( cp ), createAddAcl( cp ),
+            createRemoveAcl( cp ), null );
 
-        String newObjectId = (objectIdHolder.getValue() == null ? objectId : objectIdHolder.getValue());
+        String newObjectId = ( ( objectIdHolder.getValue(  ) == null ) ? objectId : objectIdHolder.getValue(  ) );
 
-        ObjectData object = getSimpleObject(service, repositoryId, newObjectId);
-        if (object == null) {
-            throw new CmisRuntimeException("New version is null!");
+        ObjectData object = getSimpleObject( service, repositoryId, newObjectId );
+
+        if ( object == null )
+        {
+            throw new CmisRuntimeException( "New version is null!" );
         }
 
         // return object
-        JSONObject jsonObject = JSONConverter.convert(object, typeCache, false);
+        JSONObject jsonObject = JSONConverter.convert( object, typeCache, false );
 
-        String location = compileUrl(compileBaseUrl(request, repositoryId), RESOURCE_CONTENT, object.getId());
+        String location = compileUrl( compileBaseUrl( request, repositoryId ), RESOURCE_CONTENT, object.getId(  ) );
 
-        setStatus(request, response, HttpServletResponse.SC_CREATED);
-        response.setHeader("Location", location);
+        setStatus( request, response, HttpServletResponse.SC_CREATED );
+        response.setHeader( "Location", location );
 
-        setCookie(request, response, repositoryId, transaction,
-                createCookieValue(HttpServletResponse.SC_CREATED, object.getId(), null, null));
+        setCookie( request, response, repositoryId, transaction,
+            createCookieValue( HttpServletResponse.SC_CREATED, object.getId(  ), null, null ) );
 
-        writeJSON(jsonObject, request, response);
+        writeJSON( jsonObject, request, response );
     }
 
     /**
      * getAllVersions.
      */
-    public static void getAllVersions(CallContext context, CmisService service, String repositoryId,
-            HttpServletRequest request, HttpServletResponse response) throws Exception {
+    public static void getAllVersions( CallContext context, CmisService service, String repositoryId,
+        HttpServletRequest request, HttpServletResponse response )
+        throws Exception
+    {
         // get parameters
-        String objectId = (String) context.get(CONTEXT_OBJECT_ID);
-        String filter = getStringParameter(request, PARAM_FILTER);
-        Boolean includeAllowableActions = getBooleanParameter(request, PARAM_ALLOWABLE_ACTIONS);
+        String objectId = (String) context.get( CONTEXT_OBJECT_ID );
+        String filter = getStringParameter( request, PARAM_FILTER );
+        Boolean includeAllowableActions = getBooleanParameter( request, PARAM_ALLOWABLE_ACTIONS );
 
         // execute
-        List<ObjectData> versions = service.getAllVersions(repositoryId, objectId, null, filter,
-                includeAllowableActions, null);
+        List<ObjectData> versions = service.getAllVersions( repositoryId, objectId, null, filter,
+                includeAllowableActions, null );
 
-        if (versions == null) {
-            throw new CmisRuntimeException("Versions are null!");
+        if ( versions == null )
+        {
+            throw new CmisRuntimeException( "Versions are null!" );
         }
 
-        TypeCache typeCache = new TypeCacheImpl(repositoryId, service);
-        JSONArray jsonVersions = new JSONArray();
-        for (ObjectData version : versions) {
-            jsonVersions.add(JSONConverter.convert(version, typeCache, false));
+        TypeCache typeCache = new TypeCacheImpl( repositoryId, service );
+        JSONArray jsonVersions = new JSONArray(  );
+
+        for ( ObjectData version : versions )
+        {
+            jsonVersions.add( JSONConverter.convert( version, typeCache, false ) );
         }
 
-        response.setStatus(HttpServletResponse.SC_OK);
-        writeJSON(jsonVersions, request, response);
+        response.setStatus( HttpServletResponse.SC_OK );
+        writeJSON( jsonVersions, request, response );
     }
 }

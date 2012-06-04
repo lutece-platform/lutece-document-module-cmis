@@ -18,19 +18,9 @@
  */
 package org.apache.chemistry.opencmis.server.impl.webservices;
 
+import org.apache.chemistry.opencmis.commons.data.RepositoryInfo;
 import static org.apache.chemistry.opencmis.commons.impl.Converter.convert;
 import static org.apache.chemistry.opencmis.commons.impl.Converter.convertTypeContainerList;
-
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.annotation.Resource;
-import javax.jws.WebService;
-import javax.xml.ws.WebServiceContext;
-import javax.xml.ws.soap.MTOM;
-
-import org.apache.chemistry.opencmis.commons.data.RepositoryInfo;
 import org.apache.chemistry.opencmis.commons.impl.jaxb.CmisException;
 import org.apache.chemistry.opencmis.commons.impl.jaxb.CmisExtensionType;
 import org.apache.chemistry.opencmis.commons.impl.jaxb.CmisRepositoryEntryType;
@@ -41,102 +31,156 @@ import org.apache.chemistry.opencmis.commons.impl.jaxb.CmisTypeDefinitionType;
 import org.apache.chemistry.opencmis.commons.impl.jaxb.RepositoryServicePort;
 import org.apache.chemistry.opencmis.commons.server.CmisService;
 
+import java.math.BigInteger;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import javax.jws.WebService;
+
+import javax.xml.ws.WebServiceContext;
+import javax.xml.ws.soap.MTOM;
+
+
 /**
  * CMIS Repository Service.
  */
 @MTOM
-@WebService(endpointInterface = "org.apache.chemistry.opencmis.commons.impl.jaxb.RepositoryServicePort")
-public class RepositoryService extends AbstractService implements RepositoryServicePort {
+@WebService( endpointInterface = "org.apache.chemistry.opencmis.commons.impl.jaxb.RepositoryServicePort" )
+public class RepositoryService extends AbstractService implements RepositoryServicePort
+{
     @Resource
     public WebServiceContext wsContext;
 
-    public List<CmisRepositoryEntryType> getRepositories(CmisExtensionType extension) throws CmisException {
+    public List<CmisRepositoryEntryType> getRepositories( CmisExtensionType extension )
+        throws CmisException
+    {
         CmisService service = null;
-        try {
-            service = getService(wsContext, null);
 
-            List<RepositoryInfo> infoDataList = service.getRepositoryInfos(convert(extension));
+        try
+        {
+            service = getService( wsContext, null );
 
-            if (infoDataList == null) {
+            List<RepositoryInfo> infoDataList = service.getRepositoryInfos( convert( extension ) );
+
+            if ( infoDataList == null )
+            {
                 return null;
             }
 
-            List<CmisRepositoryEntryType> result = new ArrayList<CmisRepositoryEntryType>();
-            for (RepositoryInfo infoData : infoDataList) {
-                CmisRepositoryEntryType entry = new CmisRepositoryEntryType();
-                entry.setRepositoryId(infoData.getId());
-                entry.setRepositoryName(infoData.getName());
+            List<CmisRepositoryEntryType> result = new ArrayList<CmisRepositoryEntryType>(  );
 
-                result.add(entry);
+            for ( RepositoryInfo infoData : infoDataList )
+            {
+                CmisRepositoryEntryType entry = new CmisRepositoryEntryType(  );
+                entry.setRepositoryId( infoData.getId(  ) );
+                entry.setRepositoryName( infoData.getName(  ) );
+
+                result.add( entry );
             }
 
             return result;
-        } catch (Exception e) {
-            throw convertException(e);
-        } finally {
-            closeService(service);
+        }
+        catch ( Exception e )
+        {
+            throw convertException( e );
+        }
+        finally
+        {
+            closeService( service );
         }
     }
 
-    public CmisRepositoryInfoType getRepositoryInfo(String repositoryId, CmisExtensionType extension)
-            throws CmisException {
+    public CmisRepositoryInfoType getRepositoryInfo( String repositoryId, CmisExtensionType extension )
+        throws CmisException
+    {
         CmisService service = null;
-        try {
-            service = getService(wsContext, repositoryId);
 
-            return convert(service.getRepositoryInfo(repositoryId, convert(extension)));
-        } catch (Exception e) {
-            throw convertException(e);
-        } finally {
-            closeService(service);
+        try
+        {
+            service = getService( wsContext, repositoryId );
+
+            return convert( service.getRepositoryInfo( repositoryId, convert( extension ) ) );
+        }
+        catch ( Exception e )
+        {
+            throw convertException( e );
+        }
+        finally
+        {
+            closeService( service );
         }
     }
 
-    public CmisTypeDefinitionListType getTypeChildren(String repositoryId, String typeId,
-            Boolean includePropertyDefinitions, BigInteger maxItems, BigInteger skipCount, CmisExtensionType extension)
-            throws CmisException {
+    public CmisTypeDefinitionListType getTypeChildren( String repositoryId, String typeId,
+        Boolean includePropertyDefinitions, BigInteger maxItems, BigInteger skipCount, CmisExtensionType extension )
+        throws CmisException
+    {
         CmisService service = null;
-        try {
-            service = getService(wsContext, repositoryId);
 
-            return convert(service.getTypeChildren(repositoryId, typeId, includePropertyDefinitions, maxItems,
-                    skipCount, convert(extension)));
-        } catch (Exception e) {
-            throw convertException(e);
-        } finally {
-            closeService(service);
+        try
+        {
+            service = getService( wsContext, repositoryId );
+
+            return convert( service.getTypeChildren( repositoryId, typeId, includePropertyDefinitions, maxItems,
+                    skipCount, convert( extension ) ) );
+        }
+        catch ( Exception e )
+        {
+            throw convertException( e );
+        }
+        finally
+        {
+            closeService( service );
         }
     }
 
-    public CmisTypeDefinitionType getTypeDefinition(String repositoryId, String typeId, CmisExtensionType extension)
-            throws CmisException {
+    public CmisTypeDefinitionType getTypeDefinition( String repositoryId, String typeId, CmisExtensionType extension )
+        throws CmisException
+    {
         CmisService service = null;
-        try {
-            service = getService(wsContext, repositoryId);
 
-            return convert(service.getTypeDefinition(repositoryId, typeId, convert(extension)));
-        } catch (Exception e) {
-            throw convertException(e);
-        } finally {
-            closeService(service);
+        try
+        {
+            service = getService( wsContext, repositoryId );
+
+            return convert( service.getTypeDefinition( repositoryId, typeId, convert( extension ) ) );
+        }
+        catch ( Exception e )
+        {
+            throw convertException( e );
+        }
+        finally
+        {
+            closeService( service );
         }
     }
 
-    public List<CmisTypeContainer> getTypeDescendants(String repositoryId, String typeId, BigInteger depth,
-            Boolean includePropertyDefinitions, CmisExtensionType extension) throws CmisException {
+    public List<CmisTypeContainer> getTypeDescendants( String repositoryId, String typeId, BigInteger depth,
+        Boolean includePropertyDefinitions, CmisExtensionType extension )
+        throws CmisException
+    {
         CmisService service = null;
-        try {
-            service = getService(wsContext, repositoryId);
 
-            List<CmisTypeContainer> result = new ArrayList<CmisTypeContainer>();
-            convertTypeContainerList(service.getTypeDescendants(repositoryId, typeId, depth,
-                    includePropertyDefinitions, convert(extension)), result);
+        try
+        {
+            service = getService( wsContext, repositoryId );
+
+            List<CmisTypeContainer> result = new ArrayList<CmisTypeContainer>(  );
+            convertTypeContainerList( service.getTypeDescendants( repositoryId, typeId, depth,
+                    includePropertyDefinitions, convert( extension ) ), result );
 
             return result;
-        } catch (Exception e) {
-            throw convertException(e);
-        } finally {
-            closeService(service);
+        }
+        catch ( Exception e )
+        {
+            throw convertException( e );
+        }
+        finally
+        {
+            closeService( service );
         }
     }
 }

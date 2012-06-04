@@ -34,16 +34,21 @@
 package fr.paris.lutece.plugins.document.modules.cmis.web;
 
 import fr.paris.lutece.portal.service.spring.SpringContextService;
+
+import org.apache.chemistry.opencmis.commons.server.CmisServiceFactory;
+import org.apache.chemistry.opencmis.server.impl.CmisRepositoryContextListener;
+
 import java.io.IOException;
+
 import java.util.HashMap;
+
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.apache.chemistry.opencmis.commons.server.CmisServiceFactory;
-import org.apache.chemistry.opencmis.server.impl.CmisRepositoryContextListener;
+
 
 /**
  *
@@ -54,27 +59,27 @@ public abstract class CmisWrapperServlet extends HttpServlet
     private static final String BEAN_FACTORY = "document-cmis.CmisServiceFactory";
     HttpServlet _servlet;
 
-    abstract String getServletBean();
-    
+    abstract String getServletBean(  );
+
     @Override
-    public void init(ServletConfig config) throws ServletException 
+    public void init( ServletConfig config ) throws ServletException
     {
         CmisServiceFactory factory = SpringContextService.getBean( BEAN_FACTORY );
-        factory.init(new HashMap<String, String>());
-        ServletContext servletContext = config.getServletContext();
-        servletContext.setAttribute( CmisRepositoryContextListener.SERVICES_FACTORY, factory);
+        factory.init( new HashMap<String, String>(  ) );
 
-        _servlet = SpringContextService.getBean( getServletBean() );
-        
-        _servlet.init(config);
-        super.init(config);
+        ServletContext servletContext = config.getServletContext(  );
+        servletContext.setAttribute( CmisRepositoryContextListener.SERVICES_FACTORY, factory );
+
+        _servlet = SpringContextService.getBean( getServletBean(  ) );
+
+        _servlet.init( config );
+        super.init( config );
     }
 
     @Override
-    protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException 
+    protected void service( HttpServletRequest req, HttpServletResponse resp )
+        throws ServletException, IOException
     {
-        _servlet.service(req, resp);
+        _servlet.service( req, resp );
     }
-        
-    
 }

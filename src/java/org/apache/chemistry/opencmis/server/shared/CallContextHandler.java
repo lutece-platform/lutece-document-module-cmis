@@ -18,19 +18,20 @@
  */
 package org.apache.chemistry.opencmis.server.shared;
 
+import org.apache.chemistry.opencmis.commons.server.CallContext;
+
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.chemistry.opencmis.commons.server.CallContext;
 
 /**
  * Call Context handler interface.
  */
-public interface CallContextHandler {
-
+public interface CallContextHandler
+{
     /**
      * Returns key-value pairs that will be added to the {@link CallContext}.
      */
-    Map<String, String> getCallContextMap(HttpServletRequest request);
+    Map<String, String> getCallContextMap( HttpServletRequest request );
 }

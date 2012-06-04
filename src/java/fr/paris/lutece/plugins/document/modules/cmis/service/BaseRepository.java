@@ -33,13 +33,16 @@
  */
 package fr.paris.lutece.plugins.document.modules.cmis.service;
 
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.util.*;
 import org.apache.chemistry.opencmis.commons.data.PermissionMapping;
 import org.apache.chemistry.opencmis.commons.definitions.PermissionDefinition;
 import org.apache.chemistry.opencmis.commons.definitions.PropertyDefinition;
 import org.apache.chemistry.opencmis.commons.impl.dataobjects.*;
+
+import java.math.BigDecimal;
+import java.math.BigInteger;
+
+import java.util.*;
+
 
 /**
  *
@@ -47,105 +50,104 @@ import org.apache.chemistry.opencmis.commons.impl.dataobjects.*;
  */
 public abstract class BaseRepository
 {
-    protected static PermissionDefinition createPermission(String permission, String description)
+    protected static PermissionDefinition createPermission( String permission, String description )
     {
-        PermissionDefinitionDataImpl pd = new PermissionDefinitionDataImpl();
-        pd.setPermission(permission);
-        pd.setDescription(description);
+        PermissionDefinitionDataImpl pd = new PermissionDefinitionDataImpl(  );
+        pd.setPermission( permission );
+        pd.setDescription( description );
 
         return pd;
     }
 
-    protected static PermissionMapping createMapping(String key, String permission)
+    protected static PermissionMapping createMapping( String key, String permission )
     {
-        PermissionMappingDataImpl pm = new PermissionMappingDataImpl();
-        pm.setKey(key);
-        pm.setPermissions(Collections.singletonList(permission));
+        PermissionMappingDataImpl pm = new PermissionMappingDataImpl(  );
+        pm.setKey( key );
+        pm.setPermissions( Collections.singletonList( permission ) );
 
         return pm;
     }
 
-
-    protected void addPropertyId(PropertiesImpl props, String typeId, Set<String> filter, String id, String value)
+    protected void addPropertyId( PropertiesImpl props, String typeId, Set<String> filter, String id, String value )
     {
-        if (!checkAddProperty(props, typeId, filter, id))
+        if ( !checkAddProperty( props, typeId, filter, id ) )
         {
             return;
         }
 
-        props.addProperty(new PropertyIdImpl(id, value));
+        props.addProperty( new PropertyIdImpl( id, value ) );
     }
 
-    protected void addPropertyIdList(PropertiesImpl props, String typeId, Set<String> filter, String id,
-            List<String> value)
+    protected void addPropertyIdList( PropertiesImpl props, String typeId, Set<String> filter, String id,
+        List<String> value )
     {
-        if (!checkAddProperty(props, typeId, filter, id))
+        if ( !checkAddProperty( props, typeId, filter, id ) )
         {
             return;
         }
 
-        props.addProperty(new PropertyIdImpl(id, value));
+        props.addProperty( new PropertyIdImpl( id, value ) );
     }
 
-    protected void addPropertyString(PropertiesImpl props, String typeId, Set<String> filter, String id, String value)
+    protected void addPropertyString( PropertiesImpl props, String typeId, Set<String> filter, String id, String value )
     {
-        if (!checkAddProperty(props, typeId, filter, id))
+        if ( !checkAddProperty( props, typeId, filter, id ) )
         {
             return;
         }
 
-        props.addProperty(new PropertyStringImpl(id, value));
+        props.addProperty( new PropertyStringImpl( id, value ) );
     }
 
-    protected void addPropertyInteger(PropertiesImpl props, String typeId, Set<String> filter, String id, long value)
+    protected void addPropertyInteger( PropertiesImpl props, String typeId, Set<String> filter, String id, long value )
     {
-        addPropertyBigInteger(props, typeId, filter, id, BigInteger.valueOf(value));
+        addPropertyBigInteger( props, typeId, filter, id, BigInteger.valueOf( value ) );
     }
 
-    protected void addPropertyBigInteger(PropertiesImpl props, String typeId, Set<String> filter, String id,
-            BigInteger value)
+    protected void addPropertyBigInteger( PropertiesImpl props, String typeId, Set<String> filter, String id,
+        BigInteger value )
     {
-        if (!checkAddProperty(props, typeId, filter, id))
+        if ( !checkAddProperty( props, typeId, filter, id ) )
         {
             return;
         }
 
-        props.addProperty(new PropertyIntegerImpl(id, value));
+        props.addProperty( new PropertyIntegerImpl( id, value ) );
     }
 
-    protected void addPropertyBoolean(PropertiesImpl props, String typeId, Set<String> filter, String id, boolean value)
+    protected void addPropertyBoolean( PropertiesImpl props, String typeId, Set<String> filter, String id, boolean value )
     {
-        if (!checkAddProperty(props, typeId, filter, id))
+        if ( !checkAddProperty( props, typeId, filter, id ) )
         {
             return;
         }
 
-        props.addProperty(new PropertyBooleanImpl(id, value));
+        props.addProperty( new PropertyBooleanImpl( id, value ) );
     }
 
-    protected void addPropertyDateTime(PropertiesImpl props, String typeId, Set<String> filter, String id,
-            GregorianCalendar value)
+    protected void addPropertyDateTime( PropertiesImpl props, String typeId, Set<String> filter, String id,
+        GregorianCalendar value )
     {
-        if (!checkAddProperty(props, typeId, filter, id))
+        if ( !checkAddProperty( props, typeId, filter, id ) )
         {
             return;
         }
 
-        props.addProperty(new PropertyDateTimeImpl(id, value));
+        props.addProperty( new PropertyDateTimeImpl( id, value ) );
     }
 
-    protected boolean checkAddProperty(org.apache.chemistry.opencmis.commons.data.Properties properties, String typeId, Set<String> filter, String id)
+    protected boolean checkAddProperty( org.apache.chemistry.opencmis.commons.data.Properties properties,
+        String typeId, Set<String> filter, String id )
     {
-        if ((properties == null) || (properties.getProperties() == null))
+        if ( ( properties == null ) || ( properties.getProperties(  ) == null ) )
         {
-            throw new IllegalArgumentException("Properties must not be null!");
+            throw new IllegalArgumentException( "Properties must not be null!" );
         }
 
-        if (id == null)
+        if ( id == null )
         {
-            throw new IllegalArgumentException("Id must not be null!");
+            throw new IllegalArgumentException( "Id must not be null!" );
         }
-
 
         return true;
     }
@@ -153,50 +155,68 @@ public abstract class BaseRepository
     /**
      * Adds the default value of property if defined.
      */
-    @SuppressWarnings("unchecked")
-    protected static boolean addPropertyDefault(PropertiesImpl props, PropertyDefinition<?> propDef)
+    @SuppressWarnings( "unchecked" )
+    protected static boolean addPropertyDefault( PropertiesImpl props, PropertyDefinition<?> propDef )
     {
-        if ((props == null) || (props.getProperties() == null))
+        if ( ( props == null ) || ( props.getProperties(  ) == null ) )
         {
-            throw new IllegalArgumentException("Props must not be null!");
+            throw new IllegalArgumentException( "Props must not be null!" );
         }
 
-        if (propDef == null)
+        if ( propDef == null )
         {
             return false;
         }
 
-        List<?> defaultValue = propDef.getDefaultValue();
-        if ((defaultValue != null) && (!defaultValue.isEmpty()))
+        List<?> defaultValue = propDef.getDefaultValue(  );
+
+        if ( ( defaultValue != null ) && ( !defaultValue.isEmpty(  ) ) )
         {
-            switch (propDef.getPropertyType())
+            switch ( propDef.getPropertyType(  ) )
             {
                 case BOOLEAN:
-                    props.addProperty(new PropertyBooleanImpl(propDef.getId(), (List<Boolean>) defaultValue));
+                    props.addProperty( new PropertyBooleanImpl( propDef.getId(  ), (List<Boolean>) defaultValue ) );
+
                     break;
+
                 case DATETIME:
-                    props.addProperty(new PropertyDateTimeImpl(propDef.getId(), (List<GregorianCalendar>) defaultValue));
+                    props.addProperty( new PropertyDateTimeImpl( propDef.getId(  ),
+                            (List<GregorianCalendar>) defaultValue ) );
+
                     break;
+
                 case DECIMAL:
-                    props.addProperty(new PropertyDecimalImpl(propDef.getId(), (List<BigDecimal>) defaultValue));
+                    props.addProperty( new PropertyDecimalImpl( propDef.getId(  ), (List<BigDecimal>) defaultValue ) );
+
                     break;
+
                 case HTML:
-                    props.addProperty(new PropertyHtmlImpl(propDef.getId(), (List<String>) defaultValue));
+                    props.addProperty( new PropertyHtmlImpl( propDef.getId(  ), (List<String>) defaultValue ) );
+
                     break;
+
                 case ID:
-                    props.addProperty(new PropertyIdImpl(propDef.getId(), (List<String>) defaultValue));
+                    props.addProperty( new PropertyIdImpl( propDef.getId(  ), (List<String>) defaultValue ) );
+
                     break;
+
                 case INTEGER:
-                    props.addProperty(new PropertyIntegerImpl(propDef.getId(), (List<BigInteger>) defaultValue));
+                    props.addProperty( new PropertyIntegerImpl( propDef.getId(  ), (List<BigInteger>) defaultValue ) );
+
                     break;
+
                 case STRING:
-                    props.addProperty(new PropertyStringImpl(propDef.getId(), (List<String>) defaultValue));
+                    props.addProperty( new PropertyStringImpl( propDef.getId(  ), (List<String>) defaultValue ) );
+
                     break;
+
                 case URI:
-                    props.addProperty(new PropertyUriImpl(propDef.getId(), (List<String>) defaultValue));
+                    props.addProperty( new PropertyUriImpl( propDef.getId(  ), (List<String>) defaultValue ) );
+
                     break;
+
                 default:
-                    throw new RuntimeException("Unknown datatype! Spec change?");
+                    throw new RuntimeException( "Unknown datatype! Spec change?" );
             }
 
             return true;
@@ -204,17 +224,16 @@ public abstract class BaseRepository
 
         return false;
     }
-    
-    
-        /**
-     * Converts milliseconds into a calendar object.
-     */
-    protected static GregorianCalendar millisToCalendar(long millis) {
-        GregorianCalendar result = new GregorianCalendar();
-        result.setTimeZone(TimeZone.getTimeZone("GMT"));
-        result.setTimeInMillis((long) (Math.ceil(millis / 1000) * 1000));
+
+    /**
+    * Converts milliseconds into a calendar object.
+    */
+    protected static GregorianCalendar millisToCalendar( long millis )
+    {
+        GregorianCalendar result = new GregorianCalendar(  );
+        result.setTimeZone( TimeZone.getTimeZone( "GMT" ) );
+        result.setTimeInMillis( (long) ( Math.ceil( millis / 1000 ) * 1000 ) );
 
         return result;
     }
-
 }

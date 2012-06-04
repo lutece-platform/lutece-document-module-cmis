@@ -18,19 +18,24 @@
  */
 package org.apache.chemistry.opencmis.server.impl;
 
-public class ServerVersion {
-
+public class ServerVersion
+{
     public static final String OPENCMIS_VERSION;
     public static final String OPENCMIS_SERVER;
 
-    static {
-        Package p = Package.getPackage("org.apache.chemistry.opencmis.server.impl");
-        if (p == null) {
+    static
+    {
+        Package p = Package.getPackage( "org.apache.chemistry.opencmis.server.impl" );
+
+        if ( p == null )
+        {
             OPENCMIS_VERSION = "?";
             OPENCMIS_SERVER = "Apache-Chemistry-OpenCMIS";
-        } else {
-            OPENCMIS_VERSION = p.getImplementationVersion();
-            OPENCMIS_SERVER = "Apache-Chemistry-OpenCMIS/" + (OPENCMIS_VERSION == null ? "?" : OPENCMIS_VERSION);
+        }
+        else
+        {
+            OPENCMIS_VERSION = p.getImplementationVersion(  );
+            OPENCMIS_SERVER = "Apache-Chemistry-OpenCMIS/" + ( ( OPENCMIS_VERSION == null ) ? "?" : OPENCMIS_VERSION );
         }
     }
 }

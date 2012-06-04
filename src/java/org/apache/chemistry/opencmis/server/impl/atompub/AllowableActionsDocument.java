@@ -18,15 +18,15 @@
  */
 package org.apache.chemistry.opencmis.server.impl.atompub;
 
+import org.apache.chemistry.opencmis.commons.data.AllowableActions;
 import static org.apache.chemistry.opencmis.commons.impl.Converter.convert;
+import org.apache.chemistry.opencmis.commons.impl.JaxBHelper;
+import org.apache.chemistry.opencmis.commons.impl.jaxb.CmisAllowableActionsType;
 
 import java.io.OutputStream;
 
 import javax.xml.bind.JAXBException;
 
-import org.apache.chemistry.opencmis.commons.data.AllowableActions;
-import org.apache.chemistry.opencmis.commons.impl.JaxBHelper;
-import org.apache.chemistry.opencmis.commons.impl.jaxb.CmisAllowableActionsType;
 
 /**
  * Allowable Actions document.
@@ -34,23 +34,28 @@ import org.apache.chemistry.opencmis.commons.impl.jaxb.CmisAllowableActionsType;
  * @author <a href="mailto:fmueller@opentext.com">Florian M&uuml;ller</a>
  *
  */
-public class AllowableActionsDocument {
-
+public class AllowableActionsDocument
+{
     /**
      * Creates an Allowable Actions document.
      */
-    public AllowableActionsDocument() {
+    public AllowableActionsDocument(  )
+    {
     }
 
     /**
      * Writes an object.
      */
-    public void writeAllowableActions(AllowableActions allowableActions, OutputStream out) throws JAXBException {
-        CmisAllowableActionsType allowableActionsJaxb = convert(allowableActions);
-        if (allowableActionsJaxb == null) {
+    public void writeAllowableActions( AllowableActions allowableActions, OutputStream out )
+        throws JAXBException
+    {
+        CmisAllowableActionsType allowableActionsJaxb = convert( allowableActions );
+
+        if ( allowableActionsJaxb == null )
+        {
             return;
         }
 
-        JaxBHelper.marshal(JaxBHelper.CMIS_OBJECT_FACTORY.createAllowableActions(allowableActionsJaxb), out, false);
+        JaxBHelper.marshal( JaxBHelper.CMIS_OBJECT_FACTORY.createAllowableActions( allowableActionsJaxb ), out, false );
     }
 }

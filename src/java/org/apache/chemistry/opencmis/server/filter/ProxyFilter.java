@@ -19,6 +19,7 @@
 package org.apache.chemistry.opencmis.server.filter;
 
 import java.io.IOException;
+
 import java.util.regex.Pattern;
 
 import javax.servlet.Filter;
@@ -29,41 +30,50 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 
+
 /**
  * A filter that corrects server name, server port and scheme if OpenCMIS is
  * running behind a proxy or load balancer.
  */
-public class ProxyFilter implements Filter {
-
+public class ProxyFilter implements Filter
+{
     public static final String PARAM_TRUSTED_PROXIES = "trustedProxies";
-
     private Pattern trustedProxies;
 
-    public void init(FilterConfig filterConfig) throws ServletException {
+    public void init( FilterConfig filterConfig ) throws ServletException
+    {
         trustedProxies = null;
-        String trustedProxiesString = filterConfig.getInitParameter(PARAM_TRUSTED_PROXIES);
-        if (trustedProxiesString != null) {
-            try {
-                trustedProxies = Pattern.compile(trustedProxiesString);
-            } catch (Exception e) {
-                throw new ServletException("Could not compile trustedProxies parameter: " + e, e);
+
+        String trustedProxiesString = filterConfig.getInitParameter( PARAM_TRUSTED_PROXIES );
+
+        if ( trustedProxiesString != null )
+        {
+            try
+            {
+                trustedProxies = Pattern.compile( trustedProxiesString );
+            }
+            catch ( Exception e )
+            {
+                throw new ServletException( "Could not compile trustedProxies parameter: " + e, e );
             }
         }
     }
 
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException,
-            ServletException {
-
+    public void doFilter( ServletRequest request, ServletResponse response, FilterChain chain )
+        throws IOException, ServletException
+    {
         // check for trusted proxy
-        if (trustedProxies != null && (request instanceof HttpServletRequest)
-                && trustedProxies.matcher(request.getRemoteAddr()).matches()) {
-            request = new ProxyHttpServletRequestWrapper((HttpServletRequest) request);
+        if ( ( trustedProxies != null ) && ( request instanceof HttpServletRequest ) &&
+                trustedProxies.matcher( request.getRemoteAddr(  ) ).matches(  ) )
+        {
+            request = new ProxyHttpServletRequestWrapper( (HttpServletRequest) request );
         }
 
         // call next
-        chain.doFilter(request, response);
+        chain.doFilter( request, response );
     }
 
-    public void destroy() {
+    public void destroy(  )
+    {
     }
 }

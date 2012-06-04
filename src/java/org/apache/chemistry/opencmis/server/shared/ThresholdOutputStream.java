@@ -29,95 +29,112 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+
 /**
  * An OutputStream that stores the data in main memory until it reaches a
  * threshold. If the threshold is passed the data is written to a temporary
  * file.
- * 
+ *
  * It it is important to close this OutputStream before
  * {@link #getInputStream()} is called or call {@link #destroy()} if the
  * InputStream isn't required!
  */
-public class ThresholdOutputStream extends OutputStream {
+public class ThresholdOutputStream extends OutputStream
+{
     private static final int MAX_GROW = 10 * 1024 * 1024;
     private static final int DEFAULT_THRESHOLD = 4 * 1024 * 1024;
-
     private File tempDir;
     private int memoryThreshold;
-
     private byte[] buf = null;
     private int bufSize = 0;
     private long size;
     private File tempFile;
     private OutputStream tmpStream;
 
-    public ThresholdOutputStream(File tempDir, int memoryThreshold) {
-        this(64 * 1024, tempDir, memoryThreshold);
+    public ThresholdOutputStream( File tempDir, int memoryThreshold )
+    {
+        this( 64 * 1024, tempDir, memoryThreshold );
     }
 
-    public ThresholdOutputStream(int initSize, File tempDir, int memoryThreshold) {
-        if (initSize < 0) {
-            throw new IllegalArgumentException("Negative initial size: " + initSize);
+    public ThresholdOutputStream( int initSize, File tempDir, int memoryThreshold )
+    {
+        if ( initSize < 0 )
+        {
+            throw new IllegalArgumentException( "Negative initial size: " + initSize );
         }
 
         this.tempDir = tempDir;
-        this.memoryThreshold = (memoryThreshold < 0 ? DEFAULT_THRESHOLD : memoryThreshold);
+        this.memoryThreshold = ( ( memoryThreshold < 0 ) ? DEFAULT_THRESHOLD : memoryThreshold );
 
         buf = new byte[initSize];
     }
 
-    private void expand(int nextBufferSize) throws IOException {
-        if (bufSize + nextBufferSize <= buf.length) {
+    private void expand( int nextBufferSize ) throws IOException
+    {
+        if ( ( bufSize + nextBufferSize ) <= buf.length )
+        {
             return;
         }
 
-        if (bufSize + nextBufferSize > memoryThreshold) {
-            if (tmpStream == null) {
-                tempFile = File.createTempFile("opencmis", null, tempDir);
-                tmpStream = new BufferedOutputStream(new FileOutputStream(tempFile));
+        if ( ( bufSize + nextBufferSize ) > memoryThreshold )
+        {
+            if ( tmpStream == null )
+            {
+                tempFile = File.createTempFile( "opencmis", null, tempDir );
+                tmpStream = new BufferedOutputStream( new FileOutputStream( tempFile ) );
             }
-            tmpStream.write(buf, 0, bufSize);
 
-            if (buf.length != memoryThreshold) {
+            tmpStream.write( buf, 0, bufSize );
+
+            if ( buf.length != memoryThreshold )
+            {
                 buf = new byte[memoryThreshold];
             }
+
             bufSize = 0;
 
             return;
         }
 
-        int newSize = ((bufSize + nextBufferSize) * 2 < MAX_GROW ? (bufSize + nextBufferSize) * 2 : buf.length
-                + nextBufferSize + MAX_GROW);
+        int newSize = ( ( ( ( bufSize + nextBufferSize ) * 2 ) < MAX_GROW ) ? ( ( bufSize + nextBufferSize ) * 2 )
+                                                                            : ( buf.length + nextBufferSize + MAX_GROW ) );
         byte[] newbuf = new byte[newSize];
-        System.arraycopy(buf, 0, newbuf, 0, bufSize);
+        System.arraycopy( buf, 0, newbuf, 0, bufSize );
         buf = newbuf;
     }
 
-    public long getSize() {
+    public long getSize(  )
+    {
         return size;
     }
 
     @Override
-    public void write(byte[] buffer) throws IOException {
-        write(buffer, 0, buffer.length);
+    public void write( byte[] buffer ) throws IOException
+    {
+        write( buffer, 0, buffer.length );
     }
 
     @Override
-    public void write(byte[] buffer, int offset, int len) throws IOException {
-        if (len == 0) {
+    public void write( byte[] buffer, int offset, int len )
+        throws IOException
+    {
+        if ( len == 0 )
+        {
             return;
         }
 
-        expand(len);
-        System.arraycopy(buffer, offset, buf, bufSize, len);
+        expand( len );
+        System.arraycopy( buffer, offset, buf, bufSize, len );
         bufSize += len;
         size += len;
     }
 
     @Override
-    public void write(int oneByte) throws IOException {
-        if (bufSize == buf.length) {
-            expand(1);
+    public void write( int oneByte ) throws IOException
+    {
+        if ( bufSize == buf.length )
+        {
+            expand( 1 );
         }
 
         buf[bufSize++] = (byte) oneByte;
@@ -125,37 +142,48 @@ public class ThresholdOutputStream extends OutputStream {
     }
 
     @Override
-    public void flush() throws IOException {
-        if (tmpStream != null) {
-            if (bufSize > 0) {
-                tmpStream.write(buf, 0, bufSize);
+    public void flush(  ) throws IOException
+    {
+        if ( tmpStream != null )
+        {
+            if ( bufSize > 0 )
+            {
+                tmpStream.write( buf, 0, bufSize );
                 bufSize = 0;
             }
-            tmpStream.flush();
+
+            tmpStream.flush(  );
         }
     }
 
     @Override
-    public void close() throws IOException {
-        flush();
+    public void close(  ) throws IOException
+    {
+        flush(  );
 
-        if (tmpStream != null) {
-            tmpStream.close();
+        if ( tmpStream != null )
+        {
+            tmpStream.close(  );
         }
     }
 
     /**
      * Destroys the object before it has been read.
      */
-    public void destroy() {
-        try {
-            close();
-        } catch (Exception e) {
+    public void destroy(  )
+    {
+        try
+        {
+            close(  );
+        }
+        catch ( Exception e )
+        {
             // ignore
         }
 
-        if (tempFile != null) {
-            tempFile.delete();
+        if ( tempFile != null )
+        {
+            tempFile.delete(  );
         }
 
         buf = null;
@@ -164,93 +192,109 @@ public class ThresholdOutputStream extends OutputStream {
     /**
      * Returns the data as an InputStream.
      */
-    public InputStream getInputStream() throws Exception {
-        if (tmpStream != null) {
-            close();
+    public InputStream getInputStream(  ) throws Exception
+    {
+        if ( tmpStream != null )
+        {
+            close(  );
             buf = null;
 
-            return new InternalTempFileInputStream();
-        } else {
-            return new InternalBufferInputStream();
+            return new InternalTempFileInputStream(  );
+        }
+        else
+        {
+            return new InternalBufferInputStream(  );
         }
     }
 
     /**
      * Provides information about the input stream.
      */
-    public interface ThresholdInputStream {
-
+    public interface ThresholdInputStream
+    {
         /**
          * Returns <code>true</code> if the data is in memory. Returns
          * <code>false</code> if the data resides in a temporary file.
          */
-        boolean isInMemory();
+        boolean isInMemory(  );
 
         /**
          * Returns the temporary file if the data stored in a file. Returns
          * <code>null</code> is the data is stored in memory.
          */
-        File getTemporaryFile();
+        File getTemporaryFile(  );
     }
 
     /**
      * InputStream for in-memory data.
      */
-    private class InternalBufferInputStream extends InputStream implements ThresholdInputStream {
-
+    private class InternalBufferInputStream extends InputStream implements ThresholdInputStream
+    {
         private int pos = 0;
 
-        public boolean isInMemory() {
+        public boolean isInMemory(  )
+        {
             return true;
         }
 
-        public File getTemporaryFile() {
+        public File getTemporaryFile(  )
+        {
             return null;
         }
 
         @Override
-        public boolean markSupported() {
+        public boolean markSupported(  )
+        {
             return false;
         }
 
         @Override
-        public int available() {
+        public int available(  )
+        {
             return bufSize - pos;
         }
 
         @Override
-        public int read() {
-            return (pos < bufSize) && (buf != null) ? (buf[pos++] & 0xff) : -1;
+        public int read(  )
+        {
+            return ( ( pos < bufSize ) && ( buf != null ) ) ? ( buf[pos++] & 0xff ) : ( -1 );
         }
 
         @Override
-        public int read(byte[] b) throws IOException {
-            return read(b, 0, b.length);
+        public int read( byte[] b ) throws IOException
+        {
+            return read( b, 0, b.length );
         }
 
         @Override
-        public int read(byte[] b, int off, int len) {
-            if ((pos >= bufSize) || (buf == null)) {
+        public int read( byte[] b, int off, int len )
+        {
+            if ( ( pos >= bufSize ) || ( buf == null ) )
+            {
                 return -1;
             }
 
-            if ((pos + len) > bufSize) {
-                len = (bufSize - pos);
+            if ( ( pos + len ) > bufSize )
+            {
+                len = ( bufSize - pos );
             }
 
-            System.arraycopy(buf, pos, b, off, len);
+            System.arraycopy( buf, pos, b, off, len );
             pos += len;
 
             return len;
         }
 
         @Override
-        public long skip(long n) {
-            if ((pos + n) > bufSize) {
+        public long skip( long n )
+        {
+            if ( ( pos + n ) > bufSize )
+            {
                 n = bufSize - pos;
             }
 
-            if (n < 0) {
+            if ( n < 0 )
+            {
                 return 0;
             }
 
@@ -260,7 +304,8 @@ public class ThresholdOutputStream extends OutputStream {
         }
 
         @Override
-        public void close() throws IOException {
+        public void close(  ) throws IOException
+        {
             buf = null;
         }
     }
@@ -268,61 +313,72 @@ public class ThresholdOutputStream extends OutputStream {
     /**
      * InputStream for file data.
      */
-    private class InternalTempFileInputStream extends FilterInputStream implements ThresholdInputStream {
-
+    private class InternalTempFileInputStream extends FilterInputStream implements ThresholdInputStream
+    {
         private boolean isDeleted = false;
 
-        public InternalTempFileInputStream() throws FileNotFoundException {
-            super(new BufferedInputStream(new FileInputStream(tempFile), memoryThreshold));
+        public InternalTempFileInputStream(  ) throws FileNotFoundException
+        {
+            super( new BufferedInputStream( new FileInputStream( tempFile ), memoryThreshold ) );
         }
 
-        public boolean isInMemory() {
+        public boolean isInMemory(  )
+        {
             return false;
         }
 
-        public File getTemporaryFile() {
+        public File getTemporaryFile(  )
+        {
             return tempFile;
         }
 
         @Override
-        public boolean markSupported() {
+        public boolean markSupported(  )
+        {
             return false;
         }
 
         @Override
-        public int read() throws IOException {
-            int b = super.read();
+        public int read(  ) throws IOException
+        {
+            int b = super.read(  );
 
-            if (b == -1 && !isDeleted) {
-                super.close();
-                isDeleted = tempFile.delete();
+            if ( ( b == -1 ) && !isDeleted )
+            {
+                super.close(  );
+                isDeleted = tempFile.delete(  );
             }
 
             return b;
         }
 
         @Override
-        public int read(byte[] b) throws IOException {
-            return read(b, 0, b.length);
+        public int read( byte[] b ) throws IOException
+        {
+            return read( b, 0, b.length );
         }
 
         @Override
-        public int read(byte[] b, int off, int len) throws IOException {
-            int n = super.read(b, off, len);
+        public int read( byte[] b, int off, int len ) throws IOException
+        {
+            int n = super.read( b, off, len );
 
-            if (n == -1 && !isDeleted) {
-                super.close();
-                isDeleted = tempFile.delete();
+            if ( ( n == -1 ) && !isDeleted )
+            {
+                super.close(  );
+                isDeleted = tempFile.delete(  );
             }
 
             return n;
         }
 
         @Override
-        public void close() throws IOException {
-            if (!isDeleted) {
-                super.close();
-                isDeleted = tempFile.delete();
+        public void close(  ) throws IOException
+        {
+            if ( !isDeleted )
+            {
+                super.close(  );
+                isDeleted = tempFile.delete(  );
             }
         }
     }

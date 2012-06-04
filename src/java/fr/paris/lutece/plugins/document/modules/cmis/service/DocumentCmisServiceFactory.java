@@ -33,11 +33,13 @@
  */
 package fr.paris.lutece.plugins.document.modules.cmis.service;
 
-import java.math.BigInteger;
 import org.apache.chemistry.opencmis.commons.impl.server.AbstractServiceFactory;
 import org.apache.chemistry.opencmis.commons.server.CallContext;
 import org.apache.chemistry.opencmis.commons.server.CmisService;
 import org.apache.chemistry.opencmis.server.support.CmisServiceWrapper;
+
+import java.math.BigInteger;
+
 
 /**
  *
@@ -45,31 +47,30 @@ import org.apache.chemistry.opencmis.server.support.CmisServiceWrapper;
  */
 public class DocumentCmisServiceFactory extends AbstractServiceFactory
 {
-    private static final BigInteger DEFAULT_MAX_ITEMS_TYPES = BigInteger.valueOf(50);
-    private static final BigInteger DEFAULT_DEPTH_TYPES = BigInteger.valueOf(-1);
-    private static final BigInteger DEFAULT_MAX_ITEMS_OBJECTS = BigInteger.valueOf(200);
-    private static final BigInteger DEFAULT_DEPTH_OBJECTS = BigInteger.valueOf(10);
-
-    private ThreadLocal<CmisServiceWrapper<DocumentCmisService>> threadLocalService = new ThreadLocal<CmisServiceWrapper<DocumentCmisService>>();
+    private static final BigInteger DEFAULT_MAX_ITEMS_TYPES = BigInteger.valueOf( 50 );
+    private static final BigInteger DEFAULT_DEPTH_TYPES = BigInteger.valueOf( -1 );
+    private static final BigInteger DEFAULT_MAX_ITEMS_OBJECTS = BigInteger.valueOf( 200 );
+    private static final BigInteger DEFAULT_DEPTH_OBJECTS = BigInteger.valueOf( 10 );
+    private ThreadLocal<CmisServiceWrapper<DocumentCmisService>> threadLocalService = new ThreadLocal<CmisServiceWrapper<DocumentCmisService>>(  );
 
     @Override
-    public CmisService getService(CallContext context)
+    public CmisService getService( CallContext context )
     {
-/*        CmisServiceWrapper<DocumentCmisService> wrapperService = threadLocalService.get();
-        if (wrapperService == null) {
-            wrapperService = new CmisServiceWrapper<DocumentCmisService>(new DocumentCmisService(),
-                    DEFAULT_MAX_ITEMS_TYPES, DEFAULT_DEPTH_TYPES, DEFAULT_MAX_ITEMS_OBJECTS, DEFAULT_DEPTH_OBJECTS);
-            threadLocalService.set(wrapperService);
-        }
+        /*        CmisServiceWrapper<DocumentCmisService> wrapperService = threadLocalService.get();
+                if (wrapperService == null) {
+                    wrapperService = new CmisServiceWrapper<DocumentCmisService>(new DocumentCmisService(),
+                            DEFAULT_MAX_ITEMS_TYPES, DEFAULT_DEPTH_TYPES, DEFAULT_MAX_ITEMS_OBJECTS, DEFAULT_DEPTH_OBJECTS);
+                    threadLocalService.set(wrapperService);
+                }
 
-        wrapperService.getWrappedService().setCallContext(context);
+                wrapperService.getWrappedService().setCallContext(context);
 
-        return wrapperService;
-        * 
-        */
-        DocumentCmisService service = new DocumentCmisService();
-        service.setCallContext(context);
+                return wrapperService;
+                *
+                */
+        DocumentCmisService service = new DocumentCmisService(  );
+        service.setCallContext( context );
+
         return service;
     }
-    
 }

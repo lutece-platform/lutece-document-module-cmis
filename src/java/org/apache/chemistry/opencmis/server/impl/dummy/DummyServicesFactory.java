@@ -18,58 +18,64 @@
  */
 package org.apache.chemistry.opencmis.server.impl.dummy;
 
-import java.util.Map;
-
 import org.apache.chemistry.opencmis.commons.impl.server.AbstractServiceFactory;
 import org.apache.chemistry.opencmis.commons.server.CallContext;
 import org.apache.chemistry.opencmis.commons.server.CmisService;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import java.util.Map;
+
 
 /**
  * Implementation of a repository factory without back-end for test purposes.
  */
-public class DummyServicesFactory extends AbstractServiceFactory {
-
+public class DummyServicesFactory extends AbstractServiceFactory
+{
     private static final String REPOSITORY_ID = "repository.id";
     private static final String REPOSITORY_ID_DEFAULT = "test-rep";
-
     private static final String REPOSITORY_NAME = "repository.name";
     private static final String REPOSITORY_NAME_DEFAULT = "Test Repository";
-
-    private static final Log LOG = LogFactory.getLog(DummyServicesFactory.class.getName());
-
+    private static final Log LOG = LogFactory.getLog( DummyServicesFactory.class.getName(  ) );
     private DummyService service;
     private String id;
     private String name;
 
     @Override
-    public void init(Map<String, String> parameters) {
+    public void init( Map<String, String> parameters )
+    {
         // get the id
-        id = parameters.get(REPOSITORY_ID);
-        if ((id == null) || (id.trim().length() == 0)) {
+        id = parameters.get( REPOSITORY_ID );
+
+        if ( ( id == null ) || ( id.trim(  ).length(  ) == 0 ) )
+        {
             id = REPOSITORY_ID_DEFAULT;
         }
 
         // get the name
-        name = parameters.get(REPOSITORY_NAME);
-        if ((name == null) || (name.trim().length() == 0)) {
+        name = parameters.get( REPOSITORY_NAME );
+
+        if ( ( name == null ) || ( name.trim(  ).length(  ) == 0 ) )
+        {
             name = REPOSITORY_NAME_DEFAULT;
         }
 
         // create a repository service
-        service = new DummyService(id, name);
+        service = new DummyService( id, name );
 
-        LOG.info("Initialized dummy repository '" + name + "' (" + id + ")");
+        LOG.info( "Initialized dummy repository '" + name + "' (" + id + ")" );
     }
 
     @Override
-    public void destroy() {
-        LOG.info("Destroyed dummy repository '" + name + "' (" + id + ")");
+    public void destroy(  )
+    {
+        LOG.info( "Destroyed dummy repository '" + name + "' (" + id + ")" );
     }
 
     @Override
-    public CmisService getService(CallContext context) {
+    public CmisService getService( CallContext context )
+    {
         return service;
     }
 }

@@ -18,39 +18,48 @@
  */
 package org.apache.chemistry.opencmis.server.impl.webservices;
 
-import javax.servlet.ServletConfig;
-import javax.xml.ws.WebServiceFeature;
-
-import org.apache.chemistry.opencmis.commons.server.CmisServiceFactory;
-import org.apache.chemistry.opencmis.server.impl.CmisRepositoryContextListener;
-
 import com.sun.xml.ws.api.WSFeatureList;
 import com.sun.xml.ws.developer.StreamingAttachmentFeature;
 import com.sun.xml.ws.transport.http.servlet.ServletAdapter;
 import com.sun.xml.ws.transport.http.servlet.WSServlet;
 import com.sun.xml.ws.transport.http.servlet.WSServletDelegate;
 
-public class CmisWebServicesServlet extends WSServlet {
+import org.apache.chemistry.opencmis.commons.server.CmisServiceFactory;
+import org.apache.chemistry.opencmis.server.impl.CmisRepositoryContextListener;
+
+import javax.servlet.ServletConfig;
+
+import javax.xml.ws.WebServiceFeature;
+
+
+public class CmisWebServicesServlet extends WSServlet
+{
     private static final long serialVersionUID = 1L;
 
     @Override
-    protected WSServletDelegate getDelegate(ServletConfig servletConfig) {
-        WSServletDelegate delegate = super.getDelegate(servletConfig);
+    protected WSServletDelegate getDelegate( ServletConfig servletConfig )
+    {
+        WSServletDelegate delegate = super.getDelegate( servletConfig );
 
         // set temp directory and the threshold for all services with a
         // StreamingAttachment annotation
-        if (delegate.adapters != null) {
+        if ( delegate.adapters != null )
+        {
             // get the CmisService factory
-            CmisServiceFactory factory = (CmisServiceFactory) getServletContext().getAttribute(
-                    CmisRepositoryContextListener.SERVICES_FACTORY);
+            CmisServiceFactory factory = (CmisServiceFactory) getServletContext(  )
+                                                                  .getAttribute( CmisRepositoryContextListener.SERVICES_FACTORY );
 
             // iterate of all adapters
-            for (ServletAdapter adapter : delegate.adapters) {
-                WSFeatureList wsfl = adapter.getEndpoint().getBinding().getFeatures();
-                for (WebServiceFeature ft : wsfl) {
-                    if (ft instanceof StreamingAttachmentFeature) {
-                        ((StreamingAttachmentFeature) ft).setDir(factory.getTempDirectory().getAbsolutePath());
-                        ((StreamingAttachmentFeature) ft).setMemoryThreshold(factory.getMemoryThreshold());
+            for ( ServletAdapter adapter : delegate.adapters )
+            {
+                WSFeatureList wsfl = adapter.getEndpoint(  ).getBinding(  ).getFeatures(  );
+
+                for ( WebServiceFeature ft : wsfl )
+                {
+                    if ( ft instanceof StreamingAttachmentFeature )
+                    {
+                        ( (StreamingAttachmentFeature) ft ).setDir( factory.getTempDirectory(  ).getAbsolutePath(  ) );
+                        ( (StreamingAttachmentFeature) ft ).setMemoryThreshold( factory.getMemoryThreshold(  ) );
                     }
                 }
             }

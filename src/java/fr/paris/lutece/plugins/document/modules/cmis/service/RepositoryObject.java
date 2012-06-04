@@ -37,7 +37,9 @@ import fr.paris.lutece.plugins.document.business.Document;
 import fr.paris.lutece.plugins.document.business.DocumentHome;
 import fr.paris.lutece.plugins.document.business.spaces.DocumentSpace;
 import fr.paris.lutece.plugins.document.business.spaces.DocumentSpaceHome;
+
 import java.util.List;
+
 
 /**
  *
@@ -45,7 +47,6 @@ import java.util.List;
  */
 public class RepositoryObject
 {
-
     private static final String STYPE_DOCUMENT = "D";
     private static final String STYPE_SPACE = "S";
     private static final int TYPE_DOCUMENT = 0;
@@ -56,57 +57,60 @@ public class RepositoryObject
     private String _name;
     private int _type;
 
-    RepositoryObject(String objectId)
+    RepositoryObject( String objectId )
     {
         _id = objectId;
-        String strType = objectId.substring(0, 1);
-        String strId = objectId.substring(1);
-        int nId = Integer.parseInt(strId);
-        if (strType.equalsIgnoreCase(STYPE_DOCUMENT))
+
+        String strType = objectId.substring( 0, 1 );
+        String strId = objectId.substring( 1 );
+        int nId = Integer.parseInt( strId );
+
+        if ( strType.equalsIgnoreCase( STYPE_DOCUMENT ) )
         {
             _type = TYPE_DOCUMENT;
-            _document = DocumentHome.findByPrimaryKey(nId);
-            _name = _document.getTitle();
-        } else if (strType.equalsIgnoreCase(STYPE_SPACE))
+            _document = DocumentHome.findByPrimaryKey( nId );
+            _name = _document.getTitle(  );
+        }
+        else if ( strType.equalsIgnoreCase( STYPE_SPACE ) )
         {
             _type = TYPE_SPACE;
-            _space = DocumentSpaceHome.findByPrimaryKey(nId);
-            _name = _space.getName();
+            _space = DocumentSpaceHome.findByPrimaryKey( nId );
+            _name = _space.getName(  );
         }
     }
 
-    public String getId()
+    public String getId(  )
     {
         return _id;
     }
 
-    public String getName()
+    public String getName(  )
     {
         return _name;
     }
 
-    public boolean isDocument()
+    public boolean isDocument(  )
     {
         return _type == TYPE_DOCUMENT;
     }
 
-    public boolean isSpace()
+    public boolean isSpace(  )
     {
         return _type == TYPE_SPACE;
     }
 
-    public Document getDocument()
+    public Document getDocument(  )
     {
         return _document;
     }
 
-    public List<Document> getDOcumentChildren()
+    public List<Document> getDOcumentChildren(  )
     {
-        return DocumentHome.findBySpaceKey( _space.getId() );
+        return DocumentHome.findBySpaceKey( _space.getId(  ) );
     }
 
-    public List<DocumentSpace> getSpaceChildren()
+    public List<DocumentSpace> getSpaceChildren(  )
     {
-        return DocumentSpaceHome.findChilds(_space.getId());
+        return DocumentSpaceHome.findChilds( _space.getId(  ) );
     }
 }

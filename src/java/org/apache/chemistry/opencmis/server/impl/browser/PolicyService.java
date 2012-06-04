@@ -18,8 +18,17 @@
  */
 package org.apache.chemistry.opencmis.server.impl.browser;
 
+import org.apache.chemistry.opencmis.commons.data.ObjectData;
+import org.apache.chemistry.opencmis.commons.exceptions.CmisRuntimeException;
 import static org.apache.chemistry.opencmis.commons.impl.Constants.PARAM_FILTER;
 import static org.apache.chemistry.opencmis.commons.impl.Constants.PARAM_POLICY_ID;
+import org.apache.chemistry.opencmis.commons.impl.JSONConverter;
+import org.apache.chemistry.opencmis.commons.impl.TypeCache;
+import org.apache.chemistry.opencmis.commons.impl.json.JSONArray;
+import org.apache.chemistry.opencmis.commons.impl.json.JSONObject;
+import org.apache.chemistry.opencmis.commons.impl.server.TypeCacheImpl;
+import org.apache.chemistry.opencmis.commons.server.CallContext;
+import org.apache.chemistry.opencmis.commons.server.CmisService;
 import static org.apache.chemistry.opencmis.server.impl.browser.BrowserBindingUtils.CONTEXT_OBJECT_ID;
 import static org.apache.chemistry.opencmis.server.impl.browser.BrowserBindingUtils.getSimpleObject;
 import static org.apache.chemistry.opencmis.server.impl.browser.BrowserBindingUtils.writeJSON;
@@ -30,94 +39,99 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.chemistry.opencmis.commons.data.ObjectData;
-import org.apache.chemistry.opencmis.commons.exceptions.CmisRuntimeException;
-import org.apache.chemistry.opencmis.commons.impl.JSONConverter;
-import org.apache.chemistry.opencmis.commons.impl.TypeCache;
-import org.apache.chemistry.opencmis.commons.impl.json.JSONArray;
-import org.apache.chemistry.opencmis.commons.impl.json.JSONObject;
-import org.apache.chemistry.opencmis.commons.impl.server.TypeCacheImpl;
-import org.apache.chemistry.opencmis.commons.server.CallContext;
-import org.apache.chemistry.opencmis.commons.server.CmisService;
 
 /**
  * Policy Service operations.
  */
-public class PolicyService {
-
+public class PolicyService
+{
     /**
      * getAppliedPolicies.
      */
-    public static void getAppliedPolicies(CallContext context, CmisService service, String repositoryId,
-            HttpServletRequest request, HttpServletResponse response) throws Exception {
+    public static void getAppliedPolicies( CallContext context, CmisService service, String repositoryId,
+        HttpServletRequest request, HttpServletResponse response )
+        throws Exception
+    {
         // get parameters
-        String objectId = (String) context.get(CONTEXT_OBJECT_ID);
-        String filter = getStringParameter(request, PARAM_FILTER);
+        String objectId = (String) context.get( CONTEXT_OBJECT_ID );
+        String filter = getStringParameter( request, PARAM_FILTER );
 
         // execute
-        List<ObjectData> policies = service.getAppliedPolicies(repositoryId, objectId, filter, null);
+        List<ObjectData> policies = service.getAppliedPolicies( repositoryId, objectId, filter, null );
 
-        JSONArray jsonPolicies = new JSONArray();
-        if (policies != null) {
-            TypeCache typeCache = new TypeCacheImpl(repositoryId, service);
-            for (ObjectData policy : policies) {
-                jsonPolicies.add(JSONConverter.convert(policy, typeCache, false));
+        JSONArray jsonPolicies = new JSONArray(  );
+
+        if ( policies != null )
+        {
+            TypeCache typeCache = new TypeCacheImpl( repositoryId, service );
+
+            for ( ObjectData policy : policies )
+            {
+                jsonPolicies.add( JSONConverter.convert( policy, typeCache, false ) );
             }
         }
 
-        response.setStatus(HttpServletResponse.SC_OK);
-        writeJSON(jsonPolicies, request, response);
+        response.setStatus( HttpServletResponse.SC_OK );
+        writeJSON( jsonPolicies, request, response );
     }
 
     /**
      * applyPolicy.
      */
-    public static void applyPolicy(CallContext context, CmisService service, String repositoryId,
-            HttpServletRequest request, HttpServletResponse response) throws Exception {
+    public static void applyPolicy( CallContext context, CmisService service, String repositoryId,
+        HttpServletRequest request, HttpServletResponse response )
+        throws Exception
+    {
         // get parameters
-        String objectId = (String) context.get(CONTEXT_OBJECT_ID);
-        String policyId = getStringParameter(request, PARAM_POLICY_ID);
+        String objectId = (String) context.get( CONTEXT_OBJECT_ID );
+        String policyId = getStringParameter( request, PARAM_POLICY_ID );
 
         // execute
-        service.applyPolicy(repositoryId, policyId, objectId, null);
+        service.applyPolicy( repositoryId, policyId, objectId, null );
 
-        ObjectData object = getSimpleObject(service, repositoryId, objectId);
-        if (object == null) {
-            throw new CmisRuntimeException("Object is null!");
+        ObjectData object = getSimpleObject( service, repositoryId, objectId );
+
+        if ( object == null )
+        {
+            throw new CmisRuntimeException( "Object is null!" );
         }
 
         // return object
-        response.setStatus(HttpServletResponse.SC_OK);
+        response.setStatus( HttpServletResponse.SC_OK );
 
-        TypeCache typeCache = new TypeCacheImpl(repositoryId, service);
-        JSONObject jsonObject = JSONConverter.convert(object, typeCache, false);
+        TypeCache typeCache = new TypeCacheImpl( repositoryId, service );
+        JSONObject jsonObject = JSONConverter.convert( object, typeCache, false );
 
-        writeJSON(jsonObject, request, response);
+        writeJSON( jsonObject, request, response );
     }
 
     /**
      * removePolicy.
      */
-    public static void removePolicy(CallContext context, CmisService service, String repositoryId,
-            HttpServletRequest request, HttpServletResponse response) throws Exception {
+    public static void removePolicy( CallContext context, CmisService service, String repositoryId,
+        HttpServletRequest request, HttpServletResponse response )
+        throws Exception
+    {
         // get parameters
-        String objectId = (String) context.get(CONTEXT_OBJECT_ID);
-        String policyId = getStringParameter(request, PARAM_POLICY_ID);
+        String objectId = (String) context.get( CONTEXT_OBJECT_ID );
+        String policyId = getStringParameter( request, PARAM_POLICY_ID );
 
         // execute
-        service.removePolicy(repositoryId, policyId, objectId, null);
+        service.removePolicy( repositoryId, policyId, objectId, null );
 
-        ObjectData object = getSimpleObject(service, repositoryId, objectId);
-        if (object == null) {
-            throw new CmisRuntimeException("Object is null!");
+        ObjectData object = getSimpleObject( service, repositoryId, objectId );
+
+        if ( object == null )
+        {
+            throw new CmisRuntimeException( "Object is null!" );
         }
 
         // return object
-        response.setStatus(HttpServletResponse.SC_OK);
+        response.setStatus( HttpServletResponse.SC_OK );
 
-        TypeCache typeCache = new TypeCacheImpl(repositoryId, service);
-        JSONObject jsonObject = JSONConverter.convert(object, typeCache, false);
+        TypeCache typeCache = new TypeCacheImpl( repositoryId, service );
+        JSONObject jsonObject = JSONConverter.convert( object, typeCache, false );
 
-        writeJSON(jsonObject, request, response);
+        writeJSON( jsonObject, request, response );
     }
 }

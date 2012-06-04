@@ -18,54 +18,60 @@
  */
 package org.apache.chemistry.opencmis.server.shared;
 
+import org.apache.chemistry.opencmis.commons.exceptions.CmisBaseException;
+import org.apache.chemistry.opencmis.commons.exceptions.CmisRuntimeException;
+import org.apache.chemistry.opencmis.commons.server.CallContext;
+import org.apache.chemistry.opencmis.commons.server.CmisService;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import java.io.Serializable;
+
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.chemistry.opencmis.commons.exceptions.CmisBaseException;
-import org.apache.chemistry.opencmis.commons.exceptions.CmisRuntimeException;
-import org.apache.chemistry.opencmis.commons.server.CallContext;
-import org.apache.chemistry.opencmis.commons.server.CmisService;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 /**
  * Dispatcher for the AtomPub and Browser binding servlet.
  */
-public class Dispatcher implements Serializable {
-
+public class Dispatcher implements Serializable
+{
     private static final long serialVersionUID = 1L;
     public static final String METHOD_GET = "GET";
     public static final String METHOD_POST = "POST";
     public static final String METHOD_PUT = "PUT";
     public static final String METHOD_DELETE = "DELETE";
-    private static final Log LOG = LogFactory.getLog(Dispatcher.class.getName());
+    private static final Log LOG = LogFactory.getLog( Dispatcher.class.getName(  ) );
     private final boolean caseSensitive;
-    private Map<String, Method> methodMap = new HashMap<String, Method>();
+    private Map<String, Method> methodMap = new HashMap<String, Method>(  );
 
-    public Dispatcher() {
-        this(true);
+    public Dispatcher(  )
+    {
+        this( true );
     }
 
-    public Dispatcher(boolean caseSensitive) {
+    public Dispatcher( boolean caseSensitive )
+    {
         this.caseSensitive = caseSensitive;
     }
 
     /**
      * Connects a resource and HTTP method with a class and a class method.
      */
-    public synchronized void addResource(String resource, String httpMethod, Class<?> clazz, String classmethod)
-            throws NoSuchMethodException {
+    public synchronized void addResource( String resource, String httpMethod, Class<?> clazz, String classmethod )
+        throws NoSuchMethodException
+    {
+        Method m = clazz.getMethod( classmethod, CallContext.class, CmisService.class, String.class,
+                HttpServletRequest.class, HttpServletResponse.class );
 
-        Method m = clazz.getMethod(classmethod, CallContext.class, CmisService.class, String.class,
-                HttpServletRequest.class, HttpServletResponse.class);
-
-        methodMap.put(getKey(resource, httpMethod), m);
+        methodMap.put( getKey( resource, httpMethod ), m );
     }
 
     /**
@@ -75,26 +81,41 @@ public class Dispatcher implements Serializable {
      * <code>true</code> if the method was found,
      * <code>false</code> otherwise.
      */
-    public boolean dispatch(String resource, String httpMethod, CallContext context, CmisService service,
-            String repositoryId, HttpServletRequest request, HttpServletResponse response) {
-        Method m = methodMap.get(getKey(resource, httpMethod));
-        if (m == null) {
+    public boolean dispatch( String resource, String httpMethod, CallContext context, CmisService service,
+        String repositoryId, HttpServletRequest request, HttpServletResponse response )
+    {
+        Method m = methodMap.get( getKey( resource, httpMethod ) );
+
+        if ( m == null )
+        {
             return false;
         }
 
-        if (LOG.isDebugEnabled()) {
-            LOG.debug(repositoryId + " / " + resource + ", " + httpMethod + " -> " + m.getName());
+        if ( LOG.isDebugEnabled(  ) )
+        {
+            LOG.debug( repositoryId + " / " + resource + ", " + httpMethod + " -> " + m.getName(  ) );
         }
-        System.out.println("Dispatcher : " + repositoryId + " / " + resource + ", " + httpMethod + " -> " + m.getName());
-        try {
-            m.invoke(null, context, service, repositoryId, request, response);
-        } catch (IllegalAccessException e) {
-            throw new CmisRuntimeException("Internal error!", e);
-        } catch (InvocationTargetException e) {
-            if (e.getCause() instanceof CmisBaseException) {
-                throw (CmisBaseException) e.getCause();
-            } else {
-                throw new CmisRuntimeException(e.getMessage(), e);
+
+        System.out.println( "Dispatcher : " + repositoryId + " / " + resource + ", " + httpMethod + " -> " +
+            m.getName(  ) );
+
+        try
+        {
+            m.invoke( null, context, service, repositoryId, request, response );
+        }
+        catch ( IllegalAccessException e )
+        {
+            throw new CmisRuntimeException( "Internal error!", e );
+        }
+        catch ( InvocationTargetException e )
+        {
+            if ( e.getCause(  ) instanceof CmisBaseException )
+            {
+                throw (CmisBaseException) e.getCause(  );
+            }
+            else
+            {
+                throw new CmisRuntimeException( e.getMessage(  ), e );
             }
         }
 
@@ -104,8 +125,10 @@ public class Dispatcher implements Serializable {
     /**
      * Generates a map key from a resource and an HTTP method.
      */
-    private String getKey(String resource, String httpMethod) {
+    private String getKey( String resource, String httpMethod )
+    {
         String s = resource + "/" + httpMethod;
-        return (caseSensitive ? s : s.toUpperCase());
+
+        return ( caseSensitive ? s : s.toUpperCase(  ) );
     }
 }

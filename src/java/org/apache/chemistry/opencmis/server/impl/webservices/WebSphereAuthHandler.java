@@ -19,6 +19,7 @@
 package org.apache.chemistry.opencmis.server.impl.webservices;
 
 import java.io.StringReader;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,66 +33,85 @@ import javax.xml.ws.handler.MessageContext.Scope;
 import javax.xml.ws.handler.soap.SOAPHandler;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
 
-public class WebSphereAuthHandler extends AbstractUsernameTokenAuthHandler implements SOAPHandler<SOAPMessageContext> {
 
-    public Set<QName> getHeaders() {
+public class WebSphereAuthHandler extends AbstractUsernameTokenAuthHandler implements SOAPHandler<SOAPMessageContext>
+{
+    public Set<QName> getHeaders(  )
+    {
         return HEADERS;
     }
 
-    public void close(MessageContext context) {
+    public void close( MessageContext context )
+    {
     }
 
-    public boolean handleFault(SOAPMessageContext context) {
+    public boolean handleFault( SOAPMessageContext context )
+    {
         return true;
     }
 
-    @SuppressWarnings("unchecked")
-    public boolean handleMessage(SOAPMessageContext context) {
-        Boolean outboundProperty = (Boolean) context.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
-        if (outboundProperty.booleanValue()) {
+    @SuppressWarnings( "unchecked" )
+    public boolean handleMessage( SOAPMessageContext context )
+    {
+        Boolean outboundProperty = (Boolean) context.get( MessageContext.MESSAGE_OUTBOUND_PROPERTY );
+
+        if ( outboundProperty.booleanValue(  ) )
+        {
             // we are only looking at inbound messages
             return true;
         }
 
         Map<String, String> callContextMap = null;
 
-        Map<QName, List<String>> requestHeaders = (Map<QName, List<String>>) context
-                .get("jaxws.binding.soap.headers.inbound");
+        Map<QName, List<String>> requestHeaders = (Map<QName, List<String>>) context.get( 
+                "jaxws.binding.soap.headers.inbound" );
 
-        if (requestHeaders != null) {
-            List<String> secHeaders = requestHeaders.get(WSSE_SECURITY);
-            if (secHeaders != null && secHeaders.size() > 0) {
-                try {
-                    Unmarshaller unmarshaller = WSSE_CONTEXT.createUnmarshaller();
+        if ( requestHeaders != null )
+        {
+            List<String> secHeaders = requestHeaders.get( WSSE_SECURITY );
 
-                    for (String h : secHeaders) {
-                        try {
-                            JAXBElement<SecurityHeaderType> sht = (JAXBElement<SecurityHeaderType>) unmarshaller
-                                    .unmarshal(new StringReader(h));
+            if ( ( secHeaders != null ) && ( secHeaders.size(  ) > 0 ) )
+            {
+                try
+                {
+                    Unmarshaller unmarshaller = WSSE_CONTEXT.createUnmarshaller(  );
 
-                            callContextMap = extractUsernamePassword(sht);
-                            if (callContextMap != null) {
+                    for ( String h : secHeaders )
+                    {
+                        try
+                        {
+                            JAXBElement<SecurityHeaderType> sht = (JAXBElement<SecurityHeaderType>) unmarshaller.unmarshal( new StringReader( 
+                                        h ) );
+
+                            callContextMap = extractUsernamePassword( sht );
+
+                            if ( callContextMap != null )
+                            {
                                 break;
                             }
-
-                        } catch (Exception e) {
+                        }
+                        catch ( Exception e )
+                        {
                             // unmarshalling failed, maybe another header -
                             // ignore
                         }
                     }
-                } catch (Exception e) {
+                }
+                catch ( Exception e )
+                {
                     // JAXB problem - ignore
                 }
             }
         }
 
         // add user and password to context
-        if (callContextMap == null) {
-            callContextMap = new HashMap<String, String>();
+        if ( callContextMap == null )
+        {
+            callContextMap = new HashMap<String, String>(  );
         }
 
-        context.put(AbstractService.CALL_CONTEXT_MAP, callContextMap);
-        context.setScope(AbstractService.CALL_CONTEXT_MAP, Scope.APPLICATION);
+        context.put( AbstractService.CALL_CONTEXT_MAP, callContextMap );
+        context.setScope( AbstractService.CALL_CONTEXT_MAP, Scope.APPLICATION );
 
         return true;
     }

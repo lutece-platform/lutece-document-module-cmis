@@ -33,18 +33,16 @@
  */
 package fr.paris.lutece.plugins.document.modules.cmis.web;
 
+
 /**
  *
  * @author pierre
  */
 public class WebServicesServlet extends CmisWrapperServlet
 {
-
     @Override
-    String getServletBean() 
+    String getServletBean(  )
     {
         return "document-cmis.WebServicesServlet";
     }
-    
 }
-

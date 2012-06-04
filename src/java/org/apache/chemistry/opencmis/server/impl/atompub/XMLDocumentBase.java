@@ -18,84 +18,91 @@
  */
 package org.apache.chemistry.opencmis.server.impl.atompub;
 
+import org.apache.chemistry.opencmis.commons.impl.Constants;
+
 import java.io.OutputStream;
 
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
-import org.apache.chemistry.opencmis.commons.impl.Constants;
 
 /**
  * Base class for XML documents.
  */
-public abstract class XMLDocumentBase {
-
+public abstract class XMLDocumentBase
+{
     public static final String PREFIX_ATOM = "atom";
     public static final String PREFIX_CMIS = "cmis";
     public static final String PREFIX_RESTATOM = "cmisra";
     public static final String PREFIX_APP = "app";
     public static final String PREFIX_XSI = "xsi";
-
     private XMLStreamWriter writer;
 
     /**
      * Sets the namespaces for the document.
      */
-    public void setNamespaces() throws XMLStreamException {
-        writer.setPrefix(PREFIX_ATOM, Constants.NAMESPACE_ATOM);
-        writer.setPrefix(PREFIX_CMIS, Constants.NAMESPACE_CMIS);
-        writer.setPrefix(PREFIX_RESTATOM, Constants.NAMESPACE_RESTATOM);
-        writer.setPrefix(PREFIX_APP, Constants.NAMESPACE_APP);
-        writer.setPrefix(PREFIX_XSI, Constants.NAMESPACE_XSI);
+    public void setNamespaces(  ) throws XMLStreamException
+    {
+        writer.setPrefix( PREFIX_ATOM, Constants.NAMESPACE_ATOM );
+        writer.setPrefix( PREFIX_CMIS, Constants.NAMESPACE_CMIS );
+        writer.setPrefix( PREFIX_RESTATOM, Constants.NAMESPACE_RESTATOM );
+        writer.setPrefix( PREFIX_APP, Constants.NAMESPACE_APP );
+        writer.setPrefix( PREFIX_XSI, Constants.NAMESPACE_XSI );
     }
 
     /**
      * Writes the namespace declaration of the given URI to the current tag.
      */
-    public void writeNamespace(String namespaceUri) throws XMLStreamException {
-        writer.writeNamespace(writer.getPrefix(namespaceUri), namespaceUri);
+    public void writeNamespace( String namespaceUri ) throws XMLStreamException
+    {
+        writer.writeNamespace( writer.getPrefix( namespaceUri ), namespaceUri );
     }
 
     /**
      * Starts the document and sets the namespaces.
      */
-    public void startDocument(OutputStream out) throws XMLStreamException {
+    public void startDocument( OutputStream out ) throws XMLStreamException
+    {
         // create a writer
-        XMLOutputFactory factory = XMLOutputFactory.newInstance();
-        writer = factory.createXMLStreamWriter(out, "UTF-8");
+        XMLOutputFactory factory = XMLOutputFactory.newInstance(  );
+        writer = factory.createXMLStreamWriter( out, "UTF-8" );
 
         // start the document
-        writer.writeStartDocument("UTF-8", "1.0");
-        setNamespaces();
+        writer.writeStartDocument( "UTF-8", "1.0" );
+        setNamespaces(  );
     }
 
     /**
      * Finishes the document.
      */
-    public void endDocument() throws XMLStreamException {
-        if (writer == null) {
+    public void endDocument(  ) throws XMLStreamException
+    {
+        if ( writer == null )
+        {
             return;
         }
 
         // end the document
-        writer.writeEndDocument();
+        writer.writeEndDocument(  );
 
         // we are done.
-        writer.close();
+        writer.close(  );
     }
 
     /**
      * Returns the writer object.
      */
-    public XMLStreamWriter getWriter() {
+    public XMLStreamWriter getWriter(  )
+    {
         return writer;
     }
 
     /**
      * Sets the writer object.
      */
-    protected void setWriter(XMLStreamWriter writer) {
+    protected void setWriter( XMLStreamWriter writer )
+    {
         this.writer = writer;
     }
 }

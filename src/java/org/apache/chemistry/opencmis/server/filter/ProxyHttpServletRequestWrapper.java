@@ -21,48 +21,62 @@ package org.apache.chemistry.opencmis.server.filter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 
-public class ProxyHttpServletRequestWrapper extends HttpServletRequestWrapper {
 
+public class ProxyHttpServletRequestWrapper extends HttpServletRequestWrapper
+{
     public static final String FORWARDED_HOST_HEADER = "X-Forwarded-Host";
     public static final String FORWARDED_PROTO_HEADER = "X-Forwarded-Proto";
     public static final String HTTPS_SCHEME = "https";
     public static final String HTTP_SCHEME = "http";
-
     private String scheme;
     private String serverName;
     private int serverPort;
 
-    public ProxyHttpServletRequestWrapper(HttpServletRequest request) {
-        super(request);
+    public ProxyHttpServletRequestWrapper( HttpServletRequest request )
+    {
+        super( request );
 
-        scheme = request.getHeader(FORWARDED_PROTO_HEADER);
+        scheme = request.getHeader( FORWARDED_PROTO_HEADER );
 
-        if (!HTTP_SCHEME.equalsIgnoreCase(scheme) && !HTTPS_SCHEME.equalsIgnoreCase(scheme)) {
-            scheme = request.getScheme();
+        if ( !HTTP_SCHEME.equalsIgnoreCase( scheme ) && !HTTPS_SCHEME.equalsIgnoreCase( scheme ) )
+        {
+            scheme = request.getScheme(  );
         }
 
-        serverName = request.getServerName();
-        serverPort = request.getServerPort();
+        serverName = request.getServerName(  );
+        serverPort = request.getServerPort(  );
 
-        String host = request.getHeader(FORWARDED_HOST_HEADER);
-        if ((host != null) && (host.length() > 0)) {
-            int index = host.indexOf(':');
-            if (index < 0) {
+        String host = request.getHeader( FORWARDED_HOST_HEADER );
+
+        if ( ( host != null ) && ( host.length(  ) > 0 ) )
+        {
+            int index = host.indexOf( ':' );
+
+            if ( index < 0 )
+            {
                 serverName = host;
-                serverPort = getDefaultPort(scheme);
-            } else {
-                serverName = host.substring(0, index);
-                try {
-                    serverPort = Integer.parseInt(host.substring(index + 1));
-                } catch (NumberFormatException e) {
-                    serverPort = getDefaultPort(scheme);
+                serverPort = getDefaultPort( scheme );
+            }
+            else
+            {
+                serverName = host.substring( 0, index );
+
+                try
+                {
+                    serverPort = Integer.parseInt( host.substring( index + 1 ) );
+                }
+                catch ( NumberFormatException e )
+                {
+                    serverPort = getDefaultPort( scheme );
                 }
             }
         }
     }
 
-    private int getDefaultPort(String scheme) {
-        if (HTTPS_SCHEME.equalsIgnoreCase(scheme)) {
+    private int getDefaultPort( String scheme )
+    {
+        if ( HTTPS_SCHEME.equalsIgnoreCase( scheme ) )
+        {
             return 443;
         }
 
@@ -70,17 +84,20 @@ public class ProxyHttpServletRequestWrapper extends HttpServletRequestWrapper {
     }
 
     @Override
-    public String getScheme() {
+    public String getScheme(  )
+    {
         return scheme;
     }
 
     @Override
-    public String getServerName() {
+    public String getServerName(  )
+    {
         return serverName;
     }
 
     @Override
-    public int getServerPort() {
+    public int getServerPort(  )
+    {
         return serverPort;
     }
 }
