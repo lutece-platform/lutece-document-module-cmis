@@ -5,12 +5,12 @@
     <name>document-cmis</name>
     <class>fr.paris.lutece.portal.service.plugin.PluginDefaultImplementation</class>
     <version>0.9.0</version>
-    <description>module.document.cmis.plugin.description</description>
+    <description>module.document.cmis.module.description</description>
     <documentation/>
     <installation/>
     <changes/>
     <user-guide/>
-    <provider>module.document.cmis.plugin.provider</provider>
+    <provider>module.document.cmis.module.provider</provider>
     <provider-url>http://lutece.paris.fr</provider-url>
     <icon-url>images/admin/skin/plugins/document/modules/cmis/cmis.png</icon-url>
     <copyright>Copyright 2001-2012 Mairie de Paris</copyright>
@@ -23,12 +23,13 @@
  
     <!-- servlets -->
     <servlets>
+        <!--
         <servlet>
             <servlet-name>cmisws</servlet-name>
             <url-pattern>/servlet/plugins/document/cmis/services/</url-pattern>
             <servlet-class>fr.paris.lutece.plugins.document.modules.cmis.web.WebServicesServlet</servlet-class>
         </servlet>
-        
+        -->
         <servlet>
             <servlet-name>cmisatom</servlet-name>
             <url-pattern>/servlet/plugins/document/cmis/atom/</url-pattern>
