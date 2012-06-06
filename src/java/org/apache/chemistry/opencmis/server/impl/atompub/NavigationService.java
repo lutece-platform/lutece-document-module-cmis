@@ -236,6 +236,7 @@ public final class NavigationService
             throw new CmisRuntimeException( "Descendants are null!" );
         }
 
+        System.out.println( "" );
         ObjectInfo folderInfo = service.getObjectInfo( repositoryId, folderId );
 
         if ( folderInfo == null )

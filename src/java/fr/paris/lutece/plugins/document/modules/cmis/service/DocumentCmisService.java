@@ -142,4 +142,14 @@ public class DocumentCmisService extends AbstractCmisService
     {
         return _repository.getContentStream( _context, objectId, offset, length );
     }
+    
+    @Override
+    public List<ObjectInFolderContainer> getDescendants(String repositoryId, String folderId, BigInteger depth,
+            String filter, Boolean includeAllowableActions, IncludeRelationships includeRelationships,
+            String renditionFilter, Boolean includePathSegment, ExtensionsData extension) {
+        return _repository.getDescendants( _context, folderId, depth, filter, includeAllowableActions,
+                includePathSegment, this, false);
+    }
+
+
 }
