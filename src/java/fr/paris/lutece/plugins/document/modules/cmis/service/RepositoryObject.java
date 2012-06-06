@@ -104,7 +104,7 @@ public class RepositoryObject
         return _document;
     }
 
-    public List<Document> getDOcumentChildren(  )
+    public List<Document> getDocumentChildren(  )
     {
         return DocumentHome.findBySpaceKey( _space.getId(  ) );
     }

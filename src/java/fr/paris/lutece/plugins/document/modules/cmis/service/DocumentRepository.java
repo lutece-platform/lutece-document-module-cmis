@@ -34,7 +34,6 @@
 package fr.paris.lutece.plugins.document.modules.cmis.service;
 
 import fr.paris.lutece.plugins.document.business.Document;
-import fr.paris.lutece.plugins.document.business.DocumentHome;
 import fr.paris.lutece.plugins.document.business.spaces.DocumentSpace;
 
 import org.apache.chemistry.opencmis.commons.PropertyIds;
@@ -202,9 +201,18 @@ public class DocumentRepository extends BaseRepository
             max = Integer.MAX_VALUE;
         }
 
+        if( folderId.equalsIgnoreCase( "@root@"))
+        {
+            folderId = "S0";
+        }
         RepositoryObject object = new RepositoryObject(folderId);
+        
+        if( object.isDocument() )
+        {
+            return result;
+        }
 
-        List<Document> listDocuments = object.getDOcumentChildren();
+        List<Document> listDocuments = object.getDocumentChildren();
 
         // iterate through children
         for (Document document : listDocuments)
@@ -279,6 +287,11 @@ public class DocumentRepository extends BaseRepository
             IncludeRelationships includeRelationships, String renditionFilter, Boolean includePolicyIds,
             Boolean includeAcl, ExtensionsData extension, ObjectInfoHandler objectInfos)
     {
+        if( objectId.equalsIgnoreCase( "@root@"))
+        {
+            objectId = "S0";
+        }
+
         RepositoryObject object = new RepositoryObject(objectId);
 
         return compileObjectType(context, object, null, true, true, true, objectInfos);
@@ -413,9 +426,12 @@ public class DocumentRepository extends BaseRepository
             if (object.isDocument())
             {
                 addPropertyId(result, typeId, filter, PropertyIds.BASE_TYPE_ID, BaseTypeId.CMIS_DOCUMENT.value());
+                addPropertyId(result, typeId, filter, PropertyIds.OBJECT_TYPE_ID, "LuteceDocument");
+                
             } else if (object.isSpace())
             {
                 addPropertyId(result, typeId, filter, PropertyIds.BASE_TYPE_ID, BaseTypeId.CMIS_FOLDER.value());
+                addPropertyId(result, typeId, filter, PropertyIds.OBJECT_TYPE_ID, "LuteceSpace");
             }
 
             /*
@@ -487,7 +503,10 @@ public class DocumentRepository extends BaseRepository
             throw new CmisInvalidArgumentException("Offset and Length are not supported!");
         }
 
-        Document document = DocumentHome.findByPrimaryKey(Integer.parseInt(objectId));
+        RepositoryObject object = new RepositoryObject(objectId);
+        
+        
+        Document document = object.getDocument();
 
         if (document == null)
         {
@@ -638,7 +657,7 @@ public class DocumentRepository extends BaseRepository
         // folders only?
         if (!foldersOnly)
         {
-            for (Document doc : object.getDOcumentChildren())
+            for (Document doc : object.getDocumentChildren())
             {
 
                 System.out.println("document " + doc.getTitle());
