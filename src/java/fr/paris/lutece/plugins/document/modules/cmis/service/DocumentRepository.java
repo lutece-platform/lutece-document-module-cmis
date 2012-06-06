@@ -59,7 +59,8 @@ import java.util.*;
  *
  * @author levy
  */
-public class DocumentRepository extends BaseRepository {
+public class DocumentRepository extends BaseRepository
+{
 
     private static final String REPOSITORY_ID = "document";
     private static final String CMIS_VERSION = "1.0";
@@ -76,7 +77,8 @@ public class DocumentRepository extends BaseRepository {
      */
     private final TypeManager types = new TypeManager();
 
-    public RepositoryInfo getInfos() {
+    public RepositoryInfo getInfos()
+    {
         RepositoryInfoImpl repositoryInfo = new RepositoryInfoImpl();
 
         repositoryInfo.setId(REPOSITORY_ID);
@@ -145,7 +147,8 @@ public class DocumentRepository extends BaseRepository {
 
         Map<String, PermissionMapping> map = new LinkedHashMap<String, PermissionMapping>();
 
-        for (PermissionMapping pm : list) {
+        for (PermissionMapping pm : list)
+        {
             map.put(pm.getKey(), pm);
         }
 
@@ -160,21 +163,24 @@ public class DocumentRepository extends BaseRepository {
      * CMIS getTypesChildren.
      */
     public TypeDefinitionList getTypesChildren(CallContext context, String typeId, boolean includePropertyDefinitions,
-            BigInteger maxItems, BigInteger skipCount) {
+            BigInteger maxItems, BigInteger skipCount)
+    {
         return types.getTypesChildren(context, typeId, includePropertyDefinitions, maxItems, skipCount);
     }
 
     /**
      * CMIS getTypeDefinition.
      */
-    public TypeDefinition getTypeDefinition(CallContext context, String typeId) {
+    public TypeDefinition getTypeDefinition(CallContext context, String typeId)
+    {
         return types.getTypeDefinition(context, typeId);
     }
 
     public ObjectInFolderList getChildren(CallContext context, String folderId, String filter, String orderBy,
             Boolean includeAllowableActions, IncludeRelationships includeRelationships, String renditionFilter,
             Boolean includePathSegment, BigInteger maxItems, BigInteger skipCount, ExtensionsData extension,
-            ObjectInfoHandler objectInfos) {
+            ObjectInfoHandler objectInfos)
+    {
         ObjectInFolderListImpl result = new ObjectInFolderListImpl();
         result.setObjects(new ArrayList<ObjectInFolderData>());
         result.setHasMoreItems(false);
@@ -184,13 +190,15 @@ public class DocumentRepository extends BaseRepository {
         // skip and max
         int skip = ((skipCount == null) ? 0 : skipCount.intValue());
 
-        if (skip < 0) {
+        if (skip < 0)
+        {
             skip = 0;
         }
 
         int max = ((maxItems == null) ? Integer.MAX_VALUE : maxItems.intValue());
 
-        if (max < 0) {
+        if (max < 0)
+        {
             max = Integer.MAX_VALUE;
         }
 
@@ -199,21 +207,25 @@ public class DocumentRepository extends BaseRepository {
         List<Document> listDocuments = object.getDOcumentChildren();
 
         // iterate through children
-        for (Document document : listDocuments) {
+        for (Document document : listDocuments)
+        {
             // skip hidden and shadow files
-            if (document.isOutOfDate() || !document.isValid()) {
+            if (document.isOutOfDate() || !document.isValid())
+            {
                 continue;
             }
 
             count++;
 
-            if (skip > 0) {
+            if (skip > 0)
+            {
                 skip--;
 
                 continue;
             }
 
-            if (result.getObjects().size() >= max) {
+            if (result.getObjects().size() >= max)
+            {
                 result.setHasMoreItems(true);
 
                 continue;
@@ -231,16 +243,19 @@ public class DocumentRepository extends BaseRepository {
         List<DocumentSpace> listSpaces = object.getSpaceChildren();
 
         // iterate through children
-        for (DocumentSpace space : listSpaces) {
+        for (DocumentSpace space : listSpaces)
+        {
             count++;
 
-            if (skip > 0) {
+            if (skip > 0)
+            {
                 skip--;
 
                 continue;
             }
 
-            if (result.getObjects().size() >= max) {
+            if (result.getObjects().size() >= max)
+            {
                 result.setHasMoreItems(true);
 
                 continue;
@@ -262,7 +277,8 @@ public class DocumentRepository extends BaseRepository {
 
     public ObjectData getObject(CallContext context, String objectId, String filter, Boolean includeAllowableActions,
             IncludeRelationships includeRelationships, String renditionFilter, Boolean includePolicyIds,
-            Boolean includeAcl, ExtensionsData extension, ObjectInfoHandler objectInfos) {
+            Boolean includeAcl, ExtensionsData extension, ObjectInfoHandler objectInfos)
+    {
         RepositoryObject object = new RepositoryObject(objectId);
 
         return compileObjectType(context, object, null, true, true, true, objectInfos);
@@ -272,14 +288,16 @@ public class DocumentRepository extends BaseRepository {
      * CMIS getObjectByPath.
      */
     public ObjectData getObjectByPath(CallContext context, String folderPath, String filter,
-            boolean includeAllowableActions, boolean includeACL, ObjectInfoHandler objectInfos) {
+            boolean includeAllowableActions, boolean includeACL, ObjectInfoHandler objectInfos)
+    {
         boolean userReadOnly = true;
 
         // split filter
         Set<String> filterCollection = splitFilter(filter);
 
         // check path
-        if ((folderPath == null) || (!folderPath.startsWith("/"))) {
+        if ((folderPath == null) || (!folderPath.startsWith("/")))
+        {
             throw new CmisInvalidArgumentException("Invalid folder path!");
         }
 
@@ -290,7 +308,8 @@ public class DocumentRepository extends BaseRepository {
     }
 
     private ObjectData compileObjectType(CallContext context, RepositoryObject object, Set<String> filter,
-            boolean includeAllowableActions, boolean includeAcl, boolean userReadOnly, ObjectInfoHandler objectInfos) {
+            boolean includeAllowableActions, boolean includeAcl, boolean userReadOnly, ObjectInfoHandler objectInfos)
+    {
         ObjectDataImpl result = new ObjectDataImpl();
         ObjectInfoImpl objectInfo = new ObjectInfoImpl();
 
@@ -304,7 +323,8 @@ public class DocumentRepository extends BaseRepository {
          * if (includeAcl) { result.setAcl(compileAcl(file));
          * result.setIsExactAcl(true); }
          */
-        if (context.isObjectInfoRequired()) {
+        if (context.isObjectInfoRequired())
+        {
             objectInfo.setObject(result);
             objectInfos.addObjectInfo(objectInfo);
         }
@@ -313,8 +333,10 @@ public class DocumentRepository extends BaseRepository {
     }
 
     private org.apache.chemistry.opencmis.commons.data.Properties compileProperties(RepositoryObject object,
-            Set<String> orgfilter, ObjectInfoImpl objectInfo) {
-        if (object == null) {
+            Set<String> orgfilter, ObjectInfoImpl objectInfo)
+    {
+        if (object == null)
+        {
             throw new IllegalArgumentException("Document must not be null!");
         }
 
@@ -324,14 +346,16 @@ public class DocumentRepository extends BaseRepository {
         // find base type
         String typeId = null;
 
-        if (object.isDocument()) {
+        if (object.isDocument())
+        {
             typeId = TypeManager.DOCUMENT_TYPE_ID;
             objectInfo.setBaseType(BaseTypeId.CMIS_DOCUMENT);
             objectInfo.setTypeId(typeId);
             objectInfo.setSupportsDescendants(false);
             objectInfo.setSupportsFolderTree(false);
             objectInfo.setHasContent(true);
-        } else if (object.isSpace()) {
+        } else if (object.isSpace())
+        {
             typeId = TypeManager.FOLDER_TYPE_ID;
             objectInfo.setBaseType(BaseTypeId.CMIS_FOLDER);
             objectInfo.setTypeId(typeId);
@@ -353,7 +377,8 @@ public class DocumentRepository extends BaseRepository {
         objectInfo.setWorkingCopyOriginalId(null);
 
         // let's do it
-        try {
+        try
+        {
             PropertiesImpl result = new PropertiesImpl();
 
             // id
@@ -372,7 +397,8 @@ public class DocumentRepository extends BaseRepository {
             objectInfo.setCreatedBy(USER_UNKNOWN);
 
             // creation and modification date
-            if (object.isDocument()) {
+            if (object.isDocument())
+            {
                 GregorianCalendar lastModified = millisToCalendar(object.getDocument().getDateModification().getTime());
                 addPropertyDateTime(result, typeId, filter, PropertyIds.CREATION_DATE, lastModified);
                 addPropertyDateTime(result, typeId, filter, PropertyIds.LAST_MODIFICATION_DATE, lastModified);
@@ -384,9 +410,11 @@ public class DocumentRepository extends BaseRepository {
             addPropertyString(result, typeId, filter, PropertyIds.CHANGE_TOKEN, null);
 
             // base type and type name
-            if (object.isDocument()) {
+            if (object.isDocument())
+            {
                 addPropertyId(result, typeId, filter, PropertyIds.BASE_TYPE_ID, BaseTypeId.CMIS_DOCUMENT.value());
-            } else if (object.isSpace()) {
+            } else if (object.isSpace())
+            {
                 addPropertyId(result, typeId, filter, PropertyIds.BASE_TYPE_ID, BaseTypeId.CMIS_FOLDER.value());
             }
 
@@ -429,15 +457,19 @@ public class DocumentRepository extends BaseRepository {
 
             // read custom properties
             // readCustomProperties(file, result, filter, objectInfo);
-            if (filter != null) {
-                if (!filter.isEmpty()) {
+            if (filter != null)
+            {
+                if (!filter.isEmpty())
+                {
                     // debug("Unknown filter properties: " + filter.toString(), null);
                 }
             }
 
             return result;
-        } catch (Exception e) {
-            if (e instanceof CmisBaseException) {
+        } catch (Exception e)
+        {
+            if (e instanceof CmisBaseException)
+            {
                 throw (CmisBaseException) e;
             }
 
@@ -448,20 +480,24 @@ public class DocumentRepository extends BaseRepository {
     /**
      * CMIS getContentStream.
      */
-    public ContentStream getContentStream(CallContext context, String objectId, BigInteger offset, BigInteger length) {
-        if ((offset != null) || (length != null)) {
+    public ContentStream getContentStream(CallContext context, String objectId, BigInteger offset, BigInteger length)
+    {
+        if ((offset != null) || (length != null))
+        {
             throw new CmisInvalidArgumentException("Offset and Length are not supported!");
         }
 
         Document document = DocumentHome.findByPrimaryKey(Integer.parseInt(objectId));
 
-        if (document == null) {
+        if (document == null)
+        {
             throw new CmisStreamNotSupportedException("Document not found");
         }
 
         String xml = document.getXmlValidatedContent();
 
-        if (xml == null) {
+        if (xml == null)
+        {
             xml = document.getXmlWorkingContent();
         }
 
@@ -482,23 +518,29 @@ public class DocumentRepository extends BaseRepository {
      * <code>null</code>, empty or one of the properties is '*' , an empty
      * collection will be returned.
      */
-    private static Set<String> splitFilter(String filter) {
-        if (filter == null) {
+    private static Set<String> splitFilter(String filter)
+    {
+        if (filter == null)
+        {
             return null;
         }
 
-        if (filter.trim().length() == 0) {
+        if (filter.trim().length() == 0)
+        {
             return null;
         }
 
         Set<String> result = new HashSet<String>();
 
-        for (String s : filter.split(",")) {
+        for (String s : filter.split(","))
+        {
             s = s.trim();
 
-            if (s.equals("*")) {
+            if (s.equals("*"))
+            {
                 return null;
-            } else if (s.length() > 0) {
+            } else if (s.length() > 0)
+            {
                 result.add(s);
             }
         }
@@ -514,16 +556,19 @@ public class DocumentRepository extends BaseRepository {
 
     public List<ObjectInFolderContainer> getDescendants(CallContext context, String folderId,
             BigInteger depth, String filter, Boolean includeAllowableActions, Boolean includePathSegment,
-            ObjectInfoHandler objectInfos, boolean userReadOnly) {
+            ObjectInfoHandler objectInfos, boolean userReadOnly)
+    {
 
-        RepositoryObject object = new RepositoryObject("s0");
-        
+        RepositoryObject object = new RepositoryObject(folderId);
+
         // check depth
         int d = (depth == null ? 2 : depth.intValue());
-        if (d == 0) {
+        if (d == 0)
+        {
             throw new CmisInvalidArgumentException("Depth must not be 0!");
         }
-        if (d < -1) {
+        if (d < -1)
+        {
             d = -1;
         }
 
@@ -533,42 +578,46 @@ public class DocumentRepository extends BaseRepository {
 
         boolean foldersOnly = true;
         List<ObjectInFolderContainer> result = new ArrayList<ObjectInFolderContainer>();
-        
+
         // set defaults if values not set
         boolean iaa = (includeAllowableActions == null ? false : includeAllowableActions.booleanValue());
         boolean ips = (includePathSegment == null ? false : includePathSegment.booleanValue());
 
-        if (context.isObjectInfoRequired()) {
+        if (context.isObjectInfoRequired())
+        {
             compileObjectType(context, object, null, false, false, userReadOnly, objectInfos);
         }
 
-        System.out.println( "object=" + object );
-        
-        gatherDescendants( context, object, result, foldersOnly, d, filterCollection, iaa, ips, userReadOnly, objectInfos);
+        System.out.println("object=" + object);
+
+        gatherDescendants(context, object, result, foldersOnly, d, filterCollection, iaa, ips, userReadOnly, objectInfos);
 
         return result;
     }
 
     private void gatherDescendants(CallContext context, RepositoryObject object, List<ObjectInFolderContainer> list,
             boolean foldersOnly, int depth, Set<String> filter, boolean includeAllowableActions,
-            boolean includePathSegments, boolean userReadOnly, ObjectInfoHandler objectInfos) {
+            boolean includePathSegments, boolean userReadOnly, ObjectInfoHandler objectInfos)
+    {
         // iterate through children
 
-        if( object.getSpaceChildren() == null )
+        if (object.getSpaceChildren() == null)
         {
-            System.out.println( "No childs " );
+            System.out.println("No childs ");
             return;
-        }    
-        for (DocumentSpace space : object.getSpaceChildren()) {
+        }
+        for (DocumentSpace space : object.getSpaceChildren())
+        {
 
-            System.out.println( "child space " + space.getName() );
+            System.out.println("child space " + space.getName());
 
             // add to list
             ObjectInFolderDataImpl objectInFolder = new ObjectInFolderDataImpl();
-            RepositoryObject child = new RepositoryObject( "S" + space.getId() );
+            RepositoryObject child = new RepositoryObject("S" + space.getId());
             objectInFolder.setObject(compileObjectType(context, child, filter, includeAllowableActions, false,
                     userReadOnly, objectInfos));
-            if (includePathSegments) {
+            if (includePathSegments)
+            {
                 objectInFolder.setPathSegment(space.getName());
             }
 
@@ -578,18 +627,46 @@ public class DocumentRepository extends BaseRepository {
             list.add(container);
 
             // move to next level
-            if ((depth != 1) ) {
+            if ((depth != 1))
+            {
                 container.setChildren(new ArrayList<ObjectInFolderContainer>());
                 gatherDescendants(context, child, container.getChildren(), foldersOnly, depth - 1, filter,
                         includeAllowableActions, includePathSegments, userReadOnly, objectInfos);
             }
         }
-        
-                    // folders only?
-            if ( !foldersOnly )
+
+        // folders only?
+        if (!foldersOnly)
+        {
+            for (Document doc : object.getDOcumentChildren())
             {
-                // TODO Add documents 
+
+                System.out.println("document " + doc.getTitle());
+
+                // add to list
+                ObjectInFolderDataImpl objectInFolder = new ObjectInFolderDataImpl();
+                RepositoryObject child = new RepositoryObject("D" + doc.getId());
+                objectInFolder.setObject(compileObjectType(context, child, filter, includeAllowableActions, false,
+                        userReadOnly, objectInfos));
+                if (includePathSegments)
+                {
+                    objectInFolder.setPathSegment(doc.getTitle());
+                }
+
+                ObjectInFolderContainerImpl container = new ObjectInFolderContainerImpl();
+                container.setObject(objectInFolder);
+
+                list.add(container);
+
+                // move to next level
+                if ((depth != 1))
+                {
+                    container.setChildren(new ArrayList<ObjectInFolderContainer>());
+                    gatherDescendants(context, child, container.getChildren(), foldersOnly, depth - 1, filter,
+                            includeAllowableActions, includePathSegments, userReadOnly, objectInfos);
+                }
             }
+        }
 
     }
 }
