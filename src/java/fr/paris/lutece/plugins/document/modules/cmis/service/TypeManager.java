@@ -58,14 +58,29 @@ import java.util.Map;
  */
 public class TypeManager
 {
+    /**
+     * 
+     */
     public static final String DOCUMENT_TYPE_ID = BaseTypeId.CMIS_DOCUMENT.value(  );
+    /**
+     * 
+     */
     public static final String FOLDER_TYPE_ID = BaseTypeId.CMIS_FOLDER.value(  );
+    /**
+     * 
+     */
     public static final String RELATIONSHIP_TYPE_ID = BaseTypeId.CMIS_RELATIONSHIP.value(  );
+    /**
+     * 
+     */
     public static final String POLICY_TYPE_ID = BaseTypeId.CMIS_POLICY.value(  );
     private static final String NAMESPACE = "http://opencmis.org/fileshare";
     private Map<String, TypeDefinitionContainerImpl> types;
     private List<TypeDefinitionContainer> typesList;
 
+    /**
+     * 
+     */
     public TypeManager(  )
     {
         setup(  );
@@ -332,6 +347,8 @@ public class TypeManager
 
     /**
      * Adds a type to collection with inheriting base type properties.
+     * @param type 
+     * @return 
      */
     public boolean addType( TypeDefinition type )
     {
@@ -425,6 +442,12 @@ public class TypeManager
 
     /**
      * CMIS getTypesChildren.
+     * @param context 
+     * @param typeId 
+     * @param includePropertyDefinitions
+     * @param maxItems 
+     * @param skipCount 
+     * @return  
      */
     public TypeDefinitionList getTypesChildren( CallContext context, String typeId, boolean includePropertyDefinitions,
         BigInteger maxItems, BigInteger skipCount )
@@ -507,6 +530,11 @@ public class TypeManager
 
     /**
      * CMIS getTypesDescendants.
+     * @param context 
+     * @param depth
+     * @param typeId
+     * @param includePropertyDefinitions
+     * @return  
      */
     public List<TypeDefinitionContainer> getTypesDescendants( CallContext context, String typeId, BigInteger depth,
         Boolean includePropertyDefinitions )
@@ -584,6 +612,8 @@ public class TypeManager
 
     /**
      * For internal use.
+     * @param typeId 
+     * @return 
      */
     public TypeDefinition getType( String typeId )
     {
@@ -599,6 +629,9 @@ public class TypeManager
 
     /**
      * CMIS getTypeDefinition.
+     * @param context
+     * @param typeId
+     * @return  
      */
     public TypeDefinition getTypeDefinition( CallContext context, String typeId )
     {

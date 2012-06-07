@@ -10,7 +10,14 @@ and open the template in the editor.
     </head>
     <body>
         <h1>CMIS test page</h1>
-        <div>Browser bindings</div>
+        
+        <h2>AtomPub</h2>
+        Repositories : <a href="servlet/plugins/document/cmis/atom/">/</a><br/>
+        Object : <a href="servlet/plugins/document/cmis/atom/document/id?id=d22">[repository]/id?id=[object id]</a><br/>
+        Children : <a href="servlet/plugins/document/cmis/atom/document/children?id=s1">[repository]/children?id=[folder id]</a><br/>
+        Descendants : <a href="servlet/plugins/document/cmis/atom/document/descendants?id=s1">[repository]/descendants?id=[folder id]</a><br/>
+
+        <h2>Browser bindings</h2>
         Repository info : <a href="servlet/plugins/document/cmis/browser/document/?cmisselector=repositoryInfo">[repository]/?cmisselector=repositoryInfo</a><br/>
         Object : <a href="servlet/plugins/document/cmis/browser/document/root/?cmisselector=object&objectId=22" >[repository]/root/?cmisselector=object&amp;objectId=22</a><br/>
         Content : <a href="servlet/plugins/document/cmis/browser/document/root/?cmisselector=content&objectId=22" >[repository]/root/?cmisselector=content&amp;objectId=22</a><br/>

@@ -79,36 +79,64 @@ public class RepositoryObject
         }
     }
 
+    /**
+     * 
+     * @return
+     */
     public String getId(  )
     {
         return _id;
     }
 
+    /**
+     * 
+     * @return
+     */
     public String getName(  )
     {
         return _name;
     }
 
+    /**
+     * 
+     * @return
+     */
     public boolean isDocument(  )
     {
         return _type == TYPE_DOCUMENT;
     }
 
+    /**
+     * 
+     * @return
+     */
     public boolean isSpace(  )
     {
         return _type == TYPE_SPACE;
     }
 
+    /**
+     * 
+     * @return
+     */
     public Document getDocument(  )
     {
         return _document;
     }
 
+    /**
+     * 
+     * @return
+     */
     public List<Document> getDocumentChildren(  )
     {
         return DocumentHome.findBySpaceKey( _space.getId(  ) );
     }
 
+    /**
+     * 
+     * @return
+     */
     public List<DocumentSpace> getSpaceChildren(  )
     {
         return DocumentSpaceHome.findChilds( _space.getId(  ) );

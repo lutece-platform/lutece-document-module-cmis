@@ -53,6 +53,11 @@ public class DocumentCmisServiceFactory extends AbstractServiceFactory
     private static final BigInteger DEFAULT_DEPTH_OBJECTS = BigInteger.valueOf( 10 );
     private ThreadLocal<CmisServiceWrapper<DocumentCmisService>> threadLocalService = new ThreadLocal<CmisServiceWrapper<DocumentCmisService>>(  );
 
+    /**
+     * 
+     * @param context
+     * @return
+     */
     @Override
     public CmisService getService( CallContext context )
     {

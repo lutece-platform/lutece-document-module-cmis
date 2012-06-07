@@ -35,6 +35,7 @@ package fr.paris.lutece.plugins.document.modules.cmis.service;
 
 import fr.paris.lutece.plugins.document.business.Document;
 import fr.paris.lutece.plugins.document.business.spaces.DocumentSpace;
+import fr.paris.lutece.portal.service.util.AppLogService;
 
 import org.apache.chemistry.opencmis.commons.PropertyIds;
 import org.apache.chemistry.opencmis.commons.data.*;
@@ -71,11 +72,19 @@ public class DocumentRepository extends BaseRepository
     private static final String CMIS_READ = "cmis:read";
     private static final String CMIS_WRITE = "cmis:write";
     private static final String CMIS_ALL = "cmis:all";
+    private static final String ROOT_SPACE_ID = "S0";
+    private static final String PREFIX_DOC = "D";
+    private static final String PREFIX_SPACE = "S";
+    
     /**
      * Types
      */
     private final TypeManager types = new TypeManager();
 
+    /**
+     * 
+     * @return
+     */
     public RepositoryInfo getInfos()
     {
         RepositoryInfoImpl repositoryInfo = new RepositoryInfoImpl();
@@ -160,6 +169,12 @@ public class DocumentRepository extends BaseRepository
 
     /**
      * CMIS getTypesChildren.
+     * @param context 
+     * @param typeId
+     * @param includePropertyDefinitions 
+     * @param maxItems 
+     * @param skipCount
+     * @return  
      */
     public TypeDefinitionList getTypesChildren(CallContext context, String typeId, boolean includePropertyDefinitions,
             BigInteger maxItems, BigInteger skipCount)
@@ -169,12 +184,31 @@ public class DocumentRepository extends BaseRepository
 
     /**
      * CMIS getTypeDefinition.
+     * @param context
+     * @param typeId 
+     * @return  
      */
     public TypeDefinition getTypeDefinition(CallContext context, String typeId)
     {
         return types.getTypeDefinition(context, typeId);
     }
 
+    /**
+     * 
+     * @param context
+     * @param folderId
+     * @param filter
+     * @param orderBy
+     * @param includeAllowableActions
+     * @param includeRelationships
+     * @param renditionFilter
+     * @param includePathSegment
+     * @param maxItems
+     * @param skipCount
+     * @param extension
+     * @param objectInfos
+     * @return 
+     */
     public ObjectInFolderList getChildren(CallContext context, String folderId, String filter, String orderBy,
             Boolean includeAllowableActions, IncludeRelationships includeRelationships, String renditionFilter,
             Boolean includePathSegment, BigInteger maxItems, BigInteger skipCount, ExtensionsData extension,
@@ -201,9 +235,9 @@ public class DocumentRepository extends BaseRepository
             max = Integer.MAX_VALUE;
         }
 
-        if( folderId.equalsIgnoreCase( "@root@"))
+        if( folderId.equalsIgnoreCase( ROOT_ID ))
         {
-            folderId = "S0";
+            folderId = ROOT_SPACE_ID;
         }
         RepositoryObject object = new RepositoryObject(folderId);
         
@@ -212,11 +246,14 @@ public class DocumentRepository extends BaseRepository
             return result;
         }
 
+        String folderPath = object.getName();
+
         List<Document> listDocuments = object.getDocumentChildren();
 
         // iterate through children
         for (Document document : listDocuments)
         {
+            
             // skip hidden and shadow files
             if (document.isOutOfDate() || !document.isValid())
             {
@@ -241,9 +278,9 @@ public class DocumentRepository extends BaseRepository
 
             // build and add child object
             ObjectInFolderDataImpl objectInFolder = new ObjectInFolderDataImpl();
-            objectInFolder.setObject(getObject(context, "D" + document.getId(), filter, includeAllowableActions,
+            objectInFolder.setObject(getObject(context, PREFIX_DOC + document.getId(), filter, includeAllowableActions,
                     includeRelationships, renditionFilter, includePathSegment, includePathSegment, extension,
-                    objectInfos));
+                    objectInfos , folderPath ));
 
             result.getObjects().add(objectInFolder);
         }
@@ -271,9 +308,9 @@ public class DocumentRepository extends BaseRepository
 
             // build and add child object
             ObjectInFolderDataImpl objectInFolder = new ObjectInFolderDataImpl();
-            objectInFolder.setObject(getObject(context, "S" + space.getId(), filter, includeAllowableActions,
+            objectInFolder.setObject(getObject(context, PREFIX_SPACE + space.getId(), filter, includeAllowableActions,
                     includeRelationships, renditionFilter, includePathSegment, includePathSegment, extension,
-                    objectInfos));
+                    objectInfos, folderPath));
 
             result.getObjects().add(objectInFolder);
         }
@@ -283,22 +320,65 @@ public class DocumentRepository extends BaseRepository
         return result;
     }
 
+    /**
+     * 
+     * @param context
+     * @param objectId
+     * @param filter
+     * @param includeAllowableActions
+     * @param includeRelationships
+     * @param renditionFilter
+     * @param includePolicyIds
+     * @param includeAcl
+     * @param extension
+     * @param objectInfo
+     * @return 
+     */
     public ObjectData getObject(CallContext context, String objectId, String filter, Boolean includeAllowableActions,
             IncludeRelationships includeRelationships, String renditionFilter, Boolean includePolicyIds,
-            Boolean includeAcl, ExtensionsData extension, ObjectInfoHandler objectInfos)
+            Boolean includeAcl, ExtensionsData extension, ObjectInfoHandler objectInfo )
     {
-        if( objectId.equalsIgnoreCase( "@root@"))
+        return getObject(context, objectId, filter, includeAllowableActions, includeRelationships, renditionFilter, includePolicyIds, includeAcl, extension, objectInfo , "/" );
+    }
+    
+    /**
+     * 
+     * @param context
+     * @param objectId
+     * @param filter
+     * @param includeAllowableActions
+     * @param includeRelationships
+     * @param renditionFilter
+     * @param includePolicyIds
+     * @param includeAcl
+     * @param extension
+     * @param objectInfo
+     * @param folderPath
+     * @return 
+     */
+    private ObjectData getObject(CallContext context, String objectId, String filter, Boolean includeAllowableActions,
+            IncludeRelationships includeRelationships, String renditionFilter, Boolean includePolicyIds,
+            Boolean includeAcl, ExtensionsData extension, ObjectInfoHandler objectInfo ,String folderPath )
+    {
+        if( objectId.equalsIgnoreCase( ROOT_ID ))
         {
-            objectId = "S0";
+            objectId = ROOT_SPACE_ID;
         }
 
         RepositoryObject object = new RepositoryObject(objectId);
 
-        return compileObjectType(context, object, null, true, true, true, objectInfos);
+        return compileObjectType(context, object, null, true, true, true, objectInfo , folderPath );
     }
 
     /**
      * CMIS getObjectByPath.
+     * @param context 
+     * @param folderPath 
+     * @param includeAllowableActions
+     * @param filter 
+     * @param objectInfos 
+     * @param includeACL 
+     * @return  
      */
     public ObjectData getObjectByPath(CallContext context, String folderPath, String filter,
             boolean includeAllowableActions, boolean includeACL, ObjectInfoHandler objectInfos)
@@ -314,19 +394,19 @@ public class DocumentRepository extends BaseRepository
             throw new CmisInvalidArgumentException("Invalid folder path!");
         }
 
-        RepositoryObject object = new RepositoryObject("S1");
+        RepositoryObject object = new RepositoryObject( ROOT_SPACE_ID );
 
         return compileObjectType(context, object, filterCollection, includeAllowableActions, includeACL, userReadOnly,
-                objectInfos);
+                objectInfos, folderPath );
     }
 
     private ObjectData compileObjectType(CallContext context, RepositoryObject object, Set<String> filter,
-            boolean includeAllowableActions, boolean includeAcl, boolean userReadOnly, ObjectInfoHandler objectInfos)
+            boolean includeAllowableActions, boolean includeAcl, boolean userReadOnly, ObjectInfoHandler objectInfos, String folderPath )
     {
         ObjectDataImpl result = new ObjectDataImpl();
         ObjectInfoImpl objectInfo = new ObjectInfoImpl();
 
-        result.setProperties(compileProperties(object, filter, objectInfo));
+        result.setProperties(compileProperties(object, filter, objectInfo, folderPath ));
 
         /*
          * if (includeAllowableActions) {
@@ -346,7 +426,7 @@ public class DocumentRepository extends BaseRepository
     }
 
     private org.apache.chemistry.opencmis.commons.data.Properties compileProperties(RepositoryObject object,
-            Set<String> orgfilter, ObjectInfoImpl objectInfo)
+            Set<String> orgfilter, ObjectInfoImpl objectInfo, String folderPath )
     {
         if (object == null)
         {
@@ -407,6 +487,8 @@ public class DocumentRepository extends BaseRepository
             // created and modified by
             addPropertyString(result, typeId, filter, PropertyIds.CREATED_BY, USER_UNKNOWN);
             addPropertyString(result, typeId, filter, PropertyIds.LAST_MODIFIED_BY, USER_UNKNOWN);
+            
+            addPropertyString(result, typeId, filter, PropertyIds.PATH, folderPath );
             objectInfo.setCreatedBy(USER_UNKNOWN);
 
             // creation and modification date
@@ -495,6 +577,11 @@ public class DocumentRepository extends BaseRepository
 
     /**
      * CMIS getContentStream.
+     * @param context 
+     * @param objectId 
+     * @param length 
+     * @param offset 
+     * @return 
      */
     public ContentStream getContentStream(CallContext context, String objectId, BigInteger offset, BigInteger length)
     {
@@ -573,12 +660,25 @@ public class DocumentRepository extends BaseRepository
         return result;
     }
 
+    /**
+     * 
+     * @param context
+     * @param folderId
+     * @param depth
+     * @param filter
+     * @param includeAllowableActions
+     * @param includePathSegment
+     * @param objectInfos
+     * @param userReadOnly
+     * @return
+     */
     public List<ObjectInFolderContainer> getDescendants(CallContext context, String folderId,
             BigInteger depth, String filter, Boolean includeAllowableActions, Boolean includePathSegment,
             ObjectInfoHandler objectInfos, boolean userReadOnly)
     {
 
         RepositoryObject object = new RepositoryObject(folderId);
+        String folderPath = "/" + object.getName();
 
         // check depth
         int d = (depth == null ? 2 : depth.intValue());
@@ -604,37 +704,41 @@ public class DocumentRepository extends BaseRepository
 
         if (context.isObjectInfoRequired())
         {
-            compileObjectType(context, object, null, false, false, userReadOnly, objectInfos);
+            compileObjectType(context, object, null, false, false, userReadOnly, objectInfos, folderPath );
         }
 
-        System.out.println("object=" + object);
+        AppLogService.debug("object=" + object);
 
-        gatherDescendants(context, object, result, foldersOnly, d, filterCollection, iaa, ips, userReadOnly, objectInfos);
+        
+        gatherDescendants(context, object, result, foldersOnly, d, filterCollection, iaa, ips, userReadOnly, objectInfos , folderPath );
 
         return result;
     }
 
     private void gatherDescendants(CallContext context, RepositoryObject object, List<ObjectInFolderContainer> list,
             boolean foldersOnly, int depth, Set<String> filter, boolean includeAllowableActions,
-            boolean includePathSegments, boolean userReadOnly, ObjectInfoHandler objectInfos)
+            boolean includePathSegments, boolean userReadOnly, ObjectInfoHandler objectInfos , String folderPath )
     {
         // iterate through children
 
         if (object.getSpaceChildren() == null)
         {
-            System.out.println("No childs ");
+            AppLogService.debug("No childs ");
             return;
         }
+        
+        folderPath = folderPath + "/" + object.getName();
+        
         for (DocumentSpace space : object.getSpaceChildren())
         {
 
-            System.out.println("child space " + space.getName());
+            AppLogService.debug("child space " + space.getName());
 
             // add to list
             ObjectInFolderDataImpl objectInFolder = new ObjectInFolderDataImpl();
-            RepositoryObject child = new RepositoryObject("S" + space.getId());
+            RepositoryObject child = new RepositoryObject(PREFIX_SPACE + space.getId());
             objectInFolder.setObject(compileObjectType(context, child, filter, includeAllowableActions, false,
-                    userReadOnly, objectInfos));
+                    userReadOnly, objectInfos, folderPath ));
             if (includePathSegments)
             {
                 objectInFolder.setPathSegment(space.getName());
@@ -650,7 +754,7 @@ public class DocumentRepository extends BaseRepository
             {
                 container.setChildren(new ArrayList<ObjectInFolderContainer>());
                 gatherDescendants(context, child, container.getChildren(), foldersOnly, depth - 1, filter,
-                        includeAllowableActions, includePathSegments, userReadOnly, objectInfos);
+                        includeAllowableActions, includePathSegments, userReadOnly, objectInfos , folderPath );
             }
         }
 
@@ -660,13 +764,13 @@ public class DocumentRepository extends BaseRepository
             for (Document doc : object.getDocumentChildren())
             {
 
-                System.out.println("document " + doc.getTitle());
+                AppLogService.debug("document " + doc.getTitle());
 
                 // add to list
                 ObjectInFolderDataImpl objectInFolder = new ObjectInFolderDataImpl();
-                RepositoryObject child = new RepositoryObject("D" + doc.getId());
+                RepositoryObject child = new RepositoryObject(PREFIX_DOC + doc.getId());
                 objectInFolder.setObject(compileObjectType(context, child, filter, includeAllowableActions, false,
-                        userReadOnly, objectInfos));
+                        userReadOnly, objectInfos , folderPath ));
                 if (includePathSegments)
                 {
                     objectInFolder.setPathSegment(doc.getTitle());
@@ -682,7 +786,7 @@ public class DocumentRepository extends BaseRepository
                 {
                     container.setChildren(new ArrayList<ObjectInFolderContainer>());
                     gatherDescendants(context, child, container.getChildren(), foldersOnly, depth - 1, filter,
-                            includeAllowableActions, includePathSegments, userReadOnly, objectInfos);
+                            includeAllowableActions, includePathSegments, userReadOnly, objectInfos , folderPath );
                 }
             }
         }

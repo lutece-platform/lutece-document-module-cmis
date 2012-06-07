@@ -45,11 +45,17 @@ import java.util.*;
 
 
 /**
- *
+ * Base Repository
  * @author pierre
  */
 public abstract class BaseRepository
 {
+    /**
+     * 
+     * @param permission
+     * @param description
+     * @return
+     */
     protected static PermissionDefinition createPermission( String permission, String description )
     {
         PermissionDefinitionDataImpl pd = new PermissionDefinitionDataImpl(  );
@@ -59,6 +65,12 @@ public abstract class BaseRepository
         return pd;
     }
 
+    /**
+     * 
+     * @param key
+     * @param permission
+     * @return
+     */
     protected static PermissionMapping createMapping( String key, String permission )
     {
         PermissionMappingDataImpl pm = new PermissionMappingDataImpl(  );
@@ -68,6 +80,14 @@ public abstract class BaseRepository
         return pm;
     }
 
+    /**
+     * 
+     * @param props
+     * @param typeId
+     * @param filter
+     * @param id
+     * @param value
+     */
     protected void addPropertyId( PropertiesImpl props, String typeId, Set<String> filter, String id, String value )
     {
         if ( !checkAddProperty( props, typeId, filter, id ) )
@@ -78,6 +98,14 @@ public abstract class BaseRepository
         props.addProperty( new PropertyIdImpl( id, value ) );
     }
 
+    /**
+     * 
+     * @param props
+     * @param typeId
+     * @param filter
+     * @param id
+     * @param value
+     */
     protected void addPropertyIdList( PropertiesImpl props, String typeId, Set<String> filter, String id,
         List<String> value )
     {
@@ -89,6 +117,14 @@ public abstract class BaseRepository
         props.addProperty( new PropertyIdImpl( id, value ) );
     }
 
+    /**
+     * 
+     * @param props
+     * @param typeId
+     * @param filter
+     * @param id
+     * @param value
+     */
     protected void addPropertyString( PropertiesImpl props, String typeId, Set<String> filter, String id, String value )
     {
         if ( !checkAddProperty( props, typeId, filter, id ) )
@@ -99,11 +135,27 @@ public abstract class BaseRepository
         props.addProperty( new PropertyStringImpl( id, value ) );
     }
 
+    /**
+     * 
+     * @param props
+     * @param typeId
+     * @param filter
+     * @param id
+     * @param value
+     */
     protected void addPropertyInteger( PropertiesImpl props, String typeId, Set<String> filter, String id, long value )
     {
         addPropertyBigInteger( props, typeId, filter, id, BigInteger.valueOf( value ) );
     }
 
+    /**
+     * 
+     * @param props
+     * @param typeId
+     * @param filter
+     * @param id
+     * @param value
+     */
     protected void addPropertyBigInteger( PropertiesImpl props, String typeId, Set<String> filter, String id,
         BigInteger value )
     {
@@ -115,6 +167,14 @@ public abstract class BaseRepository
         props.addProperty( new PropertyIntegerImpl( id, value ) );
     }
 
+    /**
+     * 
+     * @param props
+     * @param typeId
+     * @param filter
+     * @param id
+     * @param value
+     */
     protected void addPropertyBoolean( PropertiesImpl props, String typeId, Set<String> filter, String id, boolean value )
     {
         if ( !checkAddProperty( props, typeId, filter, id ) )
@@ -125,6 +185,14 @@ public abstract class BaseRepository
         props.addProperty( new PropertyBooleanImpl( id, value ) );
     }
 
+    /**
+     * 
+     * @param props
+     * @param typeId
+     * @param filter
+     * @param id
+     * @param value
+     */
     protected void addPropertyDateTime( PropertiesImpl props, String typeId, Set<String> filter, String id,
         GregorianCalendar value )
     {
@@ -136,6 +204,14 @@ public abstract class BaseRepository
         props.addProperty( new PropertyDateTimeImpl( id, value ) );
     }
 
+    /**
+     * 
+     * @param properties
+     * @param typeId
+     * @param filter
+     * @param id
+     * @return
+     */
     protected boolean checkAddProperty( org.apache.chemistry.opencmis.commons.data.Properties properties,
         String typeId, Set<String> filter, String id )
     {
@@ -154,6 +230,9 @@ public abstract class BaseRepository
 
     /**
      * Adds the default value of property if defined.
+     * @param props 
+     * @param propDef 
+     * @return 
      */
     @SuppressWarnings( "unchecked" )
     protected static boolean addPropertyDefault( PropertiesImpl props, PropertyDefinition<?> propDef )
@@ -227,6 +306,8 @@ public abstract class BaseRepository
 
     /**
     * Converts milliseconds into a calendar object.
+    * @param millis 
+    * @return 
     */
     protected static GregorianCalendar millisToCalendar( long millis )
     {
