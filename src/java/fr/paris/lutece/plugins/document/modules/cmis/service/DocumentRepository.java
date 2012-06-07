@@ -498,8 +498,6 @@ public class DocumentRepository extends BaseRepository
                 addPropertyId(result, typeId, filter, PropertyIds.OBJECT_TYPE_ID, BaseTypeId.CMIS_DOCUMENT.value());
                 addPropertyDateTime(result, typeId, filter, PropertyIds.CREATION_DATE, created);
                 addPropertyDateTime(result, typeId, filter, PropertyIds.LAST_MODIFICATION_DATE, lastModified);
-                addPropertyId(result, typeId, filter, PropertyIds.CREATION_DATE, "" + created);
-                addPropertyId(result, typeId, filter, PropertyIds.LAST_MODIFICATION_DATE, "" + lastModified);
                 addPropertyId(result, typeId, filter, PropertyIds.CONTENT_STREAM_MIME_TYPE, MIME_TYPE_XML );
                 addPropertyId(result, typeId, filter, PropertyIds.CONTENT_STREAM_ID, object.getId());
                 addPropertyId(result, typeId, filter, PropertyIds.CONTENT_STREAM_LENGTH, "" + doc.getXmlWorkingContent().length());
