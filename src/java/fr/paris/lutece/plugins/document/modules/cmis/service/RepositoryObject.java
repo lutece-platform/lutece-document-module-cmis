@@ -42,8 +42,7 @@ import java.util.List;
 
 
 /**
- *
- * @author pierre
+ * Repository object
  */
 public class RepositoryObject
 {
@@ -80,7 +79,7 @@ public class RepositoryObject
     }
 
     /**
-     * 
+     *
      * @return
      */
     public String getId(  )
@@ -89,7 +88,7 @@ public class RepositoryObject
     }
 
     /**
-     * 
+     *
      * @return
      */
     public String getName(  )
@@ -98,7 +97,7 @@ public class RepositoryObject
     }
 
     /**
-     * 
+     *
      * @return
      */
     public boolean isDocument(  )
@@ -107,7 +106,7 @@ public class RepositoryObject
     }
 
     /**
-     * 
+     *
      * @return
      */
     public boolean isSpace(  )
@@ -116,7 +115,7 @@ public class RepositoryObject
     }
 
     /**
-     * 
+     *
      * @return
      */
     public Document getDocument(  )
@@ -125,7 +124,7 @@ public class RepositoryObject
     }
 
     /**
-     * 
+     *
      * @return
      */
     public List<Document> getDocumentChildren(  )
@@ -134,7 +133,7 @@ public class RepositoryObject
     }
 
     /**
-     * 
+     *
      * @return
      */
     public List<DocumentSpace> getSpaceChildren(  )

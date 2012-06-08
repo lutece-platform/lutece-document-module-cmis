@@ -311,11 +311,6 @@ public class CmisBrowserBindingServlet extends HttpServlet
             // select dispatcher
             System.out.println( "pathFragments.length=" + pathFragments.length );
 
-            for ( int i = 0; i < pathFragments.length; i++ )
-            {
-                System.out.println( "pathFragments[" + i + "]=" + pathFragments[i] );
-            }
-
             CallUrl callUrl = null;
 
             if ( pathFragments.length == 4 )
@@ -352,12 +347,6 @@ public class CmisBrowserBindingServlet extends HttpServlet
                         selector = "";
                     }
 
-                    System.out.println( "selector=" + selector );
-                    System.out.println( "method=" + method );
-                    System.out.println( "context=" + context );
-                    System.out.println( "service=" + service );
-                    System.out.println( "repositoryId=" + repositoryId );
-
                     methodFound = repositoryDispatcher.dispatch( selector, method, context, service, repositoryId,
                             request, response );
                 }
@@ -393,12 +382,6 @@ public class CmisBrowserBindingServlet extends HttpServlet
                             selector = SELECTOR_OBJECT;
                         }
                     }
-
-                    System.out.println( "selector=" + selector );
-                    System.out.println( "method=" + method );
-                    System.out.println( "context=" + context );
-                    System.out.println( "service=" + service );
-                    System.out.println( "repositoryId=" + repositoryId );
 
                     methodFound = rootDispatcher.dispatch( selector, method, context, service, repositoryId, request,
                             response );

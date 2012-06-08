@@ -235,11 +235,6 @@ public class CmisAtomPubServlet extends HttpServlet
 
             // analyze the path
             String[] pathFragments = HttpUtils.splitPath( request );
-            
-            for( int i = 0 ; i < pathFragments.length ; i++ )
-            {
-                System.out.println("pathFragment[" + i + "]=" + pathFragments[i]);
-            }
 
             if ( pathFragments.length < 4 )
             {
@@ -252,9 +247,6 @@ public class CmisAtomPubServlet extends HttpServlet
             String method = request.getMethod(  );
             String repositoryId = pathFragments[3];
             String resource = pathFragments[4];
-            
-            System.out.println( "repositoryId=" + repositoryId );
-            System.out.println( "resource=" + resource );
 
             // dispatch
             boolean methodFound = dispatcher.dispatch( resource, method, context, service, repositoryId, request,

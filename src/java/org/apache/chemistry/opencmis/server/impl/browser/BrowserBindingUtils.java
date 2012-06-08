@@ -157,11 +157,6 @@ public class BrowserBindingUtils
             contextImpl.put( CONTEXT_TRANSACTION, transaction );
         }
 
-        System.out.println( "context : " + context );
-        System.out.println( "callUrl : " + callUrl );
-        System.out.println( "objectId : " + objectId );
-        System.out.println( "context : " + context );
-
         if ( callUrl != CallUrl.ROOT )
         {
             return;

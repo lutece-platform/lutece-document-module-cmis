@@ -18,8 +18,8 @@
         <opencmisVersion>0.7.0</opencmisVersion>
         <opencmisGroupId>org.apache.chemistry.opencmis</opencmisGroupId>
         <componentName>cmis</componentName>
-        <jiraProjectName>CMIS</jiraProjectName>
-        <jiraComponentId>10166</jiraComponentId>
+        <jiraProjectName>DOCUMENTCMIS</jiraProjectName>
+        <jiraComponentId>10684</jiraComponentId>
     </properties>
 
 

@@ -42,8 +42,7 @@ import java.math.BigInteger;
 
 
 /**
- *
- * @author pierre
+ * Document CMIS Service factory
  */
 public class DocumentCmisServiceFactory extends AbstractServiceFactory
 {
@@ -54,28 +53,22 @@ public class DocumentCmisServiceFactory extends AbstractServiceFactory
     private ThreadLocal<CmisServiceWrapper<DocumentCmisService>> threadLocalService = new ThreadLocal<CmisServiceWrapper<DocumentCmisService>>(  );
 
     /**
-     * 
-     * @param context
-     * @return
+     * {@inheritDoc }
      */
     @Override
     public CmisService getService( CallContext context )
     {
-        /*        CmisServiceWrapper<DocumentCmisService> wrapperService = threadLocalService.get();
-                if (wrapperService == null) {
-                    wrapperService = new CmisServiceWrapper<DocumentCmisService>(new DocumentCmisService(),
-                            DEFAULT_MAX_ITEMS_TYPES, DEFAULT_DEPTH_TYPES, DEFAULT_MAX_ITEMS_OBJECTS, DEFAULT_DEPTH_OBJECTS);
-                    threadLocalService.set(wrapperService);
-                }
+        CmisServiceWrapper<DocumentCmisService> wrapperService = threadLocalService.get(  );
 
-                wrapperService.getWrappedService().setCallContext(context);
+        if ( wrapperService == null )
+        {
+            wrapperService = new CmisServiceWrapper<DocumentCmisService>( new DocumentCmisService(  ),
+                    DEFAULT_MAX_ITEMS_TYPES, DEFAULT_DEPTH_TYPES, DEFAULT_MAX_ITEMS_OBJECTS, DEFAULT_DEPTH_OBJECTS );
+            threadLocalService.set( wrapperService );
+        }
 
-                return wrapperService;
-                *
-                */
-        DocumentCmisService service = new DocumentCmisService(  );
-        service.setCallContext( context );
+        wrapperService.getWrappedService(  ).setCallContext( context );
 
-        return service;
+        return wrapperService;
     }
 }

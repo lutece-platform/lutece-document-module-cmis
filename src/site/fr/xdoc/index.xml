@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+    <properties>
+        <title>Module CMIS pour Document</title>
+    </properties>
+    <body>
+        <section name="Module CMIS pour Document">
+            <subsection name="Introduction">
+                <p>Ce module permet d'exposer la base des documents à l'aide de webservices 
+                basés sur la spécification CMIS.</p> 
+            </subsection>
+            <subsection name="Qu'est-ce que CMIS ?">
+                <img src="images/cmis.jpg" />
+                <p>
+                    <a href="http://fr.wikipedia.org/wiki/CMIS">CMIS</a> est une 
+                    norme d'intéropérabilité definie pour les outils de gestion de contenu.
+                </p>
+            </subsection>
+            <subsection name="Fonctionnalités du module">
+                <img src="images/chemistry.png" />
+                <p>
+                    Ce module est basé sur l'implementation de référence OpenCMIS 
+                    proposée par le projet <a href="http://chemistry.apache.org/java/opencmis.html">Chemistry</a>
+                    de la Fondation Apache.
+                    Il propose une interface Serveur CMIS pour exposer les documents
+                    en consultation.
+                </p>
+            </subsection>
+        </section>
+    </body>
+</document>

@@ -91,13 +91,7 @@ public final class AtomPubUtils
 
         url.addPath( request.getContextPath(  ) );
         url.addPath( request.getServletPath(  ) );
-        url.addPath( "/document/cmis/atom/" );  // PLE
-        
-        System.out.println( "ContextPath=" + request.getContextPath() );
-        System.out.println( "ServletPath=" + request.getServletPath() );
-        System.out.println( "PathInfo=" + request.getPathInfo() );
-        System.out.println( "PathTranslated=" + request.getPathTranslated() );
-        System.out.println( "QueryString=" + request.getQueryString() );
+        url.addPath( "/document/cmis/atom/" ); // HACK PLE for plugin's servlet
 
         if ( repositoryId != null )
         {

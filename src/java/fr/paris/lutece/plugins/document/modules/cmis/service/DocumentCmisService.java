@@ -49,8 +49,7 @@ import java.util.List;
 
 
 /**
- *
- * @author levy
+ * DocumentCmisService
  */
 public class DocumentCmisService extends AbstractCmisService
 {
@@ -58,9 +57,16 @@ public class DocumentCmisService extends AbstractCmisService
     private CallContext _context;
 
     /**
-     * 
-     * @param extension
-     * @return
+     * Set the call context
+     * @param context The context
+     */
+    public void setCallContext( CallContext context )
+    {
+        _context = context;
+    }
+
+    /**
+     * {@inheritDoc }
      */
     @Override
     public List<RepositoryInfo> getRepositoryInfos( ExtensionsData extension )
@@ -74,10 +80,7 @@ public class DocumentCmisService extends AbstractCmisService
     }
 
     /**
-     * 
-     * @param repositoryId
-     * @param extension
-     * @return
+     * {@inheritDoc }
      */
     @Override
     public RepositoryInfo getRepositoryInfo( String repositoryId, ExtensionsData extension )
@@ -88,14 +91,7 @@ public class DocumentCmisService extends AbstractCmisService
     }
 
     /**
-     * 
-     * @param repositoryId
-     * @param typeId
-     * @param includePropertyDefinitions
-     * @param maxItems
-     * @param skipCount
-     * @param extension
-     * @return
+     * {@inheritDoc }
      */
     @Override
     public TypeDefinitionList getTypeChildren( String repositoryId, String typeId, Boolean includePropertyDefinitions,
@@ -107,11 +103,7 @@ public class DocumentCmisService extends AbstractCmisService
     }
 
     /**
-     * 
-     * @param repositoryId
-     * @param typeId
-     * @param extension
-     * @return
+     * {@inheritDoc }
      */
     @Override
     public TypeDefinition getTypeDefinition( String repositoryId, String typeId, ExtensionsData extension )
@@ -122,19 +114,7 @@ public class DocumentCmisService extends AbstractCmisService
     }
 
     /**
-     * 
-     * @param repositoryId
-     * @param folderId
-     * @param filter
-     * @param orderBy
-     * @param includeAllowableActions
-     * @param includeRelationships
-     * @param renditionFilter
-     * @param includePathSegment
-     * @param maxItems
-     * @param skipCount
-     * @param extension
-     * @return
+     * {@inheritDoc }
      */
     @Override
     public ObjectInFolderList getChildren( String repositoryId, String folderId, String filter, String orderBy,
@@ -148,16 +128,7 @@ public class DocumentCmisService extends AbstractCmisService
     }
 
     /**
-     * 
-     * @param repositoryId
-     * @param objectId
-     * @param filter
-     * @param includeAllowableActions
-     * @param includeRelationships
-     * @param renditionFilter
-     * @param includeRelativePathSegment
-     * @param extension
-     * @return
+     * {@inheritDoc }
      */
     @Override
     public List<ObjectParentData> getObjectParents( String repositoryId, String objectId, String filter,
@@ -168,17 +139,7 @@ public class DocumentCmisService extends AbstractCmisService
     }
 
     /**
-     * 
-     * @param repositoryId
-     * @param objectId
-     * @param filter
-     * @param includeAllowableActions
-     * @param includeRelationships
-     * @param renditionFilter
-     * @param includePolicyIds
-     * @param includeAcl
-     * @param extension
-     * @return
+     * {@inheritDoc }
      */
     @Override
     public ObjectData getObject( String repositoryId, String objectId, String filter, Boolean includeAllowableActions,
@@ -192,17 +153,7 @@ public class DocumentCmisService extends AbstractCmisService
     }
 
     /**
-     * 
-     * @param repositoryId
-     * @param path
-     * @param filter
-     * @param includeAllowableActions
-     * @param includeRelationships
-     * @param renditionFilter
-     * @param includePolicyIds
-     * @param includeAcl
-     * @param extension
-     * @return
+     * {@inheritDoc }
      */
     @Override
     public ObjectData getObjectByPath( String repositoryId, String path, String filter,
@@ -213,23 +164,7 @@ public class DocumentCmisService extends AbstractCmisService
     }
 
     /**
-     * 
-     * @param context
-     */
-    public void setCallContext( CallContext context )
-    {
-        _context = context;
-    }
-
-    /**
-     * 
-     * @param repositoryId
-     * @param objectId
-     * @param streamId
-     * @param offset
-     * @param length
-     * @param extension
-     * @return
+     * {@inheritDoc }
      */
     @Override
     public ContentStream getContentStream( String repositoryId, String objectId, String streamId, BigInteger offset,
@@ -237,27 +172,16 @@ public class DocumentCmisService extends AbstractCmisService
     {
         return _repository.getContentStream( _context, objectId, offset, length );
     }
-    
+
     /**
-     * 
-     * @param repositoryId
-     * @param folderId
-     * @param depth
-     * @param filter
-     * @param includeAllowableActions
-     * @param includeRelationships
-     * @param renditionFilter
-     * @param includePathSegment
-     * @param extension
-     * @return
+     * {@inheritDoc }
      */
     @Override
-    public List<ObjectInFolderContainer> getDescendants(String repositoryId, String folderId, BigInteger depth,
-            String filter, Boolean includeAllowableActions, IncludeRelationships includeRelationships,
-            String renditionFilter, Boolean includePathSegment, ExtensionsData extension) {
+    public List<ObjectInFolderContainer> getDescendants( String repositoryId, String folderId, BigInteger depth,
+        String filter, Boolean includeAllowableActions, IncludeRelationships includeRelationships,
+        String renditionFilter, Boolean includePathSegment, ExtensionsData extension )
+    {
         return _repository.getDescendants( _context, folderId, depth, filter, includeAllowableActions,
-                includePathSegment, this, false);
+            includePathSegment, this, false );
     }
-
-
 }

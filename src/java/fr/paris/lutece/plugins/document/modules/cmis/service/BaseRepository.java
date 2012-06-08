@@ -45,15 +45,14 @@ import java.util.*;
 
 
 /**
- * Base Repository
- * @author pierre
+ * Base Repository - Utils for repositories
  */
 public abstract class BaseRepository
 {
     /**
-     * 
-     * @param permission
-     * @param description
+     * Create permission
+     * @param permission The permission
+     * @param description The description
      * @return
      */
     protected static PermissionDefinition createPermission( String permission, String description )
@@ -66,9 +65,9 @@ public abstract class BaseRepository
     }
 
     /**
-     * 
-     * @param key
-     * @param permission
+     * Create a mapping
+     * @param key The key
+     * @param permission The permission
      * @return
      */
     protected static PermissionMapping createMapping( String key, String permission )
@@ -81,12 +80,12 @@ public abstract class BaseRepository
     }
 
     /**
-     * 
-     * @param props
-     * @param typeId
-     * @param filter
-     * @param id
-     * @param value
+     * Add an Id property
+     * @param props The properties
+     * @param typeId The typeId
+     * @param filter the Filter
+     * @param id The id
+     * @param value The value
      */
     protected void addPropertyId( PropertiesImpl props, String typeId, Set<String> filter, String id, String value )
     {
@@ -99,12 +98,12 @@ public abstract class BaseRepository
     }
 
     /**
-     * 
-     * @param props
-     * @param typeId
-     * @param filter
-     * @param id
-     * @param value
+     * Add an Id list property
+     * @param props The properties
+     * @param typeId The typeId
+     * @param filter the Filter
+     * @param id The id
+     * @param value The value
      */
     protected void addPropertyIdList( PropertiesImpl props, String typeId, Set<String> filter, String id,
         List<String> value )
@@ -118,12 +117,12 @@ public abstract class BaseRepository
     }
 
     /**
-     * 
-     * @param props
-     * @param typeId
-     * @param filter
-     * @param id
-     * @param value
+     * Add a String property
+     * @param props The properties
+     * @param typeId The typeId
+     * @param filter the Filter
+     * @param id The id
+     * @param value The value
      */
     protected void addPropertyString( PropertiesImpl props, String typeId, Set<String> filter, String id, String value )
     {
@@ -136,12 +135,12 @@ public abstract class BaseRepository
     }
 
     /**
-     * 
-     * @param props
-     * @param typeId
-     * @param filter
-     * @param id
-     * @param value
+     * Add an Integer property
+     * @param props The properties
+     * @param typeId The typeId
+     * @param filter the Filter
+     * @param id The id
+     * @param value The value
      */
     protected void addPropertyInteger( PropertiesImpl props, String typeId, Set<String> filter, String id, long value )
     {
@@ -149,12 +148,12 @@ public abstract class BaseRepository
     }
 
     /**
-     * 
-     * @param props
-     * @param typeId
-     * @param filter
-     * @param id
-     * @param value
+     * Add a Big Integer property
+     * @param props The properties
+     * @param typeId The typeId
+     * @param filter the Filter
+     * @param id The id
+     * @param value The value
      */
     protected void addPropertyBigInteger( PropertiesImpl props, String typeId, Set<String> filter, String id,
         BigInteger value )
@@ -168,12 +167,12 @@ public abstract class BaseRepository
     }
 
     /**
-     * 
-     * @param props
-     * @param typeId
-     * @param filter
-     * @param id
-     * @param value
+     * Add a Boolean property
+     * @param props The properties
+     * @param typeId The typeId
+     * @param filter the Filter
+     * @param id The id
+     * @param value The value
      */
     protected void addPropertyBoolean( PropertiesImpl props, String typeId, Set<String> filter, String id, boolean value )
     {
@@ -186,12 +185,12 @@ public abstract class BaseRepository
     }
 
     /**
-     * 
-     * @param props
-     * @param typeId
-     * @param filter
-     * @param id
-     * @param value
+     * Add a DateTime property
+     * @param props The properties
+     * @param typeId The typeId
+     * @param filter the Filter
+     * @param id The id
+     * @param value The value
      */
     protected void addPropertyDateTime( PropertiesImpl props, String typeId, Set<String> filter, String id,
         GregorianCalendar value )
@@ -205,11 +204,11 @@ public abstract class BaseRepository
     }
 
     /**
-     * 
-     * @param properties
-     * @param typeId
-     * @param filter
-     * @param id
+     * Check add property
+     * @param props The properties
+     * @param typeId The typeId
+     * @param filter the Filter
+     * @param id The id
      * @return
      */
     protected boolean checkAddProperty( org.apache.chemistry.opencmis.commons.data.Properties properties,
@@ -230,11 +229,10 @@ public abstract class BaseRepository
 
     /**
      * Adds the default value of property if defined.
-     * @param props 
-     * @param propDef 
-     * @return 
+     * @param props
+     * @param propDef
+     * @return
      */
-    @SuppressWarnings( "unchecked" )
     protected static boolean addPropertyDefault( PropertiesImpl props, PropertyDefinition<?> propDef )
     {
         if ( ( props == null ) || ( props.getProperties(  ) == null ) )
@@ -306,8 +304,8 @@ public abstract class BaseRepository
 
     /**
     * Converts milliseconds into a calendar object.
-    * @param millis 
-    * @return 
+    * @param millis
+    * @return
     */
     protected static GregorianCalendar millisToCalendar( long millis )
     {

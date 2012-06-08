@@ -33,7 +33,10 @@
  */
 package fr.paris.lutece.plugins.document.modules.cmis.web;
 
+import fr.paris.lutece.portal.service.util.AppLogService;
+
 import java.io.IOException;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -52,11 +55,11 @@ public class AtomPubServlet extends CmisWrapperServlet
     }
 
     @Override
-    protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
+    protected void service( HttpServletRequest req, HttpServletResponse resp )
+        throws ServletException, IOException
     {
-        System.out.println( req.getContextPath() + req.getServletPath() + req.getPathInfo() + req.getQueryString() );
-        super.service(req, resp);
+        AppLogService.debug( req.getContextPath(  ) + req.getServletPath(  ) + req.getPathInfo(  ) +
+            req.getQueryString(  ) );
+        super.service( req, resp );
     }
-    
-    
 }
