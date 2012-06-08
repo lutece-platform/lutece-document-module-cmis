@@ -1,10 +1,9 @@
-<?xml version="1.0" encoding="ISO-8859-1" standalone="no"?>
-<plug-in>
+<?xml version="1.0" encoding="ISO-8859-1" standalone="no"?><plug-in>
     
     <!-- Plugin Informations -->
     <name>document-cmis</name>
     <class>fr.paris.lutece.portal.service.plugin.PluginDefaultImplementation</class>
-    <version>0.9.0</version>
+    <version>1.0.0</version>
     <description>module.document.cmis.module.description</description>
     <documentation/>
     <installation/>
