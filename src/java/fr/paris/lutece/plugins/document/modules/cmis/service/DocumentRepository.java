@@ -54,6 +54,7 @@ import java.io.*;
 import java.math.BigInteger;
 
 import java.util.*;
+import org.apache.tika.mime.MimeTypes;
 
 /**
  *
@@ -75,7 +76,7 @@ public class DocumentRepository extends BaseRepository
     private static final String ROOT_SPACE_ID = "S0";
     private static final String PREFIX_DOC = "D";
     private static final String PREFIX_SPACE = "S";
-    private static final String MIME_TYPE_XML = "application/xml";
+    private static final String MIME_TYPE_XML = MimeTypes.PLAIN_TEXT;
     /**
      * Types
      */
@@ -446,24 +447,12 @@ public class DocumentRepository extends BaseRepository
         {
             PropertiesImpl result = new PropertiesImpl();
 
-
-            // id
             String id = object.getId();
-            addPropertyId(result, typeId, filter, PropertyIds.OBJECT_ID, id);
-            objectInfo.setId(id);
-
-            // name
             String name = object.getName();
-            addPropertyString(result, typeId, filter, PropertyIds.NAME, name);
+
+            objectInfo.setId(id);
             objectInfo.setName(name);
-
-            // created and modified by
-            addPropertyString(result, typeId, filter, PropertyIds.CREATED_BY, CREATED_BY);
-            addPropertyString(result, typeId, filter, PropertyIds.LAST_MODIFIED_BY, CREATED_BY);
-
-            addPropertyString(result, typeId, filter, PropertyIds.PATH, folderPath);
             objectInfo.setCreatedBy(CREATED_BY);
-
             objectInfo.setHasAcl(false);
             objectInfo.setHasParent(true);
             objectInfo.setVersionSeriesId(null);
@@ -475,6 +464,12 @@ public class DocumentRepository extends BaseRepository
             objectInfo.setSupportsRelationships(false);
             objectInfo.setWorkingCopyId(null);
             objectInfo.setWorkingCopyOriginalId(null);
+
+            addPropertyId(result, typeId, filter, PropertyIds.OBJECT_ID, id);
+            addPropertyString(result, typeId, filter, PropertyIds.NAME, name);
+            addPropertyString(result, typeId, filter, PropertyIds.CREATED_BY, CREATED_BY);
+            addPropertyString(result, typeId, filter, PropertyIds.LAST_MODIFIED_BY, CREATED_BY);
+            addPropertyString(result, typeId, filter, PropertyIds.PATH, folderPath);
             addPropertyString(result, typeId, filter, PropertyIds.CHANGE_TOKEN, null);
 
             if (object.isDocument())
@@ -494,6 +489,7 @@ public class DocumentRepository extends BaseRepository
                 objectInfo.setFileName(doc.getTitle());
                 objectInfo.setCreationDate(created);
                 objectInfo.setLastModificationDate(lastModified);
+
                 addPropertyId(result, typeId, filter, PropertyIds.BASE_TYPE_ID, BaseTypeId.CMIS_DOCUMENT.value());
                 addPropertyId(result, typeId, filter, PropertyIds.OBJECT_TYPE_ID, BaseTypeId.CMIS_DOCUMENT.value());
                 addPropertyDateTime(result, typeId, filter, PropertyIds.CREATION_DATE, created);
@@ -501,7 +497,8 @@ public class DocumentRepository extends BaseRepository
                 addPropertyId(result, typeId, filter, PropertyIds.CONTENT_STREAM_MIME_TYPE, MIME_TYPE_XML );
                 addPropertyId(result, typeId, filter, PropertyIds.CONTENT_STREAM_ID, object.getId());
                 addPropertyId(result, typeId, filter, PropertyIds.CONTENT_STREAM_LENGTH, "" + doc.getXmlWorkingContent().length());
-            } else if (object.isSpace())
+            } 
+            else if (object.isSpace())
             {
                 typeId = TypeManager.FOLDER_TYPE_ID;
                 objectInfo.setBaseType(BaseTypeId.CMIS_FOLDER);

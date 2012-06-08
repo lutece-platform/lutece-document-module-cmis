@@ -91,7 +91,7 @@ public final class AtomPubUtils
 
         url.addPath( request.getContextPath(  ) );
         url.addPath( request.getServletPath(  ) );
-        url.addPath( request.getPathInfo(  ) );  // PLE
+        url.addPath( "/document/cmis/atom/" );  // PLE
         
         System.out.println( "ContextPath=" + request.getContextPath() );
         System.out.println( "ServletPath=" + request.getServletPath() );

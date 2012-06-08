@@ -96,7 +96,7 @@ public class Dispatcher implements Serializable
             LOG.debug( repositoryId + " / " + resource + ", " + httpMethod + " -> " + m.getName(  ) );
         }
 
-        System.out.println( "Dispatcher : " + repositoryId + " / " + resource + ", " + httpMethod + " -> " +
+        System.out.println( "Dispatcher : " + repositoryId + " / " + resource + ", " + httpMethod + " -> " + service + 
             m.getName(  ) );
 
         try
