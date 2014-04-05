@@ -11,7 +11,7 @@
     <groupId>fr.paris.lutece.plugins</groupId>
     <artifactId>module-document-cmis</artifactId>
     <packaging>lutece-plugin</packaging>
-    <version>1.1.0</version>
+    <version>1.1.1-SNAPSHOT</version>
     <name>Lutece document cmis module</name>
 
     <properties>
@@ -95,8 +95,8 @@
         </dependency>
     </dependencies>
     <scm>
-        <connection>scm:svn:http://dev.lutece.paris.fr/svn/lutece/portal/tags/module-document-cmis-1.1.0</connection>
-        <developerConnection>scm:svn:https://dev.lutece.paris.fr/svn/lutece/portal/tags/module-document-cmis-1.1.0</developerConnection>
-        <url>http://dev.lutece.paris.fr/viewvc/lutece/portal/tags/module-document-cmis-1.1.0</url>
+        <connection>scm:svn:http://dev.lutece.paris.fr/svn/lutece/portal/trunk/plugins/cms/module-document-cmis</connection>
+        <developerConnection>scm:svn:https://dev.lutece.paris.fr/svn/lutece/portal/trunk/plugins/cms/module-document-cmis</developerConnection>
+        <url>http://dev.lutece.paris.fr/viewvc/lutece/portal/trunk/plugins/cms/module-document-cmis</url>
     </scm>
 </project>
